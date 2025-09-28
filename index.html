@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Optical Art Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Optical Art Generator</h1>
+            <p>Generate mesmerizing geometric patterns for laser engraving</p>
+        </header>
+
+        <div class="main-content">
+            <div class="controls-panel">
+                <div class="control-group">
+                    <label for="pattern-type">Pattern Type:</label>
+                    <select id="pattern-type">
+                        <option value="wave-displacement" selected>Wave Displacement</option>
+                        <option value="circular-displacement">Circular Displacement</option>
+                        <option value="eye-pattern">Eye Pattern</option>
+                        <option value="moire-interference">Moiré Interference</option>
+                        <option value="spiral-distortion">Spiral Distortion</option>
+                        <option value="concentric-circles">Concentric Circles</option>
+                        <option value="diagonal-stripes">Diagonal Stripes</option>
+                        <option value="cube-illusion">Cube Illusion</option>
+                        <option value="square-tunnel">Square Tunnel</option>
+                    </select>
+                    <div id="pattern-previews" class="pattern-preview-grid">
+                        <!-- Preview thumbnails will be generated here -->
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="complexity">Complexity:</label>
+                    <input type="range" id="complexity" min="5" max="500" value="50">
+                    <span id="complexity-value">50</span>
+                </div>
+
+                <div class="control-group">
+                    <label for="format-preset">Format Preset:</label>
+                    <select id="format-preset">
+                        <option value="custom">Custom Size</option>
+                        <option value="1:1" selected>Square (1:1)</option>
+                        <option value="16:9">Widescreen (16:9)</option>
+                        <option value="9:16">Portrait (9:16)</option>
+                        <option value="3:4">Traditional (3:4)</option>
+                        <option value="4:3">Landscape (4:3)</option>
+                        <option value="2:3">Photo (2:3)</option>
+                        <option value="3:2">Photo Landscape (3:2)</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="size">Base Size (mm):</label>
+                    <input type="number" id="size" min="50" max="500" value="350" step="10">
+                    <span class="unit-label">mm</span>
+                </div>
+
+                <div class="control-group">
+                    <div class="size-display">
+                        <span>Canvas: </span>
+                        <span id="canvas-dimensions">100×100 mm</span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label for="line-width">Line Width:</label>
+                    <input type="range" id="line-width" min="1" max="10" value="2">
+                    <span id="line-width-value">2</span>
+                </div>
+
+                <div class="control-group">
+                    <label for="frequency">Pattern Frequency:</label>
+                    <input type="range" id="frequency" min="1" max="20" value="4">
+                    <span id="frequency-value">4</span>
+                </div>
+
+                <div class="control-group">
+                    <label for="amplitude">Pattern Amplitude:</label>
+                    <input type="range" id="amplitude" min="5" max="100" value="20">
+                    <span id="amplitude-value">20</span>
+                </div>
+
+                <div class="control-group">
+                    <label for="rotation">Pattern Rotation:</label>
+                    <input type="range" id="rotation" min="0" max="360" value="0">
+                    <span id="rotation-value">0°</span>
+                </div>
+
+                <div class="control-group">
+                    <label for="color-mode">Color Mode:</label>
+                    <select id="color-mode">
+                        <option value="black">Black Lines (LightBurn)</option>
+                        <option value="single">Single Color</option>
+                        <option value="gradient">Gradient Lines</option>
+                        <option value="rainbow">Rainbow Lines</option>
+                        <option value="hue-shift">Hue Shift</option>
+                    </select>
+                </div>
+
+                <div class="control-group" id="single-color-group" style="display: none;">
+                    <label for="line-color">Line Color:</label>
+                    <input type="color" id="line-color" value="#ff0000">
+                </div>
+
+                <div class="button-group">
+                    <button id="generate-btn" class="primary-btn">Generate New</button>
+                    <button id="variation-btn" class="secondary-btn">Generate Variation</button>
+                </div>
+
+                <div class="save-load-group">
+                    <h4>Pattern Library</h4>
+                    <button id="save-pattern-btn" class="secondary-btn">Save Pattern</button>
+                    <button id="load-pattern-btn" class="secondary-btn">Load Pattern</button>
+                    <button id="manage-patterns-btn" class="secondary-btn">Manage Saved</button>
+                </div>
+
+                <div class="export-group">
+                    <h4>Export Options</h4>
+                    <button id="export-svg-btn" class="export-btn">Export SVG (LightBurn)</button>
+                    <button id="export-png-btn" class="export-btn">Export PNG (Wallpaper)</button>
+                    <button id="export-jpg-btn" class="export-btn">Export JPG (Wallpaper)</button>
+                </div>
+
+                <div class="info-panel">
+                    <h3>Pattern Info</h3>
+                    <p id="pattern-info">Select a pattern type to see details</p>
+                </div>
+            </div>
+
+            <div class="canvas-container">
+                <svg id="art-canvas" width="600" height="600" viewBox="0 0 600 600">
+                    <!-- Generated patterns will appear here -->
+                </svg>
+            </div>
+        </div>
+
+        <footer>
+            <p>Compatible with LightBurn laser engraving software</p>
+        </footer>
+    </div>
+
+    <!-- Save Pattern Modal -->
+    <div id="saveModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Save Pattern</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="pattern-name" class="pattern-name-input" placeholder="Enter pattern name...">
+                <button id="confirm-save-btn" class="primary-btn">Save Pattern</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Patterns Modal -->
+    <div id="manageModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Saved Patterns</h2>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="saved-patterns-container" class="saved-patterns-grid">
+                    <!-- Saved patterns will be displayed here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
