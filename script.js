@@ -4020,7 +4020,9 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
     }
 
     savePreset(slot) {
+        console.log('savePreset called with slot:', slot);
         const settings = this.getCurrentSettings();
+        console.log('Current settings:', settings);
         const presets = JSON.parse(localStorage.getItem('opticalArtPresets') || '{}');
         presets[slot] = {
             ...settings,
@@ -4028,9 +4030,10 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
             name: `Preset ${slot}`
         };
         localStorage.setItem('opticalArtPresets', JSON.stringify(presets));
+        console.log('Saved presets:', presets);
         this.updatePresetUI();
         this.updateMorphDropdowns();
-        this.showSuccess(`Saved to Preset ${slot}`);
+        this.showSuccess(`✓ Saved to Preset ${slot}`);
     }
 
     loadPreset(slot) {
@@ -4176,20 +4179,27 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
+            console.log('Keydown event:', e.key, 'Shift:', e.shiftKey, 'Target:', e.target.tagName);
+            
             // Ignore if typing in an input field or select
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+                console.log('Ignoring - typing in input field');
                 return;
             }
             
             // Number keys 1-9
             const num = parseInt(e.key);
+            console.log('Parsed number:', num);
             if (num >= 1 && num <= 9 && !isNaN(num)) {
+                console.log('Valid number detected:', num);
                 e.preventDefault(); // Prevent default first
                 if (e.shiftKey) {
                     // Shift + Number = Save to preset
+                    console.log('Calling savePreset');
                     this.savePreset(num);
                 } else {
                     // Number only = Load preset
+                    console.log('Calling loadPreset');
                     this.loadPreset(num);
                 }
             }
