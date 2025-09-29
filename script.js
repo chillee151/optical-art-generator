@@ -3286,12 +3286,19 @@ class OpticalArtGenerator {
         // Golden ratio for natural spiral
         const phi = (1 + Math.sqrt(5)) / 2;
         
+        // SEED-BASED RANDOMNESS for variation
+        const seedOffset = this.seededRandom(this.currentSeed) * Math.PI * 2; // Random rotation
+        const wavePhase = this.seededRandom(this.currentSeed + 1) * Math.PI * 2; // Wave phase shift
+        const waveFreqVariation = 2 + this.seededRandom(this.currentSeed + 2) * 4; // 2-6 waves
+        const spiralDirection = this.seededRandom(this.currentSeed + 3) > 0.5 ? 1 : -1; // Clockwise/counter
+        
         // Draw many concentric spiral rings for optical art density
         for (let ringIdx = 0; ringIdx < numRings; ringIdx++) {
             const progress = ringIdx / numRings;
             
-            // Logarithmic spiral radius
-            const radius = maxRadius * Math.pow(progress, 1 / phi);
+            // Logarithmic spiral radius with seed-based micro-variation
+            const radiusVariation = 1 + this.seededRandom(this.currentSeed + ringIdx * 0.01) * 0.05;
+            const radius = maxRadius * Math.pow(progress, 1 / phi) * radiusVariation;
             
             const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             let pathData = '';
@@ -3301,11 +3308,11 @@ class OpticalArtGenerator {
             for (let i = 0; i <= numPoints; i++) {
                 const angle = (i / numPoints) * Math.PI * 2;
                 
-                // Spiral twist based on radius
-                const spiralAngle = angle + (radius / maxRadius) * rotationSpeed * Math.PI * 2;
+                // Spiral twist based on radius (with seed-based direction)
+                const spiralAngle = angle + seedOffset + (radius / maxRadius) * rotationSpeed * Math.PI * 2 * spiralDirection;
                 
-                // Calculate position with spiral offset
-                const spiralOffset = Math.sin(spiralAngle * 3) * absAmplitude * 0.02;
+                // Calculate position with seed-varied wave modulation
+                const spiralOffset = Math.sin(spiralAngle * waveFreqVariation + wavePhase) * absAmplitude * 0.02;
                 const finalRadius = radius + spiralOffset;
                 
                 const x = centerX + Math.cos(angle) * finalRadius;
