@@ -951,77 +951,42 @@ class OpticalArtGenerator {
     generateMiniSpiralDistortion(svg, seed, complexity, lineWidth) {
         const centerX = 28;
         const centerY = 28;
-        const numArms = 12;
+        const numArms = 4; // Clean 4-arm spiral
         const maxRadius = 26;
         const phi = (1 + Math.sqrt(5)) / 2;
 
-        for (let i = 0; i < numArms; i++) {
-            const baseAngle = (i / numArms) * Math.PI * 2;
+        for (let armIdx = 0; armIdx < numArms; armIdx++) {
+            const baseAngle = (armIdx / numArms) * Math.PI * 2;
             const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             let pathData = '';
 
-            const numPoints = 30;
-            for (let j = 0; j <= numPoints; j++) {
-                const progress = j / numPoints;
+            const numPoints = 40;
+            for (let i = 0; i <= numPoints; i++) {
+                const progress = i / numPoints;
                 const radius = maxRadius * Math.pow(progress, 1 / phi);
-                const spiralTwist = progress * Math.PI * 2;
-                const angle = baseAngle + spiralTwist;
+                const angleProgress = progress * 3; // 3 full rotations
+                const angle = baseAngle + angleProgress * Math.PI * 2;
                 
-                const x = centerX + Math.cos(angle) * radius;
-                const y = centerY + Math.sin(angle) * radius;
+                // Subtle wave for beauty
+                const waveOffset = Math.sin(angleProgress * 4) * 0.1 * radius;
+                const finalRadius = radius + waveOffset;
                 
-                if (j === 0) {
+                const x = centerX + Math.cos(angle) * finalRadius;
+                const y = centerY + Math.sin(angle) * finalRadius;
+                
+                if (i === 0) {
                     pathData = `M ${x} ${y}`;
                 } else {
-                pathData += ` L ${x} ${y}`;
+                    pathData += ` L ${x} ${y}`;
                 }
             }
 
             path.setAttribute('d', pathData);
-            
-            // Alternating filled/outline
-            if (i % 3 === 0) {
-                path.setAttribute('fill', '#ddd');
-                path.setAttribute('fill-opacity', '0.3');
-                path.setAttribute('stroke', '#000');
-                path.setAttribute('stroke-width', lineWidth * 0.5);
-            } else {
             path.setAttribute('fill', 'none');
             path.setAttribute('stroke', '#000');
-            path.setAttribute('stroke-width', lineWidth);
-            }
-            
+            path.setAttribute('stroke-width', lineWidth * 0.9);
+            path.style.strokeLinecap = 'round';
             svg.appendChild(path);
-            
-            // Counter spiral (dashed)
-            if (i % 2 === 0) {
-                const counterPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                let counterPathData = '';
-                
-                for (let j = 0; j <= numPoints; j++) {
-                    const progress = j / numPoints;
-                    const radius = maxRadius * Math.pow(progress, 1 / phi);
-                    const spiralTwist = progress * Math.PI * 2;
-                    const angle = baseAngle - spiralTwist;
-                    
-                    const x = centerX + Math.cos(angle) * radius;
-                    const y = centerY + Math.sin(angle) * radius;
-                    
-                    if (j === 0) {
-                        counterPathData = `M ${x} ${y}`;
-                    } else {
-                        counterPathData += ` L ${x} ${y}`;
-                    }
-                }
-                
-                counterPath.setAttribute('d', counterPathData);
-                counterPath.setAttribute('fill', 'none');
-                counterPath.setAttribute('stroke', '#666');
-                counterPath.setAttribute('stroke-width', lineWidth * 0.4);
-                counterPath.setAttribute('stroke-opacity', '0.5');
-                counterPath.setAttribute('stroke-dasharray', '2,1');
-                svg.appendChild(counterPath);
-            }
         }
         
         // Center dot
@@ -1030,7 +995,6 @@ class OpticalArtGenerator {
         center.setAttribute('cy', centerY);
         center.setAttribute('r', 2);
         center.setAttribute('fill', '#000');
-        center.setAttribute('fill-opacity', '0.7');
         svg.appendChild(center);
     }
 
@@ -3303,161 +3267,70 @@ class OpticalArtGenerator {
         const centerX = this.actualWidth / 2;
         const centerY = this.actualHeight / 2;
 
-        // Use complexity for number of spiral arms
-        const numArms = Math.max(8, complexity);
+        // Use complexity for number of spiral turns/rings
+        const numTurns = Math.max(10, Math.min(200, complexity));
         const maxRadius = Math.min(this.actualWidth, this.actualHeight) * 0.48;
         
-        // Use amplitude for spiral tightness
-        const spiralTightness = amplitude / 20;
+        // Use amplitude for wave modulation intensity (handle negative)
+        const absAmplitude = Math.abs(amplitude);
+        const waveIntensity = absAmplitude / 100;
         
-        // Use frequency for double spiral effect and golden ratio
-        const useDoubleSpiral = frequency > 30;
-        const useGoldenSpiral = frequency > 60;
-        const phi = (1 + Math.sqrt(5)) / 2; // Golden ratio
-
-        // Generate spiral arms
+        // Use frequency for number of spiral arms (2-8)
+        const numArms = Math.max(2, Math.min(8, Math.floor(frequency / 12.5)));
+        
+        // Golden ratio for natural spiral
+        const phi = (1 + Math.sqrt(5)) / 2;
+        
+        // Draw each spiral arm
         for (let armIdx = 0; armIdx < numArms; armIdx++) {
-            const baseAngle = (armIdx / numArms) * Math.PI * 2;
+            const armProgress = armIdx / numArms;
+            const baseAngle = armProgress * Math.PI * 2;
             
-            // Create primary spiral arm
             const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             let pathData = '';
             
-            const numPoints = 100;
-            for (let pointIdx = 0; pointIdx <= numPoints; pointIdx++) {
-                const progress = pointIdx / numPoints;
+            // Build spiral with many points for smooth curve
+            for (let i = 0; i <= numTurns; i++) {
+                const progress = i / numTurns;
                 
-                // Use golden ratio for more natural spiral growth
-                let radius;
-                if (useGoldenSpiral) {
-                    radius = maxRadius * Math.pow(progress, 1 / phi);
-                } else {
-                    radius = maxRadius * progress;
-                }
+                // Logarithmic spiral for elegant curve
+                const radius = maxRadius * Math.pow(progress, 1 / phi);
                 
-                // Calculate spiral twist (Archimedean or logarithmic)
-                const spiralTwist = progress * spiralTightness * Math.PI * 2;
-                let angle = baseAngle + spiralTwist;
+                // Calculate angle with spiral twist
+                const angleProgress = progress * 6; // 6 full rotations max
+                const angle = baseAngle + angleProgress * Math.PI * 2;
                 
-                // Add organic wave modulation
-                const waveModulation1 = Math.sin(progress * Math.PI * 4 + this.currentSeed * 10) * amplitude * 0.05;
-                const waveModulation2 = Math.cos(progress * Math.PI * 8) * amplitude * 0.03;
-                radius += waveModulation1 * radius + waveModulation2;
+                // Add wave modulation for organic beauty
+                const waveOffset = Math.sin(angleProgress * 4) * waveIntensity * radius * 0.15;
+                const finalRadius = radius + waveOffset;
                 
-                // Add angle perturbation for organic feel
-                angle += Math.sin(progress * Math.PI * 6) * 0.1;
+                const x = centerX + Math.cos(angle) * finalRadius;
+                const y = centerY + Math.sin(angle) * finalRadius;
                 
-                const x = centerX + Math.cos(angle) * radius;
-                const y = centerY + Math.sin(angle) * radius;
-                
-                if (pointIdx === 0) {
+                if (i === 0) {
                     pathData = `M ${x} ${y}`;
                 } else {
-                pathData += ` L ${x} ${y}`;
-                }
-            }
-
-            path.setAttribute('d', pathData);
-            
-            // Depth shading - lines get thicker and more opaque toward center
-            const color = this.getLineColor(armIdx, numArms);
-            const colorMode = document.getElementById('color-mode').value;
-            
-            // Variable thickness for depth
-            const thickness = lineWidth * (0.5 + armIdx / numArms * 1.5);
-            
-            // Alternating fill pattern for 3D spiral ribbon effect
-            if (armIdx % 3 === 0) {
-                // Filled spiral bands
-                const nextArmAngle = ((armIdx + 1) / numArms) * Math.PI * 2;
-                
-                // Create band by connecting to next spiral
-                for (let pointIdx = numPoints; pointIdx >= 0; pointIdx--) {
-                    const progress = pointIdx / numPoints;
-                    let radius;
-                    if (useGoldenSpiral) {
-                        radius = maxRadius * Math.pow(progress, 1 / phi);
-                    } else {
-                        radius = maxRadius * progress;
-                    }
-                    
-                    const spiralTwist = progress * spiralTightness * Math.PI * 2;
-                    let angle = nextArmAngle + spiralTwist;
-                    
-                    const waveModulation1 = Math.sin(progress * Math.PI * 4 + this.currentSeed * 10) * amplitude * 0.05;
-                    const waveModulation2 = Math.cos(progress * Math.PI * 8) * amplitude * 0.03;
-                    radius += waveModulation1 * radius + waveModulation2;
-                    angle += Math.sin(progress * Math.PI * 6) * 0.1;
-                    
-                    const x = centerX + Math.cos(angle) * radius;
-                    const y = centerY + Math.sin(angle) * radius;
                     pathData += ` L ${x} ${y}`;
                 }
-                pathData += ' Z';
-                
-                path.setAttribute('fill', color);
-                path.setAttribute('fill-opacity', '0.3');
-                path.setAttribute('stroke', color);
-                path.setAttribute('stroke-width', thickness * 0.5);
-            } else {
-                // Outline only
-            path.setAttribute('fill', 'none');
-                path.setAttribute('stroke', color);
-                path.setAttribute('stroke-width', thickness);
             }
+            
+            path.setAttribute('d', pathData);
+            path.setAttribute('fill', 'none');
+            
+            const color = this.getLineColor(armIdx, numArms);
+            path.setAttribute('stroke', color);
+            
+            // Variable thickness - thicker toward outside
+            const thickness = lineWidth * (0.8 + armProgress * 0.4);
+            path.setAttribute('stroke-width', thickness);
+            path.style.strokeLinecap = 'round';
+            path.style.strokeLinejoin = 'round';
             
             if (rotation !== 0) {
                 path.setAttribute('transform', `rotate(${rotation} ${centerX} ${centerY})`);
             }
             
             layerGroup.appendChild(path);
-            
-            // Add double spiral (counter-rotating) if frequency is high
-            if (useDoubleSpiral && armIdx % 2 === 0) {
-                const counterPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                let counterPathData = '';
-                
-                for (let pointIdx = 0; pointIdx <= numPoints; pointIdx++) {
-                    const progress = pointIdx / numPoints;
-                    
-                    let radius;
-                    if (useGoldenSpiral) {
-                        radius = maxRadius * Math.pow(progress, 1 / phi);
-                    } else {
-                        radius = maxRadius * progress;
-                    }
-                    
-                    // Counter-rotating spiral
-                    const spiralTwist = progress * spiralTightness * Math.PI * 2;
-                    let angle = baseAngle - spiralTwist; // Negative twist
-                    
-                    const waveModulation1 = Math.sin(progress * Math.PI * 4 + this.currentSeed * 10) * amplitude * 0.05;
-                    radius += waveModulation1 * radius;
-                    angle += Math.sin(progress * Math.PI * 6) * 0.1;
-                    
-                    const x = centerX + Math.cos(angle) * radius;
-                    const y = centerY + Math.sin(angle) * radius;
-                    
-                    if (pointIdx === 0) {
-                        counterPathData = `M ${x} ${y}`;
-                    } else {
-                        counterPathData += ` L ${x} ${y}`;
-                    }
-                }
-                
-                counterPath.setAttribute('d', counterPathData);
-                counterPath.setAttribute('fill', 'none');
-                counterPath.setAttribute('stroke', color);
-                counterPath.setAttribute('stroke-width', thickness * 0.5);
-                counterPath.setAttribute('stroke-opacity', '0.6');
-                counterPath.setAttribute('stroke-dasharray', '5,3');
-                
-                if (rotation !== 0) {
-                    counterPath.setAttribute('transform', `rotate(${rotation} ${centerX} ${centerY})`);
-                }
-                
-                layerGroup.appendChild(counterPath);
-            }
         }
         
         // Add center focal point
