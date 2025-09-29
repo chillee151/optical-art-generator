@@ -4176,21 +4176,20 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
-            // Ignore if typing in an input field
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+            // Ignore if typing in an input field or select
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
                 return;
             }
             
             // Number keys 1-9
             const num = parseInt(e.key);
-            if (num >= 1 && num <= 9) {
+            if (num >= 1 && num <= 9 && !isNaN(num)) {
+                e.preventDefault(); // Prevent default first
                 if (e.shiftKey) {
                     // Shift + Number = Save to preset
-                    e.preventDefault();
                     this.savePreset(num);
                 } else {
                     // Number only = Load preset
-                    e.preventDefault();
                     this.loadPreset(num);
                 }
             }
