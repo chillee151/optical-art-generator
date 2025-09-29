@@ -1218,13 +1218,17 @@ class OpticalArtGenerator {
             this.generatePattern(true);
         });
 
-        document.getElementById('line-width').addEventListener('input', (e) => {
-            document.getElementById('line-width-value').textContent = e.target.value;
+        document.getElementById('symmetry').addEventListener('change', () => {
             this.generatePattern(true);
         });
 
         document.getElementById('frequency').addEventListener('input', (e) => {
             document.getElementById('frequency-value').textContent = e.target.value;
+            this.generatePattern(true);
+        });
+        
+        document.getElementById('glow').addEventListener('input', (e) => {
+            document.getElementById('glow-value').textContent = e.target.value;
             this.generatePattern(true);
         });
 
@@ -1356,14 +1360,15 @@ class OpticalArtGenerator {
     updateSliderValues() {
         document.getElementById('complexity-value').textContent =
             document.getElementById('complexity').value;
-        document.getElementById('line-width-value').textContent =
-            document.getElementById('line-width').value;
         document.getElementById('frequency-value').textContent =
             document.getElementById('frequency').value;
-        document.getElementById('amplitude-value').textContent =
-            document.getElementById('amplitude').value;
-        document.getElementById('rotation-value').textContent =
-            document.getElementById('rotation').value + '°';
+        const amp = parseInt(document.getElementById('amplitude').value);
+        document.getElementById('amplitude-value').textContent = amp >= 0 ? `+${amp}` : amp;
+        const rot = parseInt(document.getElementById('rotation').value);
+        const sign = rot > 0 ? '+' : (rot < 0 ? '' : '');
+        document.getElementById('rotation-value').textContent = `${sign}${rot}°`;
+        document.getElementById('glow-value').textContent =
+            document.getElementById('glow').value;
     }
 
     toggleColorControls() {
@@ -1571,6 +1576,13 @@ class OpticalArtGenerator {
                         default:
                             throw new Error(`Unknown pattern type: ${patternType}`);
                     }
+
+                    // Apply symmetry transformation
+                    this.applySymmetry(layerGroup);
+                    
+                    // Apply glow effect
+                    this.applyGlow(layerGroup);
+
                 } catch (error) {
                     console.error('Error generating pattern:', error);
                     this.showError(`Failed to generate pattern: ${error.message}`);
@@ -1587,9 +1599,92 @@ class OpticalArtGenerator {
         }
     }
 
+    // Helper to get auto line width based on complexity
+    getAutoLineWidth() {
+        const complexity = parseInt(document.getElementById('complexity').value);
+        // Auto-scale line width inversely with complexity
+        // Low complexity (5-50): thicker lines (3-2px)
+        // Medium complexity (50-150): medium lines (2-1px)
+        // High complexity (150+): thinner lines (1-0.5px)
+        if (complexity < 50) {
+            return 3 - (complexity / 50);  // 3 to 2
+        } else if (complexity < 150) {
+            return 2 - ((complexity - 50) / 100); // 2 to 1
+        } else {
+            return Math.max(0.5, 1 - ((complexity - 150) / 300)); // 1 to 0.5
+        }
+    }
+
+    applySymmetry(layerGroup) {
+        const symmetry = document.getElementById('symmetry').value;
+        if (symmetry === 'none') return;
+
+        const copies = parseInt(symmetry);
+        const centerX = this.actualWidth / 2;
+        const centerY = this.actualHeight / 2;
+
+        // Clone the original layer for each symmetry copy
+        const originalContent = layerGroup.cloneNode(true);
+        layerGroup.innerHTML = ''; // Clear original
+
+        for (let i = 0; i < copies; i++) {
+            const copy = originalContent.cloneNode(true);
+            const angle = (360 / copies) * i;
+            
+            // Apply rotation transform around center
+            copy.setAttribute('transform', `rotate(${angle} ${centerX} ${centerY})`);
+            layerGroup.appendChild(copy);
+        }
+    }
+
+    applyGlow(layerGroup) {
+        const glowIntensity = parseInt(document.getElementById('glow').value);
+        if (glowIntensity === 0) return;
+
+        // Create or update glow filter
+        let defs = this.canvas.querySelector('defs');
+        if (!defs) {
+            defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+            this.canvas.insertBefore(defs, this.canvas.firstChild);
+        }
+
+        // Remove old glow filter if exists
+        const oldFilter = defs.querySelector('#glow-filter');
+        if (oldFilter) {
+            oldFilter.remove();
+        }
+
+        // Create new glow filter
+        const filter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
+        filter.setAttribute('id', 'glow-filter');
+        filter.setAttribute('x', '-50%');
+        filter.setAttribute('y', '-50%');
+        filter.setAttribute('width', '200%');
+        filter.setAttribute('height', '200%');
+
+        const blur = document.createElementNS('http://www.w3.org/2000/svg', 'feGaussianBlur');
+        blur.setAttribute('stdDeviation', glowIntensity);
+        blur.setAttribute('result', 'coloredBlur');
+
+        const merge = document.createElementNS('http://www.w3.org/2000/svg', 'feMerge');
+        const mergeNode1 = document.createElementNS('http://www.w3.org/2000/svg', 'feMergeNode');
+        mergeNode1.setAttribute('in', 'coloredBlur');
+        const mergeNode2 = document.createElementNS('http://www.w3.org/2000/svg', 'feMergeNode');
+        mergeNode2.setAttribute('in', 'SourceGraphic');
+
+        merge.appendChild(mergeNode1);
+        merge.appendChild(mergeNode2);
+        filter.appendChild(blur);
+        filter.appendChild(merge);
+        defs.appendChild(filter);
+
+        // Apply filter to layer group
+        layerGroup.setAttribute('filter', 'url(#glow-filter)');
+    }
+
     generateLSystem(layerGroup, currentRotation, slowAnimationTime) {
         const complexity = parseInt(document.getElementById('complexity').value);
-        const lineWidth = parseInt(document.getElementById('line-width').value);
+        const lineWidth = this.getAutoLineWidth();
         const frequency = parseInt(document.getElementById('frequency').value);
         const amplitude = parseInt(document.getElementById('amplitude').value);
         const centerX = this.actualWidth / 2;
@@ -1790,7 +1885,7 @@ class OpticalArtGenerator {
 
     generateCellularAutomata(layerGroup, currentRotation, slowAnimationTime) {
         const complexity = parseInt(document.getElementById('complexity').value);
-        const lineWidth = parseInt(document.getElementById('line-width').value);
+        const lineWidth = this.getAutoLineWidth();
         const frequency = parseInt(document.getElementById('frequency').value); // Use frequency for rule selection
         const centerX = this.actualWidth / 2;
         const centerY = this.actualHeight / 2;
@@ -1854,7 +1949,7 @@ class OpticalArtGenerator {
         const complexity = parseInt(document.getElementById('complexity').value);
         const frequency = parseInt(document.getElementById('frequency').value);
         const amplitude = parseInt(document.getElementById('amplitude').value);
-        const lineWidth = parseInt(document.getElementById('line-width').value);
+        const lineWidth = this.getAutoLineWidth();
         const centerX = this.actualWidth / 2;
         const centerY = this.actualHeight / 2;
 
@@ -1903,7 +1998,7 @@ class OpticalArtGenerator {
 
     generateFractalNoisePattern(layerGroup, currentRotation, slowAnimationTime) {
         const complexity = parseInt(document.getElementById('complexity').value);
-        const lineWidth = parseInt(document.getElementById('line-width').value);
+        const lineWidth = this.getAutoLineWidth();
         const frequency = parseInt(document.getElementById('frequency').value);
         const amplitude = parseInt(document.getElementById('amplitude').value);
         const centerX = this.actualWidth / 2;
@@ -2001,7 +2096,7 @@ class OpticalArtGenerator {
 
     generatePerlinDisplacement(layerGroup, currentRotation, slowAnimationTime) {
         const complexity = parseInt(document.getElementById('complexity').value);
-        const lineWidth = parseInt(document.getElementById('line-width').value);
+        const lineWidth = this.getAutoLineWidth();
         const frequency = parseInt(document.getElementById('frequency').value);
         const amplitude = parseInt(document.getElementById('amplitude').value);
         const centerX = this.actualWidth / 2;
@@ -2038,7 +2133,7 @@ class OpticalArtGenerator {
 
     generateConcentricCircles(layerGroup, currentRotation, slowAnimationTime) {
         const complexity = parseInt(document.getElementById('complexity').value);
-        const lineWidth = parseInt(document.getElementById('line-width').value);
+        const lineWidth = this.getAutoLineWidth();
         const amplitude = parseInt(document.getElementById('amplitude').value);
         const frequency = parseInt(document.getElementById('frequency').value);
         const rotation = parseInt(document.getElementById('rotation').value);
@@ -2139,7 +2234,7 @@ class OpticalArtGenerator {
 
     generateDiagonalStripes(layerGroup, currentRotation, slowAnimationTime) {
         const complexity = parseInt(document.getElementById('complexity').value);
-        const lineWidth = parseInt(document.getElementById('line-width').value);
+        const lineWidth = this.getAutoLineWidth();
         const amplitude = parseInt(document.getElementById('amplitude').value);
         const frequency = parseInt(document.getElementById('frequency').value);
         const rotation = parseInt(document.getElementById('rotation').value);
@@ -2261,7 +2356,7 @@ class OpticalArtGenerator {
 
     generateCubeIllusion(layerGroup, currentRotation, slowAnimationTime) {
         const complexity = parseInt(document.getElementById('complexity').value);
-        const lineWidth = parseInt(document.getElementById('line-width').value);
+        const lineWidth = this.getAutoLineWidth();
         const amplitude = parseInt(document.getElementById('amplitude').value);
         const frequency = parseInt(document.getElementById('frequency').value);
         const centerX = this.actualWidth / 2;
@@ -2436,7 +2531,7 @@ class OpticalArtGenerator {
 
     generateEyePattern(layerGroup, currentRotation, slowAnimationTime) {
         const complexity = parseInt(document.getElementById('complexity').value);
-        const lineWidth = parseInt(document.getElementById('line-width').value);
+        const lineWidth = this.getAutoLineWidth();
         const amplitude = parseInt(document.getElementById('amplitude').value);
         const frequency = parseInt(document.getElementById('frequency').value);
         const centerX = this.actualWidth / 2;
@@ -2617,7 +2712,7 @@ class OpticalArtGenerator {
 
     generateSquareTunnel(layerGroup, currentRotation, slowAnimationTime) {
         const complexity = parseInt(document.getElementById('complexity').value);
-        const lineWidth = parseInt(document.getElementById('line-width').value);
+        const lineWidth = this.getAutoLineWidth();
         const amplitude = parseInt(document.getElementById('amplitude').value);
         const frequency = parseInt(document.getElementById('frequency').value);
         const centerX = this.actualWidth / 2;
@@ -2719,7 +2814,7 @@ class OpticalArtGenerator {
 
     generateWaveDisplacement(layerGroup, currentRotation, slowAnimationTime) {
         const complexity = parseInt(document.getElementById('complexity').value);
-        const lineWidth = parseInt(document.getElementById('line-width').value);
+        const lineWidth = this.getAutoLineWidth();
         const frequency = parseInt(document.getElementById('frequency').value);
         const amplitude = parseInt(document.getElementById('amplitude').value);
         const rotation = parseInt(document.getElementById('rotation').value);
@@ -2873,7 +2968,7 @@ class OpticalArtGenerator {
 
     generateCircularDisplacement(layerGroup, currentRotation, slowAnimationTime) {
         const complexity = parseInt(document.getElementById('complexity').value);
-        const lineWidth = parseInt(document.getElementById('line-width').value);
+        const lineWidth = this.getAutoLineWidth();
         const amplitude = parseInt(document.getElementById('amplitude').value);
         const frequency = parseInt(document.getElementById('frequency').value);
         const rotation = parseInt(document.getElementById('rotation').value);
@@ -3054,7 +3149,7 @@ class OpticalArtGenerator {
 
     generateAdvancedEyePattern(layerGroup) {
         const complexity = parseInt(document.getElementById('complexity').value);
-        const lineWidth = parseInt(document.getElementById('line-width').value);
+        const lineWidth = this.getAutoLineWidth();
         const centerX = this.actualWidth / 2;
         const centerY = this.actualHeight / 2;
 
@@ -3112,7 +3207,7 @@ class OpticalArtGenerator {
 
     generateMoireInterference(layerGroup, currentRotation, slowAnimationTime) {
         const complexity = parseInt(document.getElementById('complexity').value);
-        const lineWidth = parseInt(document.getElementById('line-width').value);
+        const lineWidth = this.getAutoLineWidth();
         const amplitude = parseInt(document.getElementById('amplitude').value);
         const frequency = parseInt(document.getElementById('frequency').value);
         const rotation = parseInt(document.getElementById('rotation').value);
@@ -3258,7 +3353,7 @@ class OpticalArtGenerator {
 
     generateSpiralDistortion(layerGroup, currentRotation, slowAnimationTime) {
         const complexity = parseInt(document.getElementById('complexity').value);
-        const lineWidth = parseInt(document.getElementById('line-width').value);
+        const lineWidth = this.getAutoLineWidth();
         const amplitude = parseInt(document.getElementById('amplitude').value);
         const frequency = parseInt(document.getElementById('frequency').value);
         const rotation = parseInt(document.getElementById('rotation').value);
@@ -3445,7 +3540,7 @@ class OpticalArtGenerator {
         const complexity = parseInt(document.getElementById('complexity').value);
         const amplitude = parseInt(document.getElementById('amplitude').value);
         const frequency = parseInt(document.getElementById('frequency').value);
-        const lineWidth = parseInt(document.getElementById('line-width').value);
+        const lineWidth = this.getAutoLineWidth();
         const centerX = this.actualWidth / 2;
         const centerY = this.actualHeight / 2;
 
@@ -3986,10 +4081,11 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         return {
             patternType: document.getElementById('pattern-type').value,
             complexity: parseInt(document.getElementById('complexity').value),
-            lineWidth: parseInt(document.getElementById('line-width').value),
+            symmetry: document.getElementById('symmetry').value,
             frequency: parseInt(document.getElementById('frequency').value),
             amplitude: parseInt(document.getElementById('amplitude').value),
             rotation: parseInt(document.getElementById('rotation').value),
+            glow: parseInt(document.getElementById('glow').value),
             colorMode: document.getElementById('color-mode').value,
             lineColor: document.getElementById('line-color')?.value || '#ff0000',
             gradientColor1: document.getElementById('gradient-color-1')?.value || '#ff00ff',
@@ -4001,10 +4097,11 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
     applySettings(settings) {
         document.getElementById('pattern-type').value = settings.patternType;
         document.getElementById('complexity').value = settings.complexity;
-        document.getElementById('line-width').value = settings.lineWidth;
+        document.getElementById('symmetry').value = settings.symmetry || 'none';
         document.getElementById('frequency').value = settings.frequency;
         document.getElementById('amplitude').value = settings.amplitude;
         document.getElementById('rotation').value = settings.rotation;
+        document.getElementById('glow').value = settings.glow || 0;
         document.getElementById('color-mode').value = settings.colorMode;
         if (settings.lineColor) document.getElementById('line-color').value = settings.lineColor;
         if (settings.gradientColor1) document.getElementById('gradient-color-1').value = settings.gradientColor1;
@@ -4118,14 +4215,16 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         // MASSIVE randomization - completely new look
         // Use ABSOLUTE ranges instead of scaling from current value
         const current = this.getCurrentSettings();
+        const symmetryOptions = ['none', '2', '4', '6', '8', '12'];
         
         const newSettings = {
             ...current,
             complexity: Math.round(10 + Math.random() * 240), // 10-250 (absolute range!)
-            lineWidth: Math.round(1 + Math.random() * 7), // 1-8
+            symmetry: symmetryOptions[Math.floor(Math.random() * symmetryOptions.length)],
             frequency: Math.round(5 + Math.random() * 90), // 5-95
             amplitude: Math.round(-800 + Math.random() * 1600), // -800 to +800
             rotation: Math.round(-180 + Math.random() * 360), // -180 to +180
+            glow: Math.round(Math.random() * 10), // 0-10
             seed: Math.random()
         };
         
@@ -4141,10 +4240,11 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         const varied = {
             ...current,
             complexity: Math.max(5, Math.min(300, Math.round(current.complexity + (Math.random() - 0.5) * 60))), // ±30
-            lineWidth: Math.max(1, Math.min(8, Math.round(current.lineWidth + (Math.random() - 0.5) * 2))), // ±1
+            // symmetry stays the same for variations
             frequency: Math.max(1, Math.min(100, Math.round(current.frequency + (Math.random() - 0.5) * 20))), // ±10
             amplitude: Math.max(-1000, Math.min(1000, Math.round(current.amplitude + (Math.random() - 0.5) * 200))), // ±100
             rotation: Math.max(-180, Math.min(180, Math.round(current.rotation + (Math.random() - 0.5) * 40))), // ±20°
+            glow: Math.max(0, Math.min(10, Math.round(current.glow + (Math.random() - 0.5) * 4))), // ±2
             seed: Math.random()
         };
         
@@ -4159,10 +4259,11 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         const mutated = {
             ...current,
             complexity: Math.max(5, Math.min(300, Math.round(current.complexity * (1 + (Math.random() - 0.5) * mutationAmount * 2)))),
-            lineWidth: Math.max(1, Math.min(8, Math.round(current.lineWidth * (1 + (Math.random() - 0.5) * mutationAmount * 2)))),
+            // symmetry stays the same for mutations (too jarring to change)
             frequency: Math.max(1, Math.min(100, Math.round(current.frequency * (1 + (Math.random() - 0.5) * mutationAmount * 2)))),
             amplitude: Math.max(-1000, Math.min(1000, Math.round(current.amplitude * (1 + (Math.random() - 0.5) * mutationAmount * 2)))),
             rotation: Math.max(-180, Math.min(180, Math.round(current.rotation + (Math.random() - 0.5) * 90))),
+            glow: Math.max(0, Math.min(10, Math.round(current.glow + (Math.random() - 0.5) * 6))), // ±3
             seed: Math.random()
         };
         
