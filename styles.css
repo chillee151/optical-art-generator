@@ -51,11 +51,49 @@ header p {
 
 .controls-panel {
     background: #f8f9fa;
-    padding: 25px;
+    padding: 0;
     border-radius: 10px;
     border: 2px solid #000;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
 }
+
+.tabs-nav {
+    display: flex;
+    background-color: #e9ecef;
+    border-bottom: 2px solid #000;
+}
+
+.tab-link {
+    flex: 1;
+    padding: 12px 10px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.tab-link:hover {
+    background-color: #dee2e6;
+}
+
+.tab-link.active {
+    background-color: #000;
+    color: white;
+}
+
+.tab-content {
+    display: none;
+    padding: 25px;
+}
+
+.tab-content.active {
+    display: block;
+}
+
 
 .control-group {
     margin-bottom: 20px;
@@ -164,7 +202,7 @@ header p {
 }
 
 #canvas-dimensions {
-    color: #000;
+    color: white;
     font-weight: bold;
 }
 

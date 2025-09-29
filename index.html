@@ -15,119 +15,150 @@
 
         <div class="main-content">
             <div class="controls-panel">
-                <div class="control-group">
-                    <label for="pattern-type">Pattern Type:</label>
-                    <select id="pattern-type">
-                        <option value="wave-displacement" selected>Wave Displacement</option>
-                        <option value="circular-displacement">Circular Displacement</option>
-                        <option value="eye-pattern">Eye Pattern</option>
-                        <option value="moire-interference">Moiré Interference</option>
-                        <option value="spiral-distortion">Spiral Distortion</option>
-                        <option value="concentric-circles">Concentric Circles</option>
-                        <option value="diagonal-stripes">Diagonal Stripes</option>
-                        <option value="cube-illusion">Cube Illusion</option>
-                        <option value="square-tunnel">Square Tunnel</option>
-                    </select>
-                    <div id="pattern-previews" class="pattern-preview-grid">
-                        <!-- Preview thumbnails will be generated here -->
+                <div class="tabs-nav">
+                    <button class="tab-link active" data-tab="tab-pattern">Pattern</button>
+                    <button class="tab-link" data-tab="tab-adjust">Adjust</button>
+                    <button class="tab-link" data-tab="tab-canvas">Canvas & Color</button>
+                    <button class="tab-link" data-tab="tab-actions">Actions</button>
+                </div>
+
+                <!-- Tab Content -->
+                <div id="tab-pattern" class="tab-content active">
+                    <div class="control-group">
+                        <label for="pattern-type">Pattern Type:</label>
+                        <select id="pattern-type">
+                            <option value="wave-displacement" selected>Wave Displacement</option>
+                            <option value="circular-displacement">Circular Displacement</option>
+                            <option value="perlin-displacement">Perlin Displacement</option>
+                            <option value="fractal-noise">Fractal Noise</option>
+                            <option value="de-jong-attractor">De Jong Attractor</option>
+                            <option value="cellular-automata">Cellular Automata</option>
+                            <option value="l-system-growth">L-System Growth</option>
+                            <option value="eye-pattern">Eye Pattern</option>
+                            <option value="moire-interference">Moiré Interference</option>
+                            <option value="spiral-distortion">Spiral Distortion</option>
+                            <option value="concentric-circles">Concentric Circles</option>
+                            <option value="diagonal-stripes">Diagonal Stripes</option>
+                            <option value="cube-illusion">Cube Illusion</option>
+                            <option value="square-tunnel">Square Tunnel</option>
+                        </select>
+                        <div id="pattern-previews" class="pattern-preview-grid">
+                            <!-- Preview thumbnails will be generated here -->
+                        </div>
+                    </div>
+                    <div class="info-panel">
+                        <h3>Pattern Info</h3>
+                        <p id="pattern-info">Select a pattern type to see details</p>
                     </div>
                 </div>
 
-                <div class="control-group">
-                    <label for="complexity">Complexity:</label>
-                    <input type="range" id="complexity" min="5" max="500" value="50">
-                    <span id="complexity-value">50</span>
-                </div>
-
-                <div class="control-group">
-                    <label for="format-preset">Format Preset:</label>
-                    <select id="format-preset">
-                        <option value="custom">Custom Size</option>
-                        <option value="1:1" selected>Square (1:1)</option>
-                        <option value="16:9">Widescreen (16:9)</option>
-                        <option value="9:16">Portrait (9:16)</option>
-                        <option value="3:4">Traditional (3:4)</option>
-                        <option value="4:3">Landscape (4:3)</option>
-                        <option value="2:3">Photo (2:3)</option>
-                        <option value="3:2">Photo Landscape (3:2)</option>
-                    </select>
-                </div>
-
-                <div class="control-group">
-                    <label for="size">Base Size (mm):</label>
-                    <input type="number" id="size" min="50" max="500" value="350" step="10">
-                    <span class="unit-label">mm</span>
-                </div>
-
-                <div class="control-group">
-                    <div class="size-display">
-                        <span>Canvas: </span>
-                        <span id="canvas-dimensions">100×100 mm</span>
+                <div id="tab-adjust" class="tab-content">
+                    <div class="control-group">
+                        <label for="complexity">Complexity:</label>
+                        <input type="range" id="complexity" min="5" max="2000" value="50">
+                        <span id="complexity-value">50</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="line-width">Line Width:</label>
+                        <input type="range" id="line-width" min="1" max="8" value="1">
+                        <span id="line-width-value">1</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="frequency">Pattern Frequency:</label>
+                        <input type="range" id="frequency" min="1" max="100" value="4">
+                        <span id="frequency-value">4</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="amplitude">Pattern Amplitude:</label>
+                        <input type="range" id="amplitude" min="5" max="1000" value="20">
+                        <span id="amplitude-value">20</span>
+                    </div>
+                    <div class="control-group">
+                        <label for="rotation">Pattern Rotation:</label>
+                        <input type="range" id="rotation" min="0" max="360" value="0">
+                        <span id="rotation-value">0°</span>
+                    </div>
+                    <div class="control-group">
+                        <input type="checkbox" id="animate-pattern">
+                        <label for="animate-pattern" style="display: inline; margin-left: 10px;">Animate Pattern</label>
+                    </div>
+                    <div class="control-group">
+                        <label>Zoom & Pan:</label>
+                        <div class="button-group-inline">
+                            <button id="zoom-in-btn" class="secondary-btn">Zoom In</button>
+                            <button id="zoom-out-btn" class="secondary-btn">Zoom Out</button>
+                            <button id="reset-zoom-btn" class="secondary-btn">Reset Zoom</button>
+                        </div>
+                    </div>
+                    <div class="button-group">
+                        <button id="generate-btn" class="primary-btn">Generate New</button>
+                        <button id="variation-btn" class="secondary-btn">Generate Variation</button>
+                        <button id="layer-btn" class="secondary-btn">Layer Pattern</button>
                     </div>
                 </div>
 
-                <div class="control-group">
-                    <label for="line-width">Line Width:</label>
-                    <input type="range" id="line-width" min="1" max="10" value="2">
-                    <span id="line-width-value">2</span>
+                <div id="tab-canvas" class="tab-content">
+                    <div class="control-group">
+                        <label for="format-preset">Format Preset:</label>
+                        <select id="format-preset">
+                            <option value="custom">Custom Size</option>
+                            <option value="1:1" selected>Square (1:1)</option>
+                            <option value="16:9">Widescreen (16:9)</option>
+                            <option value="9:16">Portrait (9:16)</option>
+                            <option value="3:4">Traditional (3:4)</option>
+                            <option value="4:3">Landscape (4:3)</option>
+                            <option value="2:3">Photo (2:3)</option>
+                            <option value="3:2">Photo Landscape (3:2)</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="size">Base Size (mm):</label>
+                        <input type="number" id="size" min="50" max="1000" value="350" step="10">
+                        <span class="unit-label">mm</span>
+                    </div>
+                    <div class="control-group">
+                        <div class="size-display">
+                            <span>Canvas: </span>
+                            <span id="canvas-dimensions">100×100 mm</span>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label for="color-mode">Color Mode:</label>
+                        <select id="color-mode">
+                            <option value="black">Black Lines (LightBurn)</option>
+                            <option value="artistic">Artistic Palettes</option>
+                            <option value="custom-gradient">Custom Gradient</option>
+                            <option value="single">Single Color</option>
+                            <option value="gradient">Gradient Lines</option>
+                            <option value="rainbow">Rainbow Lines</option>
+                            <option value="hue-shift">Hue Shift</option>
+                        </select>
+                    </div>
+                    <div class="control-group" id="single-color-group" style="display: none;">
+                        <label for="line-color">Line Color:</label>
+                        <input type="color" id="line-color" value="#ff0000">
+                    </div>
+                    <div class="control-group" id="custom-gradient-group" style="display: none;">
+                        <label for="gradient-color-1">Gradient Start:</label>
+                        <input type="color" id="gradient-color-1" value="#ff00ff">
+                        <label for="gradient-color-2">Gradient End:</label>
+                        <input type="color" id="gradient-color-2" value="#00ffff">
+                    </div>
                 </div>
 
-                <div class="control-group">
-                    <label for="frequency">Pattern Frequency:</label>
-                    <input type="range" id="frequency" min="1" max="20" value="4">
-                    <span id="frequency-value">4</span>
-                </div>
-
-                <div class="control-group">
-                    <label for="amplitude">Pattern Amplitude:</label>
-                    <input type="range" id="amplitude" min="5" max="100" value="20">
-                    <span id="amplitude-value">20</span>
-                </div>
-
-                <div class="control-group">
-                    <label for="rotation">Pattern Rotation:</label>
-                    <input type="range" id="rotation" min="0" max="360" value="0">
-                    <span id="rotation-value">0°</span>
-                </div>
-
-                <div class="control-group">
-                    <label for="color-mode">Color Mode:</label>
-                    <select id="color-mode">
-                        <option value="black">Black Lines (LightBurn)</option>
-                        <option value="single">Single Color</option>
-                        <option value="gradient">Gradient Lines</option>
-                        <option value="rainbow">Rainbow Lines</option>
-                        <option value="hue-shift">Hue Shift</option>
-                    </select>
-                </div>
-
-                <div class="control-group" id="single-color-group" style="display: none;">
-                    <label for="line-color">Line Color:</label>
-                    <input type="color" id="line-color" value="#ff0000">
-                </div>
-
-                <div class="button-group">
-                    <button id="generate-btn" class="primary-btn">Generate New</button>
-                    <button id="variation-btn" class="secondary-btn">Generate Variation</button>
-                </div>
-
-                <div class="save-load-group">
-                    <h4>Pattern Library</h4>
-                    <button id="save-pattern-btn" class="secondary-btn">Save Pattern</button>
-                    <button id="load-pattern-btn" class="secondary-btn">Load Pattern</button>
-                    <button id="manage-patterns-btn" class="secondary-btn">Manage Saved</button>
-                </div>
-
-                <div class="export-group">
-                    <h4>Export Options</h4>
-                    <button id="export-svg-btn" class="export-btn">Export SVG (LightBurn)</button>
-                    <button id="export-png-btn" class="export-btn">Export PNG (Wallpaper)</button>
-                    <button id="export-jpg-btn" class="export-btn">Export JPG (Wallpaper)</button>
-                </div>
-
-                <div class="info-panel">
-                    <h3>Pattern Info</h3>
-                    <p id="pattern-info">Select a pattern type to see details</p>
+                <div id="tab-actions" class="tab-content">
+                    <div class="save-load-group">
+                        <h4>Pattern Library</h4>
+                        <button id="save-pattern-btn" class="secondary-btn">Save Pattern</button>
+                        <button id="load-pattern-btn" class="secondary-btn">Load Pattern</button>
+                        <button id="manage-patterns-btn" class="secondary-btn">Manage Saved</button>
+                    </div>
+                    <div class="export-group">
+                        <h4>Export Options</h4>
+                        <button id="export-svg-btn" class="export-btn">Export SVG (LightBurn)</button>
+                        <button id="export-png-btn" class="export-btn">Export PNG (Wallpaper)</button>
+                        <button id="export-jpg-btn" class="export-btn">Export JPG (Wallpaper)</button>
+                    </div>
                 </div>
             </div>
 
