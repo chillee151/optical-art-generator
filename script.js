@@ -3752,7 +3752,7 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         });
     }
 
-    saveCurrentPattern() {
+    async saveCurrentPattern() {
         const nameInput = document.getElementById('pattern-name');
         const patternName = nameInput.value.trim();
 
@@ -3764,6 +3764,12 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         try {
             const patternData = this.getCurrentPatternState();
             patternData.name = patternName;
+
+            // Generate thumbnail from current canvas
+            const thumbnail = await this.generateThumbnail();
+            if (thumbnail) {
+                patternData.thumbnail = thumbnail;
+            }
 
             // Get existing saved patterns
             const savedPatterns = JSON.parse(localStorage.getItem('opticalArtPatterns') || '{}');
@@ -3777,6 +3783,60 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         } catch (error) {
             console.error('Error saving pattern:', error);
             this.showError('Failed to save pattern');
+        }
+    }
+
+    generateThumbnail() {
+        try {
+            if (!this.canvas) return null;
+
+            // Create a temporary canvas to render the thumbnail
+            const tempCanvas = document.createElement('canvas');
+            const thumbnailSize = 200; // Square thumbnail
+            tempCanvas.width = thumbnailSize;
+            tempCanvas.height = thumbnailSize;
+            const ctx = tempCanvas.getContext('2d');
+
+            if (!ctx) return null;
+
+            // White background
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, thumbnailSize, thumbnailSize);
+
+            // Convert SVG to image
+            const svgData = new XMLSerializer().serializeToString(this.canvas);
+            const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(svgBlob);
+
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.onload = () => {
+                    // Calculate scaling to fit thumbnail (maintain aspect ratio)
+                    const scale = Math.min(
+                        thumbnailSize / this.actualWidth,
+                        thumbnailSize / this.actualHeight
+                    );
+                    const scaledWidth = this.actualWidth * scale;
+                    const scaledHeight = this.actualHeight * scale;
+                    const x = (thumbnailSize - scaledWidth) / 2;
+                    const y = (thumbnailSize - scaledHeight) / 2;
+
+                    ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
+                    URL.revokeObjectURL(url);
+
+                    // Convert to data URL
+                    const dataUrl = tempCanvas.toDataURL('image/png', 0.8);
+                    resolve(dataUrl);
+                };
+                img.onerror = () => {
+                    URL.revokeObjectURL(url);
+                    resolve(null);
+                };
+                img.src = url;
+            });
+        } catch (error) {
+            console.error('Error generating thumbnail:', error);
+            return null;
         }
     }
 
@@ -3834,9 +3894,20 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         const previewDiv = document.createElement('div');
         previewDiv.className = 'saved-pattern-preview';
 
-        // Create mini pattern for preview
-        const miniSvg = this.generateMiniPattern(patternData.patternType);
-        previewDiv.appendChild(miniSvg);
+        // Use stored thumbnail if available, otherwise generate mini pattern
+        if (patternData.thumbnail) {
+            const img = document.createElement('img');
+            img.src = patternData.thumbnail;
+            img.alt = name;
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'contain';
+            previewDiv.appendChild(img);
+        } else {
+            // Fallback to generic mini pattern
+            const miniSvg = this.generateMiniPattern(patternData.patternType);
+            previewDiv.appendChild(miniSvg);
+        }
 
         // Create info section
         const infoDiv = document.createElement('div');
