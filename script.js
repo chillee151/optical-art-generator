@@ -1267,12 +1267,15 @@ class OpticalArtGenerator {
         });
 
         document.getElementById('amplitude').addEventListener('input', (e) => {
-            document.getElementById('amplitude-value').textContent = e.target.value;
+            const val = parseInt(e.target.value);
+            document.getElementById('amplitude-value').textContent = val >= 0 ? `+${val}` : val;
             this.generatePattern(true);
         });
 
         document.getElementById('rotation').addEventListener('input', (e) => {
-            document.getElementById('rotation-value').textContent = e.target.value + '°';
+            const val = parseInt(e.target.value);
+            const sign = val > 0 ? '+' : (val < 0 ? '' : '');
+            document.getElementById('rotation-value').textContent = `${sign}${val}°`;
             this.generatePattern(true);
         });
 
@@ -1315,6 +1318,20 @@ class OpticalArtGenerator {
         document.getElementById('zoom-in-btn').addEventListener('click', () => this.zoomIn());
         document.getElementById('zoom-out-btn').addEventListener('click', () => this.zoomOut());
         document.getElementById('reset-zoom-btn').addEventListener('click', () => this.resetZoom());
+
+        // Mouse wheel / trackpad zoom on canvas
+        this.canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = e.deltaY;
+            
+            if (delta < 0) {
+                // Scroll up = Zoom in
+                this.zoomIn();
+            } else if (delta > 0) {
+                // Scroll down = Zoom out
+                this.zoomOut();
+            }
+        }, { passive: false });
 
         // Save/Load pattern event listeners
         document.getElementById('save-pattern-btn').addEventListener('click', () => {

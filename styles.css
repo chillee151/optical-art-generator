@@ -286,6 +286,19 @@ header p {
     -webkit-appearance: none;
     appearance: none;
     margin-bottom: 8px;
+    position: relative;
+}
+
+/* Bidirectional sliders with center marker */
+#amplitude,
+#rotation {
+    background: linear-gradient(90deg, 
+        rgba(234, 88, 102, 0.25) 0%,
+        rgba(234, 88, 102, 0.15) 45%,
+        rgba(0, 0, 0, 0.4) 49%,
+        rgba(0, 0, 0, 0.4) 51%,
+        rgba(102, 126, 234, 0.15) 55%,
+        rgba(102, 126, 234, 0.25) 100%);
 }
 
 .control-group input[type="range"]::-webkit-slider-thumb {
