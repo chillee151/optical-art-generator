@@ -1183,14 +1183,11 @@ class OpticalArtGenerator {
 
     setupEventListeners() {
         document.getElementById('generate-btn').addEventListener('click', () => {
-            this.currentSeed = Math.random();
-            this.generatePattern(true);
+            this.generateNew();
         });
 
         document.getElementById('variation-btn').addEventListener('click', () => {
-            // Add a random variation (0.3 to 0.7) for noticeable changes
-            this.currentSeed += 0.3 + Math.random() * 0.4;
-            this.generatePattern(true);
+            this.generateVariation();
         });
 
         document.getElementById('layer-btn').addEventListener('click', () => {
@@ -4115,6 +4112,44 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         
         this.applySettings(morphed);
         this.showSuccess(`Morphed ${Math.round(morphValue * 100)}% from A to B`);
+    }
+
+    generateNew() {
+        // MASSIVE randomization - completely new look (50-100% variation)
+        const mutationAmount = 0.75; // 75% average variation
+        const current = this.getCurrentSettings();
+        
+        const newSettings = {
+            ...current,
+            complexity: Math.max(5, Math.min(300, Math.round(current.complexity * (0.5 + Math.random())))), // 50-150% of current
+            lineWidth: Math.max(1, Math.min(8, Math.round(current.lineWidth * (0.5 + Math.random())))),
+            frequency: Math.max(1, Math.min(100, Math.round(current.frequency * (0.3 + Math.random() * 1.5)))), // 30-180% of current
+            amplitude: Math.max(-1000, Math.min(1000, Math.round(current.amplitude * (Math.random() * 2 - 0.5)))), // Can flip sign!
+            rotation: Math.max(-180, Math.min(180, Math.round((Math.random() - 0.5) * 360))), // Completely random rotation
+            seed: Math.random()
+        };
+        
+        this.applySettings(newSettings);
+        this.showSuccess('🎨 Generated new pattern!');
+    }
+
+    generateVariation() {
+        // SUBTLE variation - similar look with tweaks (10-20% variation)
+        const mutationAmount = 0.15; // 15% average variation
+        const current = this.getCurrentSettings();
+        
+        const varied = {
+            ...current,
+            complexity: Math.max(5, Math.min(300, Math.round(current.complexity * (1 + (Math.random() - 0.5) * mutationAmount * 2)))),
+            lineWidth: Math.max(1, Math.min(8, Math.round(current.lineWidth * (1 + (Math.random() - 0.5) * mutationAmount * 2)))),
+            frequency: Math.max(1, Math.min(100, Math.round(current.frequency * (1 + (Math.random() - 0.5) * mutationAmount * 2)))),
+            amplitude: Math.max(-1000, Math.min(1000, Math.round(current.amplitude * (1 + (Math.random() - 0.5) * mutationAmount * 2)))),
+            rotation: Math.max(-180, Math.min(180, Math.round(current.rotation + (Math.random() - 0.5) * 30))), // ±15° max
+            seed: Math.random()
+        };
+        
+        this.applySettings(varied);
+        this.showSuccess('✨ Generated variation!');
     }
 
     mutateSettings() {
