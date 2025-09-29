@@ -517,7 +517,7 @@ class OpticalArtGenerator {
         const centerX = 28;
         const centerY = 28;
         const maxRadius = 26;
-        const numRings = 12;
+        const numRings = 15;
 
         for (let i = 0; i < numRings; i++) {
             const progress = i / numRings;
@@ -547,21 +547,18 @@ class OpticalArtGenerator {
             
             path.setAttribute('d', pathData);
             
-            // Alternating styles
-            if (i % 3 === 0) {
-                path.setAttribute('fill', '#333');
-                path.setAttribute('fill-opacity', '0.6');
+            // Optical art style - mostly outlines
+            if (i % 5 === 0) {
+                // Only every 5th ring with subtle fill
+                path.setAttribute('fill', '#ddd');
+                path.setAttribute('fill-opacity', '0.2');
                 path.setAttribute('stroke', '#000');
-                path.setAttribute('stroke-width', lineWidth * 0.5);
-            } else if (i % 3 === 1) {
+                path.setAttribute('stroke-width', lineWidth * 0.7);
+            } else {
+                // All other rings: outline only (optical art!)
                 path.setAttribute('fill', 'none');
                 path.setAttribute('stroke', '#000');
-                path.setAttribute('stroke-width', lineWidth);
-            } else {
-                path.setAttribute('fill', '#fff');
-                path.setAttribute('fill-opacity', '0.3');
-                path.setAttribute('stroke', '#000');
-                path.setAttribute('stroke-width', lineWidth * 0.3);
+                path.setAttribute('stroke-width', lineWidth * (0.5 + progress * 0.5));
             }
             
             svg.appendChild(path);
@@ -2121,35 +2118,23 @@ class OpticalArtGenerator {
             // Variable thickness based on radius (thinner toward center)
             const thickness = lineWidth * (0.5 + progress * 0.5);
             
-            // Alternating fills for hypnotic depth effect
+            // Optical art style - mostly outlines with occasional accents
             const colorIndex = i;
             const color = this.getLineColor(colorIndex, numRings);
             const colorMode = document.getElementById('color-mode').value;
             
-            if (i % 3 === 0) {
-                // Every third ring: filled
+            // Make it line-based optical art (not solid)
+            if (i % 5 === 0 && amplitude > 50) {
+                // Only every 5th ring filled, and only if amplitude is high
                 path.setAttribute('fill', color);
-                path.setAttribute('fill-opacity', '0.6');
-                path.setAttribute('stroke', color);
-                path.setAttribute('stroke-width', thickness);
-            } else if (i % 3 === 1) {
-                // Every third ring: outline only
-                path.setAttribute('fill', 'none');
+                path.setAttribute('fill-opacity', '0.15'); // Very transparent
                 path.setAttribute('stroke', color);
                 path.setAttribute('stroke-width', thickness);
             } else {
-                // Every third ring: semi-transparent
-                if (colorMode === 'black') {
-                    path.setAttribute('fill', '#fff');
-                    path.setAttribute('fill-opacity', '0.3');
-                    path.setAttribute('stroke', '#000');
-                    path.setAttribute('stroke-width', thickness * 0.5);
-                } else {
-                    path.setAttribute('fill', color);
-                    path.setAttribute('fill-opacity', '0.3');
-                    path.setAttribute('stroke', color);
-                    path.setAttribute('stroke-width', thickness * 0.5);
-                }
+                // All other rings: outline only (optical art!)
+                path.setAttribute('fill', 'none');
+                path.setAttribute('stroke', color);
+                path.setAttribute('stroke-width', thickness);
             }
 
             if (rotation !== 0) {
