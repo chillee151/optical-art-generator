@@ -142,6 +142,13 @@ Layering allows you to combine multiple patterns into a single, intricate design
 - **Cellular Automata** - Rule-based systems creating emergent patterns.
 - **L-Systems** - Algorithmic generation of fractal-like branching structures.
 - **Polar Coordinate Systems** - For radial and spiral effects
+- **Mathematical Shading** - 3D-like effects using height maps and simulated lighting
+
+### Pattern Types
+
+#### Shaded Grid
+
+This pattern creates an illusion of 3D depth and curvature using a grid of shaded cells. Each cell's shading is calculated based on a mathematical "height map" and a simulated light source, giving the appearance of embossed or debossed surfaces. Parameters like complexity, amplitude, and frequency influence the cell size, perceived depth, and curvature of the grid elements.
 
 ### Architecture
 - **Frontend**: Vanilla JavaScript ES6+ with SVG rendering
