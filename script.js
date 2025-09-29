@@ -4115,17 +4115,17 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
     }
 
     generateNew() {
-        // MASSIVE randomization - completely new look (50-100% variation)
-        const mutationAmount = 0.75; // 75% average variation
+        // MASSIVE randomization - completely new look
+        // Use ABSOLUTE ranges instead of scaling from current value
         const current = this.getCurrentSettings();
         
         const newSettings = {
             ...current,
-            complexity: Math.max(5, Math.min(300, Math.round(current.complexity * (0.5 + Math.random())))), // 50-150% of current
-            lineWidth: Math.max(1, Math.min(8, Math.round(current.lineWidth * (0.5 + Math.random())))),
-            frequency: Math.max(1, Math.min(100, Math.round(current.frequency * (0.3 + Math.random() * 1.5)))), // 30-180% of current
-            amplitude: Math.max(-1000, Math.min(1000, Math.round(current.amplitude * (Math.random() * 2 - 0.5)))), // Can flip sign!
-            rotation: Math.max(-180, Math.min(180, Math.round((Math.random() - 0.5) * 360))), // Completely random rotation
+            complexity: Math.round(10 + Math.random() * 240), // 10-250 (absolute range!)
+            lineWidth: Math.round(1 + Math.random() * 7), // 1-8
+            frequency: Math.round(5 + Math.random() * 90), // 5-95
+            amplitude: Math.round(-800 + Math.random() * 1600), // -800 to +800
+            rotation: Math.round(-180 + Math.random() * 360), // -180 to +180
             seed: Math.random()
         };
         
@@ -4134,17 +4134,17 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
     }
 
     generateVariation() {
-        // SUBTLE variation - similar look with tweaks (10-20% variation)
-        const mutationAmount = 0.15; // 15% average variation
+        // SUBTLE variation - similar look with tweaks
+        // ±20% variation but ensure it can reach full range
         const current = this.getCurrentSettings();
         
         const varied = {
             ...current,
-            complexity: Math.max(5, Math.min(300, Math.round(current.complexity * (1 + (Math.random() - 0.5) * mutationAmount * 2)))),
-            lineWidth: Math.max(1, Math.min(8, Math.round(current.lineWidth * (1 + (Math.random() - 0.5) * mutationAmount * 2)))),
-            frequency: Math.max(1, Math.min(100, Math.round(current.frequency * (1 + (Math.random() - 0.5) * mutationAmount * 2)))),
-            amplitude: Math.max(-1000, Math.min(1000, Math.round(current.amplitude * (1 + (Math.random() - 0.5) * mutationAmount * 2)))),
-            rotation: Math.max(-180, Math.min(180, Math.round(current.rotation + (Math.random() - 0.5) * 30))), // ±15° max
+            complexity: Math.max(5, Math.min(300, Math.round(current.complexity + (Math.random() - 0.5) * 60))), // ±30
+            lineWidth: Math.max(1, Math.min(8, Math.round(current.lineWidth + (Math.random() - 0.5) * 2))), // ±1
+            frequency: Math.max(1, Math.min(100, Math.round(current.frequency + (Math.random() - 0.5) * 20))), // ±10
+            amplitude: Math.max(-1000, Math.min(1000, Math.round(current.amplitude + (Math.random() - 0.5) * 200))), // ±100
+            rotation: Math.max(-180, Math.min(180, Math.round(current.rotation + (Math.random() - 0.5) * 40))), // ±20°
             seed: Math.random()
         };
         
