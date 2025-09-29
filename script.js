@@ -736,41 +736,49 @@ class OpticalArtGenerator {
     generateMiniShadedGrid(svg, seed, complexity, lineWidth) {
         const width = 56;
         const height = 56;
-        const cellSize = Math.max(2, Math.floor(width / complexity * 2)); // Adjusted for better preview scale
-        const maxDepth = 1.0; // Amplitude for Z
-        const power = 2; // Curvature of the bump
+        const cellSize = Math.max(4, Math.floor(width / (complexity * 0.7))); // Larger cells for better visibility
         const lightAngle = Math.PI / 4; // 45 degrees, top-left light
         const lightDirX = Math.cos(lightAngle);
         const lightDirY = Math.sin(lightAngle);
 
-        for (let y = 0; y < height; y += 1) {
-            for (let x = 0; x < width; x += 1) {
-                const localX = (x % cellSize) - cellSize / 2;
-                const localY = (y % cellSize) - cellSize / 2;
-                const r = Math.sqrt(localX * localX + localY * localY);
-
-                let Z = 0;
-                const R_max = cellSize / 2;
-
-                if (r <= R_max) {
-                    Z = maxDepth * (1 - Math.pow(r / R_max, power));
-                }
-
-                let shade = 0;
-                if (r > 0) { // Avoid division by zero at the center
-                    const dotProductWithCenterDirection = (localX / r) * lightDirX + (localY / r) * lightDirY;
-                    shade = Z * (0.5 + 0.5 * dotProductWithCenterDirection);
-                } else { // At the center, just use Z for shading
-                    shade = Z * 0.5;
-                }
-
-                const colorComponent = Math.floor(Math.max(0, Math.min(1, shade)) * 255);
+        // Draw cell by cell instead of pixel by pixel for better performance
+        for (let cellY = 0; cellY < height; cellY += cellSize) {
+            for (let cellX = 0; cellX < width; cellX += cellSize) {
+                // Calculate cell center
+                const centerX = cellX + cellSize / 2;
+                const centerY = cellY + cellSize / 2;
+                
+                // Distance from canvas center creates depth variation
+                const distFromCenter = Math.sqrt(
+                    Math.pow(centerX - width/2, 2) + 
+                    Math.pow(centerY - height/2, 2)
+                );
+                const maxDist = Math.sqrt(Math.pow(width/2, 2) + Math.pow(height/2, 2));
+                const depthFactor = 0.3 + 0.7 * (1 - distFromCenter / maxDist); // Edges darker
+                
+                // Calculate lighting based on cell position
+                const normX = (centerX - width/2) / (width/2);
+                const normY = (centerY - height/2) / (height/2);
+                
+                // Simulate 3D bump with lighting
+                const dotProduct = normX * lightDirX + normY * lightDirY;
+                const baseBrightness = 0.4 + 0.4 * dotProduct * depthFactor;
+                
+                // Add some variation
+                const variation = Math.sin(centerX * 0.3 + seed) * 0.15;
+                const finalBrightness = Math.max(0.1, Math.min(0.9, baseBrightness + variation));
+                
+                const colorComponent = Math.floor(finalBrightness * 255);
+                
+                // Draw the cell
                 const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                rect.setAttribute('x', x);
-                rect.setAttribute('y', y);
-                rect.setAttribute('width', 1);
-                rect.setAttribute('height', 1);
+                rect.setAttribute('x', cellX);
+                rect.setAttribute('y', cellY);
+                rect.setAttribute('width', Math.min(cellSize, width - cellX));
+                rect.setAttribute('height', Math.min(cellSize, height - cellY));
                 rect.setAttribute('fill', `rgb(${colorComponent}, ${colorComponent}, ${colorComponent})`);
+                rect.setAttribute('stroke', '#666');
+                rect.setAttribute('stroke-width', '0.5');
                 svg.appendChild(rect);
             }
         }
