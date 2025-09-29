@@ -4,7 +4,14 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 
 ## 🚀 Recent Updates
 
-### v2.10.0 (Latest)
+### v3.0.0 (Latest)
+**Major Pattern Enhancements:**
+- **Radial Vortex Pattern**: New mesmerizing 3D tunnel effect with alternating bands radiating from center, creating powerful depth illusion with flower-like petals
+- **Enhanced Cube Illusion**: Complete redesign with isometric projection, Escher-style impossible geometry, wave-based depth modulation, and multi-colored faces
+- **Universal Color Support**: Added colorToRgb() function to handle hex, rgb(), and hsl() color formats across all patterns
+- **16 Total Patterns**: Now includes Shaded Grid and Radial Vortex
+
+### v2.10.0
 **New Features & Enhancements:**
 - **Display Zoom & Pan**: Added functionality to zoom in/out and pan the pattern display, allowing for closer inspection of details. This is a display-only feature and does not affect SVG exports.
 
@@ -137,18 +144,93 @@ Layering allows you to combine multiple patterns into a single, intricate design
 ### Mathematical Principles
 - **Displacement Field Theory** - Lines follow calculated force fields
 - **Sine Wave Modulation** - Creates smooth curved distortions
-- **Perlin Noise & Fractal Brownian Motion (fBm)** - For generating organic, flowing patterns.
-- **Strange Attractors** - Chaotic systems generating intricate, non-repeating forms.
-- **Cellular Automata** - Rule-based systems creating emergent patterns.
-- **L-Systems** - Algorithmic generation of fractal-like branching structures.
+- **Perlin Noise & Fractal Brownian Motion (fBm)** - For generating organic, flowing patterns
+- **Strange Attractors** - Chaotic systems generating intricate, non-repeating forms
+- **Cellular Automata** - Rule-based systems creating emergent patterns
+- **L-Systems** - Algorithmic generation of fractal-like branching structures
 - **Polar Coordinate Systems** - For radial and spiral effects
+- **Isometric Projection** - True 3D perspective with 30° angles
 - **Mathematical Shading** - 3D-like effects using height maps and simulated lighting
+- **Radial Vortex Math** - Sinusoidal petal modulation with spiral twist for depth
 
-### Pattern Types
+### Pattern Types (16 Total)
+
+#### Radial Vortex ⭐ NEW
+Creates a mesmerizing 3D tunnel effect with alternating bands radiating from a center point. Uses polar coordinates with sinusoidal petal modulation and spiral twist to create powerful depth illusion. The pattern mimics classic optical illusion designs with flower-like lobes and hypnotic pull. Perfect for creating eye-catching psychedelic art.
+
+**Mathematical Features:**
+- Polar coordinate system (r, θ)
+- Petal modulation: `1 + sin(θ × petals) × intensity`
+- Spiral twist: `θ_adjusted = θ + r × 0.01`
+- Dynamic petal count (3-10 based on frequency)
+- Alternating band colors for depth
+
+**Parameters:**
+- **Complexity**: Number of concentric bands (20-2000)
+- **Frequency**: Number of petals/lobes (3-10)
+- **Amplitude**: Petal wave intensity (0-1000%)
+
+#### Cube Illusion ⭐ ENHANCED
+Completely redesigned with isometric projection creating arrays of 3D cubes with Escher-style impossible geometry. Features proper perspective, wave-based size modulation, depth scaling, and multi-colored faces with transparency. Cubes alternate orientation for optical illusion effects.
+
+**Mathematical Features:**
+- Isometric projection with 30° angles
+- Position: `X = (col - row) × size × 0.866, Y = (col + row) × size × 0.5`
+- Wave modulation: `sin(distance × frequency) × 0.3`
+- Radial depth scaling based on distance from center
+- Three-face rendering with gradient coloring
+
+**Parameters:**
+- **Complexity**: Grid density (2×2 to 7×7+)
+- **Amplitude**: Depth scaling intensity
+- **Frequency**: Wave-based size variation
 
 #### Shaded Grid
+Creates an illusion of 3D depth and curvature using a grid of shaded cells. Each cell's shading is calculated based on a mathematical "height map" and a simulated light source, giving the appearance of embossed or debossed surfaces. Features normal vector calculation for realistic diffuse shading.
 
-This pattern creates an illusion of 3D depth and curvature using a grid of shaded cells. Each cell's shading is calculated based on a mathematical "height map" and a simulated light source, giving the appearance of embossed or debossed surfaces. Parameters like complexity, amplitude, and frequency influence the cell size, perceived depth, and curvature of the grid elements.
+**Parameters:**
+- **Complexity**: Cell size and grid density
+- **Amplitude**: Maximum depth of the 3D effect
+- **Frequency**: Curvature smoothness (power function)
+
+#### Wave Displacement
+Horizontal stripes displaced by sine waves creating bulging illusions and depth effects.
+
+#### Circular Displacement
+Straight lines warped by circular displacement fields radiating from center.
+
+#### Eye Pattern
+Creates eye-like shapes with concentric curves for mesmerizing hypnotic effects.
+
+#### Moiré Interference
+Overlapping line patterns creating moiré interference effects and shimmer.
+
+#### Spiral Distortion
+Radial patterns with spiral displacement creating depth and rotation illusion.
+
+#### Concentric Circles
+Hypnotic circular patterns with varying spacing to produce optical illusions.
+
+#### Diagonal Stripes
+Diagonal line patterns that create depth and movement effects.
+
+#### Square Tunnel
+Tunnel-like square spirals that appear to recede into distance.
+
+#### Perlin Displacement
+Organic patterns from Perlin noise field creating flowing, natural textures.
+
+#### Fractal Noise
+Rich, detailed patterns from layered Perlin noise using Fractal Brownian Motion.
+
+#### De Jong Attractor
+Chaotic patterns based on strange attractors, generating beautiful mathematical forms.
+
+#### Cellular Automata
+Emergent patterns from simple rule-based cellular automata (Wolfram rules).
+
+#### L-System Growth
+Fractal-like branching structures generated by L-systems, mimicking natural growth.
 
 ### Architecture
 - **Frontend**: Vanilla JavaScript ES6+ with SVG rendering
