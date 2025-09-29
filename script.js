@@ -2146,13 +2146,16 @@ class OpticalArtGenerator {
             layerGroup.appendChild(path);
         }
         
-        // Add center focal point
-        const centerCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        centerCircle.setAttribute('cx', centerX);
-        centerCircle.setAttribute('cy', centerY);
-        centerCircle.setAttribute('r', Math.max(3, lineWidth * 2));
-        centerCircle.setAttribute('fill', this.getLineColor(0, 1));
-        layerGroup.appendChild(centerCircle);
+        // Add subtle center dot only if complexity is low (otherwise rings already fill center)
+        if (numRings < 30) {
+            const centerDot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            centerDot.setAttribute('cx', centerX);
+            centerDot.setAttribute('cy', centerY);
+            centerDot.setAttribute('r', Math.max(2, lineWidth));
+            centerDot.setAttribute('fill', this.getLineColor(0, 1));
+            centerDot.setAttribute('opacity', '0.5');
+            layerGroup.appendChild(centerDot);
+        }
     }
 
     generateDiagonalStripes(layerGroup) {
