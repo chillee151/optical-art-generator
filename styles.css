@@ -73,17 +73,19 @@ body::before {
     z-index: 1;
 }
 
-/* Modern glassmorphic header */
+/* Compact professional header */
 header {
-    text-align: center;
-    margin-bottom: clamp(20px, 4vw, 40px);
-    padding: clamp(24px, 5vw, 48px) clamp(16px, 3vw, 32px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding: 12px 20px;
     background: var(--glass-bg);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
     border: 1px solid var(--glass-border);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-lg);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-sm);
     position: relative;
     overflow: hidden;
 }
@@ -91,34 +93,26 @@ header {
 header::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: -100%;
+    left: 0;
+    bottom: 0;
     width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
-    animation: shimmer 3s infinite;
-}
-
-@keyframes shimmer {
-    0%, 100% { left: -100%; }
-    50% { left: 100%; }
+    height: 2px;
+    background: var(--accent-gradient);
 }
 
 header h1 {
-    font-size: clamp(1.75rem, 5vw, 3rem);
-    font-weight: 800;
-    margin-bottom: 8px;
-    background: var(--accent-gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--primary-dark);
     letter-spacing: -0.02em;
 }
 
 header p {
-    font-size: clamp(0.875rem, 2vw, 1.125rem);
+    font-size: 0.75rem;
     color: #6b7280;
     font-weight: 500;
+    margin: 0;
 }
 
 /* Mobile-first main layout */
@@ -172,27 +166,27 @@ header p {
     overflow: hidden;
 }
 
-/* Tab navigation with modern design */
+/* Professional tab navigation */
 .tabs-nav {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    background: rgba(0, 0, 0, 0.02);
-    padding: 8px;
+    background: #f9fafb;
+    padding: 4px;
     gap: 4px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.06);
 }
 
 .tab-link {
-    padding: 12px 8px;
+    padding: 10px 8px;
     border: none;
     background: transparent;
     cursor: pointer;
-    font-size: clamp(0.7rem, 2vw, 0.875rem);
+    font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     transition: var(--transition-smooth);
-    border-radius: var(--radius-sm);
+    border-radius: 8px;
     color: #6b7280;
     position: relative;
 }
@@ -200,13 +194,14 @@ header p {
 .tab-link::after {
     content: '';
     position: absolute;
-    bottom: 0;
+    bottom: 2px;
     left: 50%;
     width: 0;
     height: 2px;
     background: var(--accent-gradient);
     transition: var(--transition-smooth);
     transform: translateX(-50%);
+    border-radius: 2px;
 }
 
 .tab-link:hover {
@@ -215,18 +210,22 @@ header p {
 }
 
 .tab-link.active {
-    background: var(--primary-dark);
-    color: var(--primary-light);
+    background: white;
+    color: #667eea;
+    box-shadow: var(--shadow-sm);
 }
 
 .tab-link.active::after {
-    width: 60%;
+    width: 40%;
 }
 
 .tab-content {
     display: none;
-    padding: clamp(20px, 4vw, 32px);
+    padding: 16px;
     animation: fadeIn 0.3s ease-in-out;
+    max-height: calc(100vh - 280px);
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .tab-content.active {
@@ -238,30 +237,29 @@ header p {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Modern control groups */
+/* Compact control groups (Photoshop/Illustrator style) */
 .control-group {
-    margin-bottom: clamp(20px, 4vw, 28px);
+    margin-bottom: 16px;
 }
 
 .control-group label {
     display: block;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
     font-weight: 600;
-    font-size: 0.875rem;
-    color: var(--primary-dark);
+    font-size: 0.6875rem;
+    color: #374151;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    opacity: 0.8;
 }
 
 .control-group select,
 .control-group input[type="number"] {
     width: 100%;
-    padding: 14px 16px;
-    border: 2px solid rgba(0, 0, 0, 0.08);
-    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 6px;
     background: white;
-    font-size: 15px;
+    font-size: 0.875rem;
     font-weight: 500;
     transition: var(--transition-smooth);
     -webkit-appearance: none;
@@ -417,13 +415,13 @@ header p {
     box-shadow: var(--shadow-md);
 }
 
-/* Modern buttons with optical art flair */
+/* Compact professional buttons */
 .button-group,
 .button-group-inline {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    margin: 24px 0;
+    gap: 8px;
+    margin: 16px 0 8px 0;
 }
 
 .button-group-inline {
@@ -433,15 +431,15 @@ header p {
 .primary-btn,
 .secondary-btn,
 .export-btn {
-    padding: 14px 24px;
-    border: 2px solid transparent;
-    border-radius: var(--radius-sm);
-    font-size: 0.9375rem;
+    padding: 10px 16px;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    font-size: 0.8125rem;
     font-weight: 600;
     cursor: pointer;
     transition: var(--transition-smooth);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.03em;
     position: relative;
     overflow: hidden;
     touch-action: manipulation;
@@ -487,68 +485,59 @@ header p {
     filter: brightness(1.1);
 }
 
-/* Info panel with modern design */
+/* Compact info panel */
 .info-panel {
-    background: var(--primary-dark);
-    color: var(--primary-light);
-    padding: 20px;
-    border-radius: var(--radius-md);
-    margin-top: 24px;
+    background: #f9fafb;
+    color: #374151;
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 16px;
     position: relative;
-    overflow: hidden;
-}
-
-.info-panel::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: var(--accent-gradient);
+    border-left: 3px solid #667eea;
 }
 
 .info-panel h3 {
-    margin-bottom: 12px;
-    font-size: 1rem;
+    margin-bottom: 6px;
+    font-size: 0.75rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    color: #667eea;
 }
 
 .info-panel p {
-    font-size: 0.875rem;
-    line-height: 1.6;
-    opacity: 0.9;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: #6b7280;
 }
 
-/* Modern save/export groups */
+/* Compact save/export groups */
 .save-load-group,
 .export-group {
-    margin: 20px 0;
-    padding: 20px;
+    margin: 12px 0;
+    padding: 12px;
     background: rgba(102, 126, 234, 0.04);
-    border-radius: var(--radius-md);
+    border-radius: 8px;
     border: 1px solid rgba(102, 126, 234, 0.1);
 }
 
 .save-load-group h4,
 .export-group h4 {
-    margin: 0 0 16px 0;
-    font-size: 0.875rem;
+    margin: 0 0 10px 0;
+    font-size: 0.6875rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
     color: var(--primary-dark);
-    text-align: center;
+    text-align: left;
 }
 
 .size-display {
     background: rgba(102, 126, 234, 0.08);
-    padding: 14px;
-    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    border-radius: 6px;
     font-family: 'SF Mono', 'Monaco', 'Courier New', monospace;
-    font-size: 0.9375rem;
+    font-size: 0.8125rem;
     text-align: center;
     font-weight: 600;
 }
@@ -565,18 +554,37 @@ header p {
     vertical-align: middle;
 }
 
-/* Footer with modern styling */
+/* Compact footer */
 footer {
     text-align: center;
-    margin-top: clamp(24px, 4vw, 40px);
-    padding: 20px;
+    margin-top: 16px;
+    padding: 12px;
     background: var(--glass-bg);
     backdrop-filter: blur(20px);
-    border-radius: var(--radius-md);
+    border-radius: 8px;
     border: 1px solid var(--glass-border);
-    font-size: 0.875rem;
-    color: #6b7280;
+    font-size: 0.6875rem;
+    color: #9ca3af;
     font-weight: 500;
+}
+
+/* Custom scrollbar for tab content */
+.tab-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.tab-content::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: 3px;
+}
+
+.tab-content::-webkit-scrollbar-thumb {
+    background: rgba(102, 126, 234, 0.3);
+    border-radius: 3px;
+}
+
+.tab-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(102, 126, 234, 0.5);
 }
 
 /* Checkbox styling */
@@ -782,12 +790,12 @@ footer {
     50% { opacity: 0.6; }
 }
 
-/* Tablet and up */
+/* Tablet and up - Professional layout like Photoshop */
 @media (min-width: 768px) {
     .main-content {
         display: grid;
-        grid-template-columns: 380px 1fr;
-        gap: 24px;
+        grid-template-columns: 280px 1fr;
+        gap: 16px;
     }
 
     .canvas-container {
@@ -796,6 +804,7 @@ footer {
 
     .controls-panel {
         order: 1;
+        max-height: calc(100vh - 120px);
     }
 
     .pattern-preview-grid {
@@ -803,34 +812,21 @@ footer {
     }
 
     .tabs-nav {
-        grid-template-columns: 1fr;
-        padding: 12px;
-        gap: 8px;
+        grid-template-columns: repeat(2, 1fr);
     }
 
     .tab-link {
-        text-align: left;
-        padding: 16px 20px;
-        font-size: 0.875rem;
-    }
-
-    .tab-link::after {
-        left: 0;
-        transform: translateX(0);
-        height: 100%;
-        width: 3px;
-    }
-
-    .tab-link.active::after {
-        height: 60%;
+        text-align: center;
+        padding: 10px 8px;
+        font-size: 0.6875rem;
     }
 }
 
 /* Desktop and up */
 @media (min-width: 1024px) {
     .main-content {
-        grid-template-columns: 420px 1fr;
-        gap: 32px;
+        grid-template-columns: 300px 1fr;
+        gap: 20px;
     }
 
     .button-group-inline {
@@ -840,6 +836,13 @@ footer {
 
     .saved-patterns-grid {
         grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    }
+}
+
+/* Wide desktop */
+@media (min-width: 1400px) {
+    .main-content {
+        grid-template-columns: 320px 1fr;
     }
 }
 
