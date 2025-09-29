@@ -1182,9 +1182,7 @@ class OpticalArtGenerator {
 
     setupEventListeners() {
         document.getElementById('generate-btn').addEventListener('click', () => {
-            console.log('Generate New button clicked');
             this.currentSeed = Math.random();
-            console.log('New seed:', this.currentSeed);
             this.generatePattern(true);
         });
 
@@ -1494,15 +1492,12 @@ class OpticalArtGenerator {
     }
 
     generatePattern(clear = true, slowAnimationTime = 0) {
-        console.log('generatePattern called, clear:', clear, 'isGenerating:', this.isGenerating);
         if (this.isGenerating) {
-            console.log('Already generating, returning');
             return;
         }
 
         try {
             this.isGenerating = true;
-            console.log('Starting pattern generation');
             this.canvas.classList.add('optical-loading');
 
             setTimeout(() => {
