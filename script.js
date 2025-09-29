@@ -2074,7 +2074,7 @@ class OpticalArtGenerator {
         }
     }
 
-    generateConcentricCircles(layerGroup) {
+    generateConcentricCircles(layerGroup, currentRotation, slowAnimationTime) {
         const complexity = parseInt(document.getElementById('complexity').value);
         const lineWidth = parseInt(document.getElementById('line-width').value);
         const amplitude = parseInt(document.getElementById('amplitude').value);
@@ -2175,7 +2175,7 @@ class OpticalArtGenerator {
         }
     }
 
-    generateDiagonalStripes(layerGroup) {
+    generateDiagonalStripes(layerGroup, currentRotation, slowAnimationTime) {
         const complexity = parseInt(document.getElementById('complexity').value);
         const lineWidth = parseInt(document.getElementById('line-width').value);
         const amplitude = parseInt(document.getElementById('amplitude').value);
@@ -2297,7 +2297,7 @@ class OpticalArtGenerator {
         }
     }
 
-    generateCubeIllusion(layerGroup) {
+    generateCubeIllusion(layerGroup, currentRotation, slowAnimationTime) {
         const complexity = parseInt(document.getElementById('complexity').value);
         const lineWidth = parseInt(document.getElementById('line-width').value);
         const amplitude = parseInt(document.getElementById('amplitude').value);
@@ -2472,7 +2472,7 @@ class OpticalArtGenerator {
         }
     }
 
-    generateEyePattern(layerGroup) {
+    generateEyePattern(layerGroup, currentRotation, slowAnimationTime) {
         const complexity = parseInt(document.getElementById('complexity').value);
         const lineWidth = parseInt(document.getElementById('line-width').value);
         const amplitude = parseInt(document.getElementById('amplitude').value);
@@ -2653,7 +2653,7 @@ class OpticalArtGenerator {
         layerGroup.appendChild(eyelidBottom);
     }
 
-    generateSquareTunnel(layerGroup) {
+    generateSquareTunnel(layerGroup, currentRotation, slowAnimationTime) {
         const complexity = parseInt(document.getElementById('complexity').value);
         const lineWidth = parseInt(document.getElementById('line-width').value);
         const amplitude = parseInt(document.getElementById('amplitude').value);
@@ -2748,9 +2748,14 @@ class OpticalArtGenerator {
         centerDot.setAttribute('r', Math.max(2, lineWidth));
         centerDot.setAttribute('fill', this.getLineColor(0, 1));
         layerGroup.appendChild(centerDot);
+        
+        // Apply overall rotation if set
+        if (currentRotation !== 0) {
+            layerGroup.setAttribute('transform', `rotate(${currentRotation} ${centerX} ${centerY})`);
+        }
     }
 
-    generateWaveDisplacement(layerGroup) {
+    generateWaveDisplacement(layerGroup, currentRotation, slowAnimationTime) {
         const complexity = parseInt(document.getElementById('complexity').value);
         const lineWidth = parseInt(document.getElementById('line-width').value);
         const frequency = parseInt(document.getElementById('frequency').value);
@@ -2904,7 +2909,7 @@ class OpticalArtGenerator {
         }
     }
 
-    generateCircularDisplacement(layerGroup) {
+    generateCircularDisplacement(layerGroup, currentRotation, slowAnimationTime) {
         const complexity = parseInt(document.getElementById('complexity').value);
         const lineWidth = parseInt(document.getElementById('line-width').value);
         const amplitude = parseInt(document.getElementById('amplitude').value);
@@ -3143,7 +3148,7 @@ class OpticalArtGenerator {
         layerGroup.appendChild(pupil);
     }
 
-    generateMoireInterference(layerGroup) {
+    generateMoireInterference(layerGroup, currentRotation, slowAnimationTime) {
         const complexity = parseInt(document.getElementById('complexity').value);
         const lineWidth = parseInt(document.getElementById('line-width').value);
         const amplitude = parseInt(document.getElementById('amplitude').value);
@@ -3289,7 +3294,7 @@ class OpticalArtGenerator {
         layerGroup.appendChild(marker);
     }
 
-    generateSpiralDistortion(layerGroup) {
+    generateSpiralDistortion(layerGroup, currentRotation, slowAnimationTime) {
         const complexity = parseInt(document.getElementById('complexity').value);
         const lineWidth = parseInt(document.getElementById('line-width').value);
         const amplitude = parseInt(document.getElementById('amplitude').value);
