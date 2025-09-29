@@ -4123,7 +4123,7 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         
         const mutated = {
             ...current,
-            complexity: Math.max(5, Math.min(2000, Math.round(current.complexity * (1 + (Math.random() - 0.5) * mutationAmount * 2)))),
+            complexity: Math.max(5, Math.min(300, Math.round(current.complexity * (1 + (Math.random() - 0.5) * mutationAmount * 2)))),
             lineWidth: Math.max(1, Math.min(8, Math.round(current.lineWidth * (1 + (Math.random() - 0.5) * mutationAmount * 2)))),
             frequency: Math.max(1, Math.min(100, Math.round(current.frequency * (1 + (Math.random() - 0.5) * mutationAmount * 2)))),
             amplitude: Math.max(-1000, Math.min(1000, Math.round(current.amplitude * (1 + (Math.random() - 0.5) * mutationAmount * 2)))),
