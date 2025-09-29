@@ -1182,7 +1182,9 @@ class OpticalArtGenerator {
 
     setupEventListeners() {
         document.getElementById('generate-btn').addEventListener('click', () => {
+            console.log('Generate New button clicked');
             this.currentSeed = Math.random();
+            console.log('New seed:', this.currentSeed);
             this.generatePattern(true);
         });
 
@@ -1492,12 +1494,15 @@ class OpticalArtGenerator {
     }
 
     generatePattern(clear = true, slowAnimationTime = 0) {
+        console.log('generatePattern called, clear:', clear, 'isGenerating:', this.isGenerating);
         if (this.isGenerating) {
+            console.log('Already generating, returning');
             return;
         }
 
         try {
             this.isGenerating = true;
+            console.log('Starting pattern generation');
             this.canvas.classList.add('optical-loading');
 
             setTimeout(() => {
@@ -3267,42 +3272,41 @@ class OpticalArtGenerator {
         const centerX = this.actualWidth / 2;
         const centerY = this.actualHeight / 2;
 
-        // Use complexity for number of spiral turns/rings
-        const numTurns = Math.max(10, Math.min(200, complexity));
+        // Use complexity for density of spiral rings (MANY more lines for optical art)
+        const numRings = Math.max(50, complexity * 2);
         const maxRadius = Math.min(this.actualWidth, this.actualHeight) * 0.48;
         
-        // Use amplitude for wave modulation intensity (handle negative)
+        // Use amplitude for 3D depth illusion (alternating fills)
+        const use3DEffect = Math.abs(amplitude) > 20;
         const absAmplitude = Math.abs(amplitude);
-        const waveIntensity = absAmplitude / 100;
         
-        // Use frequency for number of spiral arms (2-8)
-        const numArms = Math.max(2, Math.min(8, Math.floor(frequency / 12.5)));
+        // Use frequency for spiral tightness/rotation speed
+        const rotationSpeed = frequency / 10;
         
         // Golden ratio for natural spiral
         const phi = (1 + Math.sqrt(5)) / 2;
         
-        // Draw each spiral arm
-        for (let armIdx = 0; armIdx < numArms; armIdx++) {
-            const armProgress = armIdx / numArms;
-            const baseAngle = armProgress * Math.PI * 2;
+        // Draw many concentric spiral rings for optical art density
+        for (let ringIdx = 0; ringIdx < numRings; ringIdx++) {
+            const progress = ringIdx / numRings;
+            
+            // Logarithmic spiral radius
+            const radius = maxRadius * Math.pow(progress, 1 / phi);
             
             const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             let pathData = '';
             
-            // Build spiral with many points for smooth curve
-            for (let i = 0; i <= numTurns; i++) {
-                const progress = i / numTurns;
+            // High resolution circle
+            const numPoints = 180;
+            for (let i = 0; i <= numPoints; i++) {
+                const angle = (i / numPoints) * Math.PI * 2;
                 
-                // Logarithmic spiral for elegant curve
-                const radius = maxRadius * Math.pow(progress, 1 / phi);
+                // Spiral twist based on radius
+                const spiralAngle = angle + (radius / maxRadius) * rotationSpeed * Math.PI * 2;
                 
-                // Calculate angle with spiral twist
-                const angleProgress = progress * 6; // 6 full rotations max
-                const angle = baseAngle + angleProgress * Math.PI * 2;
-                
-                // Add wave modulation for organic beauty
-                const waveOffset = Math.sin(angleProgress * 4) * waveIntensity * radius * 0.15;
-                const finalRadius = radius + waveOffset;
+                // Calculate position with spiral offset
+                const spiralOffset = Math.sin(spiralAngle * 3) * absAmplitude * 0.02;
+                const finalRadius = radius + spiralOffset;
                 
                 const x = centerX + Math.cos(angle) * finalRadius;
                 const y = centerY + Math.sin(angle) * finalRadius;
@@ -3313,18 +3317,26 @@ class OpticalArtGenerator {
                     pathData += ` L ${x} ${y}`;
                 }
             }
+            pathData += ' Z';
             
             path.setAttribute('d', pathData);
-            path.setAttribute('fill', 'none');
             
-            const color = this.getLineColor(armIdx, numArms);
-            path.setAttribute('stroke', color);
+            const color = this.getLineColor(ringIdx, numRings);
+            const colorMode = document.getElementById('color-mode').value;
             
-            // Variable thickness - thicker toward outside
-            const thickness = lineWidth * (0.8 + armProgress * 0.4);
-            path.setAttribute('stroke-width', thickness);
-            path.style.strokeLinecap = 'round';
-            path.style.strokeLinejoin = 'round';
+            // 3D optical art effect - alternating fills create depth illusion
+            if (use3DEffect && ringIdx % 2 === 0) {
+                // Filled rings for 3D depth
+                path.setAttribute('fill', color);
+                path.setAttribute('fill-opacity', '0.6');
+                path.setAttribute('stroke', color);
+                path.setAttribute('stroke-width', lineWidth * 0.3);
+            } else {
+                // Outline rings
+                path.setAttribute('fill', 'none');
+                path.setAttribute('stroke', color);
+                path.setAttribute('stroke-width', lineWidth * (0.5 + progress * 0.5));
+            }
             
             if (rotation !== 0) {
                 path.setAttribute('transform', `rotate(${rotation} ${centerX} ${centerY})`);
