@@ -105,7 +105,7 @@ class OpticalArtGenerator {
         this.patternInfo = {
             'concentric-circles': 'Creates hypnotic circular patterns with varying spacing to produce optical illusions',
             'diagonal-stripes': 'Generates diagonal line patterns that create depth and movement effects',
-            'cube-illusion': 'Produces 3D cube illusions using vertical lines and geometric positioning',
+            'cube-illusion': 'Creates mesmerizing isometric cube arrays with Escher-style impossible geometry, dynamic perspective, and wave-based depth modulation',
             'eye-pattern': 'Creates eye-like shapes with concentric curves for mesmerizing effects',
             'square-tunnel': 'Generates tunnel-like square spirals that appear to recede into distance',
             'wave-displacement': 'Horizontal stripes displaced by sine waves creating bulging illusions',
@@ -672,65 +672,75 @@ class OpticalArtGenerator {
     }
 
     generateMiniCubeIllusion(svg, seed, complexity, lineWidth) {
-        // Vertical background lines
-        const spacing = 56 / (complexity * 2);
-        for (let x = 0; x < 56; x += spacing) {
-            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            line.setAttribute('x1', x);
-            line.setAttribute('y1', 0);
-            line.setAttribute('x2', x);
-            line.setAttribute('y2', 56);
-            line.setAttribute('stroke', '#000');
-            line.setAttribute('stroke-width', lineWidth * 0.5);
-            svg.appendChild(line);
+        const centerX = 28;
+        const centerY = 28;
+        const gridSize = 3; // 3x3 grid for preview
+        const baseSize = 12;
+        
+        // Create isometric cube grid
+        for (let row = 0; row < gridSize; row++) {
+            for (let col = 0; col < gridSize; col++) {
+                const xOffset = col - gridSize / 2;
+                const yOffset = row - gridSize / 2;
+                
+                // Isometric positioning
+                const isoX = centerX + (xOffset - yOffset) * baseSize * 0.866;
+                const isoY = centerY + (xOffset + yOffset) * baseSize * 0.5;
+                
+                // Vary size slightly for depth
+                const distFromCenter = Math.sqrt(xOffset * xOffset + yOffset * yOffset);
+                const sizeScale = 0.8 + 0.2 * (1 - distFromCenter / 2);
+                const cubeSize = baseSize * sizeScale;
+                
+                // Draw isometric cube
+                this.drawMiniIsometricCube(svg, isoX, isoY, cubeSize, lineWidth, (row + col) % 2 === 0);
+            }
         }
+    }
 
-        // Single cube in center
-        const cubeSize = 16;
-        const x = 20;
-        const y = 20;
-        const offset = cubeSize * 0.3;
-
-        // Front face
-        const frontFace = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        frontFace.setAttribute('x', x);
-        frontFace.setAttribute('y', y);
-        frontFace.setAttribute('width', cubeSize);
-        frontFace.setAttribute('height', cubeSize);
-        frontFace.setAttribute('fill', 'none');
-        frontFace.setAttribute('stroke', '#000');
-        frontFace.setAttribute('stroke-width', lineWidth);
-        svg.appendChild(frontFace);
-
-        // Back face
-        const backFace = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        backFace.setAttribute('x', x + offset);
-        backFace.setAttribute('y', y - offset);
-        backFace.setAttribute('width', cubeSize);
-        backFace.setAttribute('height', cubeSize);
-        backFace.setAttribute('fill', 'none');
-        backFace.setAttribute('stroke', '#000');
-        backFace.setAttribute('stroke-width', lineWidth);
-        svg.appendChild(backFace);
-
-        // Connecting lines
-        const connections = [
-            [x, y, x + offset, y - offset],
-            [x + cubeSize, y, x + cubeSize + offset, y - offset],
-            [x, y + cubeSize, x + offset, y + cubeSize - offset],
-            [x + cubeSize, y + cubeSize, x + cubeSize + offset, y + cubeSize - offset]
+    drawMiniIsometricCube(svg, centerX, centerY, size, lineWidth, shouldFlip) {
+        const angle = Math.PI / 6; // 30 degrees
+        const cos30 = Math.cos(angle);
+        const sin30 = Math.sin(angle);
+        const halfSize = size / 2;
+        const flipMult = shouldFlip ? -1 : 1;
+        
+        // Calculate vertices
+        const vertices = [
+            { x: centerX - halfSize * cos30 * flipMult, y: centerY + halfSize * sin30 + halfSize },
+            { x: centerX + halfSize * cos30 * flipMult, y: centerY - halfSize * sin30 + halfSize },
+            { x: centerX + halfSize * cos30 * flipMult, y: centerY - halfSize * sin30 - halfSize },
+            { x: centerX - halfSize * cos30 * flipMult, y: centerY + halfSize * sin30 - halfSize },
+            { x: centerX - halfSize * cos30 * flipMult, y: centerY + halfSize * sin30 },
+            { x: centerX + halfSize * cos30 * flipMult, y: centerY - halfSize * sin30 },
+            { x: centerX + halfSize * cos30 * flipMult, y: centerY - halfSize * sin30 - size },
+            { x: centerX - halfSize * cos30 * flipMult, y: centerY + halfSize * sin30 - size }
         ];
 
-        connections.forEach(([x1, y1, x2, y2]) => {
-            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            line.setAttribute('x1', x1);
-            line.setAttribute('y1', y1);
-            line.setAttribute('x2', x2);
-            line.setAttribute('y2', y2);
-            line.setAttribute('stroke', '#000');
-            line.setAttribute('stroke-width', lineWidth);
-            svg.appendChild(line);
-        });
+        // Draw three visible faces
+        // Top face
+        const topFace = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        topFace.setAttribute('d', `M ${vertices[3].x} ${vertices[3].y} L ${vertices[2].x} ${vertices[2].y} L ${vertices[6].x} ${vertices[6].y} L ${vertices[7].x} ${vertices[7].y} Z`);
+        topFace.setAttribute('fill', '#888');
+        topFace.setAttribute('stroke', '#000');
+        topFace.setAttribute('stroke-width', lineWidth * 0.5);
+        svg.appendChild(topFace);
+
+        // Left face
+        const leftFace = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        leftFace.setAttribute('d', `M ${vertices[0].x} ${vertices[0].y} L ${vertices[3].x} ${vertices[3].y} L ${vertices[7].x} ${vertices[7].y} L ${vertices[4].x} ${vertices[4].y} Z`);
+        leftFace.setAttribute('fill', '#666');
+        leftFace.setAttribute('stroke', '#000');
+        leftFace.setAttribute('stroke-width', lineWidth * 0.5);
+        svg.appendChild(leftFace);
+
+        // Right face
+        const rightFace = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        rightFace.setAttribute('d', `M ${vertices[1].x} ${vertices[1].y} L ${vertices[2].x} ${vertices[2].y} L ${vertices[6].x} ${vertices[6].y} L ${vertices[5].x} ${vertices[5].y} Z`);
+        rightFace.setAttribute('fill', '#aaa');
+        rightFace.setAttribute('stroke', '#000');
+        rightFace.setAttribute('stroke-width', lineWidth * 0.5);
+        svg.appendChild(rightFace);
     }
 
     generateMiniShadedGrid(svg, seed, complexity, lineWidth) {
@@ -1566,80 +1576,176 @@ class OpticalArtGenerator {
     generateCubeIllusion(layerGroup) {
         const complexity = parseInt(document.getElementById('complexity').value);
         const lineWidth = parseInt(document.getElementById('line-width').value);
+        const amplitude = parseInt(document.getElementById('amplitude').value);
+        const frequency = parseInt(document.getElementById('frequency').value);
+        const centerX = this.actualWidth / 2;
+        const centerY = this.actualHeight / 2;
 
-        // Create vertical background lines
-        const spacing = this.actualWidth / (complexity * 2);
-        for (let x = 0; x < this.actualWidth; x += spacing) {
-            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            line.setAttribute('x1', x);
-            line.setAttribute('y1', 0);
-            line.setAttribute('x2', x);
-            line.setAttribute('y2', this.actualHeight);
-            line.setAttribute('stroke', '#000');
-            line.setAttribute('stroke-width', lineWidth * 0.5);
-            layerGroup.appendChild(line);
+        // Use complexity to determine grid density
+        const gridDensity = Math.max(2, Math.floor(complexity / 15));
+        const baseSize = Math.min(this.actualWidth, this.actualHeight) / (gridDensity + 2);
+
+        // Create isometric cube grid with depth illusion
+        for (let row = 0; row < gridDensity; row++) {
+            for (let col = 0; col < gridDensity; col++) {
+                const index = row * gridDensity + col;
+                
+                // Calculate position with perspective
+                const xOffset = col - gridDensity / 2;
+                const yOffset = row - gridDensity / 2;
+                
+                // Create isometric positioning
+                const isoX = centerX + (xOffset - yOffset) * baseSize * 0.866; // sqrt(3)/2 for 30° angle
+                const isoY = centerY + (xOffset + yOffset) * baseSize * 0.5;
+                
+                // Dynamic cube size based on distance and mathematical functions
+                const distFromCenter = Math.sqrt(xOffset * xOffset + yOffset * yOffset);
+                const maxDist = Math.sqrt(2) * gridDensity / 2;
+                
+                // Use frequency for wave-based size modulation
+                const waveEffect = Math.sin(distFromCenter * frequency * 0.1 + this.currentSeed * 10) * 0.3;
+                
+                // Use amplitude for depth scaling
+                const depthScale = 0.6 + 0.4 * (1 - distFromCenter / maxDist) * (amplitude / 50);
+                const sizeScale = (0.7 + waveEffect) * depthScale;
+                
+                const cubeSize = baseSize * sizeScale;
+                
+                // Determine cube orientation (some flip to create Escher-like effect)
+                const shouldFlip = (row + col) % 2 === 0;
+                const orientationFactor = this.seededRandom(this.currentSeed + index) > 0.5 ? 1 : -1;
+                
+                // Calculate rotation angle for variety
+                const rotationAngle = (index * frequency * 0.5) % 90;
+                
+                // Color index for gradients
+                const colorIndex = index;
+                const totalCubes = gridDensity * gridDensity;
+                
+                this.drawIsometricCube(
+                    layerGroup, 
+                    isoX, 
+                    isoY, 
+                    cubeSize, 
+                    lineWidth,
+                    shouldFlip,
+                    orientationFactor,
+                    rotationAngle,
+                    colorIndex,
+                    totalCubes
+                );
+            }
         }
 
-        // Create cube shapes
-        const cubeSize = Math.min(this.actualWidth, this.actualHeight) / 6;
-        const rows = 3;
-        const cols = 3;
-
-        for (let row = 0; row < rows; row++) {
-            for (let col = 0; col < cols; col++) {
-                const x = (this.actualWidth / (cols + 1)) * (col + 1) - cubeSize / 2;
-                const y = (this.actualHeight / (rows + 1)) * (row + 1) - cubeSize / 2;
-
-                const randomOffset = (this.seededRandom(this.currentSeed + row + col) - 0.5) * cubeSize * 0.3;
-
-                this.drawCube(layerGroup, x + randomOffset, y, cubeSize, lineWidth);
-            }
+        // Add connecting lines for impossible object effect (only if complexity is high)
+        if (complexity > 30) {
+            this.addImpossibleConnections(layerGroup, centerX, centerY, baseSize, gridDensity, lineWidth);
         }
     }
 
-    drawCube(layerGroup, x, y, size, lineWidth) {
-        const offset = size * 0.3;
-
-        // Front face
-        const frontFace = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        frontFace.setAttribute('x', x);
-        frontFace.setAttribute('y', y);
-        frontFace.setAttribute('width', size);
-        frontFace.setAttribute('height', size);
-        frontFace.setAttribute('fill', 'none');
-        frontFace.setAttribute('stroke', '#000');
-        frontFace.setAttribute('stroke-width', lineWidth);
-        layerGroup.appendChild(frontFace);
-
-        // Back face
-        const backFace = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        backFace.setAttribute('x', x + offset);
-        backFace.setAttribute('y', y - offset);
-        backFace.setAttribute('width', size);
-        backFace.setAttribute('height', size);
-        backFace.setAttribute('fill', 'none');
-        backFace.setAttribute('stroke', '#000');
-        backFace.setAttribute('stroke-width', lineWidth);
-        layerGroup.appendChild(backFace);
-
-        // Connecting lines
-        const connections = [
-            [x, y, x + offset, y - offset],
-            [x + size, y, x + size + offset, y - offset],
-            [x, y + size, x + offset, y + size - offset],
-            [x + size, y + size, x + size + offset, y + size - offset]
+    drawIsometricCube(layerGroup, centerX, centerY, size, lineWidth, shouldFlip, orientationFactor, rotationAngle, colorIndex, totalCubes) {
+        // Isometric projection angles: 30° for depth
+        const angle = Math.PI / 6; // 30 degrees
+        const cos30 = Math.cos(angle);
+        const sin30 = Math.sin(angle);
+        
+        // Calculate cube vertices in isometric view
+        const halfSize = size / 2;
+        
+        // Define 8 vertices of a cube in isometric projection
+        // Flip orientation based on shouldFlip for Escher effect
+        const flipMultiplier = shouldFlip ? -1 : 1;
+        const orientMult = orientationFactor;
+        
+        const vertices = [
+            // Bottom face (closer)
+            { x: centerX - halfSize * cos30 * flipMultiplier, y: centerY + halfSize * sin30 + halfSize },
+            { x: centerX + halfSize * cos30 * flipMultiplier, y: centerY - halfSize * sin30 + halfSize },
+            { x: centerX + halfSize * cos30 * flipMultiplier, y: centerY - halfSize * sin30 - halfSize },
+            { x: centerX - halfSize * cos30 * flipMultiplier, y: centerY + halfSize * sin30 - halfSize },
+            // Top face (farther)
+            { x: centerX - halfSize * cos30 * flipMultiplier * orientMult, y: centerY + halfSize * sin30 * orientMult },
+            { x: centerX + halfSize * cos30 * flipMultiplier * orientMult, y: centerY - halfSize * sin30 * orientMult },
+            { x: centerX + halfSize * cos30 * flipMultiplier * orientMult, y: centerY - halfSize * sin30 * orientMult - size },
+            { x: centerX - halfSize * cos30 * flipMultiplier * orientMult, y: centerY + halfSize * sin30 * orientMult - size }
         ];
 
-        connections.forEach(([x1, y1, x2, y2]) => {
-            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            line.setAttribute('x1', x1);
-            line.setAttribute('y1', y1);
-            line.setAttribute('x2', x2);
-            line.setAttribute('y2', y2);
-            line.setAttribute('stroke', '#000');
-            line.setAttribute('stroke-width', lineWidth);
-            layerGroup.appendChild(line);
-        });
+        // Get colors for different faces
+        const topColor = this.getLineColor(colorIndex, totalCubes);
+        const leftColor = this.getLineColor(colorIndex + totalCubes / 3, totalCubes);
+        const rightColor = this.getLineColor(colorIndex + 2 * totalCubes / 3, totalCubes);
+
+        // Draw three visible faces with different colors for depth
+        
+        // Top face (parallelogram)
+        const topFace = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const topPath = `M ${vertices[3].x} ${vertices[3].y} 
+                        L ${vertices[2].x} ${vertices[2].y} 
+                        L ${vertices[6].x} ${vertices[6].y} 
+                        L ${vertices[7].x} ${vertices[7].y} Z`;
+        topFace.setAttribute('d', topPath);
+        topFace.setAttribute('fill', topColor);
+        topFace.setAttribute('fill-opacity', '0.3');
+        topFace.setAttribute('stroke', topColor);
+        topFace.setAttribute('stroke-width', lineWidth);
+        layerGroup.appendChild(topFace);
+
+        // Left face
+        const leftFace = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const leftPath = `M ${vertices[0].x} ${vertices[0].y} 
+                         L ${vertices[3].x} ${vertices[3].y} 
+                         L ${vertices[7].x} ${vertices[7].y} 
+                         L ${vertices[4].x} ${vertices[4].y} Z`;
+        leftFace.setAttribute('d', leftPath);
+        leftFace.setAttribute('fill', leftColor);
+        leftFace.setAttribute('fill-opacity', '0.2');
+        leftFace.setAttribute('stroke', leftColor);
+        leftFace.setAttribute('stroke-width', lineWidth);
+        layerGroup.appendChild(leftFace);
+
+        // Right face
+        const rightFace = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const rightPath = `M ${vertices[1].x} ${vertices[1].y} 
+                          L ${vertices[2].x} ${vertices[2].y} 
+                          L ${vertices[6].x} ${vertices[6].y} 
+                          L ${vertices[5].x} ${vertices[5].y} Z`;
+        rightFace.setAttribute('d', rightPath);
+        rightFace.setAttribute('fill', rightColor);
+        rightFace.setAttribute('fill-opacity', '0.2');
+        rightFace.setAttribute('stroke', rightColor);
+        rightFace.setAttribute('stroke-width', lineWidth);
+        layerGroup.appendChild(rightFace);
+    }
+
+    addImpossibleConnections(layerGroup, centerX, centerY, baseSize, gridDensity, lineWidth) {
+        // Create Escher-style impossible connections between distant cubes
+        const connectionColor = this.getLineColor(0, 1);
+        
+        for (let i = 0; i < gridDensity; i++) {
+            const angle1 = (i / gridDensity) * Math.PI * 2;
+            const angle2 = ((i + gridDensity / 2) % gridDensity / gridDensity) * Math.PI * 2;
+            
+            const radius = baseSize * gridDensity * 0.4;
+            
+            const x1 = centerX + Math.cos(angle1) * radius;
+            const y1 = centerY + Math.sin(angle1) * radius;
+            const x2 = centerX + Math.cos(angle2) * radius;
+            const y2 = centerY + Math.sin(angle2) * radius;
+            
+            // Create curved connection for impossible effect
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            const controlX = centerX + Math.cos((angle1 + angle2) / 2) * radius * 0.5;
+            const controlY = centerY + Math.sin((angle1 + angle2) / 2) * radius * 0.5;
+            
+            const pathData = `M ${x1} ${y1} Q ${controlX} ${controlY} ${x2} ${y2}`;
+            path.setAttribute('d', pathData);
+            path.setAttribute('fill', 'none');
+            path.setAttribute('stroke', connectionColor);
+            path.setAttribute('stroke-width', lineWidth * 0.5);
+            path.setAttribute('stroke-dasharray', '5,5');
+            path.setAttribute('opacity', '0.3');
+            layerGroup.appendChild(path);
+        }
     }
 
     generateEyePattern(layerGroup) {
