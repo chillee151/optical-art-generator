@@ -110,7 +110,7 @@ class OpticalArtGenerator {
             'square-tunnel': '3D vortex tunnel with exponential perspective, spiral twist, alternating fills, and depth-based transformations rivaling Radial Vortex',
             'wave-displacement': 'Multi-wave interference field with standing waves, traveling waves, radial sources, and 3D surface bands creating complex wave patterns',
             'circular-displacement': 'Magnetic field visualization with multiple vortex centers, alternating charges, vector field distortion, and black hole lensing effects',
-            'moire-interference': 'Overlapping patterns creating moiré interference effects',
+            'moire-interference': 'Multi-layer interference patterns with three modes: traditional lines, grid networks, and radial circles, creating mesmerizing moiré effects',
             'spiral-distortion': 'Golden ratio spirals with double counter-rotating arms, variable thickness, 3D ribbon bands, and organic wave modulation creating mesmerizing depth',
             'perlin-displacement': 'Organic patterns from a Perlin noise field',
             'fractal-noise': 'Rich, detailed patterns from layered Perlin noise (fBm)',
@@ -898,33 +898,57 @@ class OpticalArtGenerator {
     }
 
     generateMiniMoireInterference(svg, seed, complexity, lineWidth) {
-        const spacing1 = 56 / complexity;
-        const spacing2 = 56 / (complexity + 1);
-
-        // First set
-        for (let y = 0; y < 56 + spacing1; y += spacing1) {
-            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            line.setAttribute('x1', 0);
-            line.setAttribute('y1', y);
-            line.setAttribute('x2', 56);
-            line.setAttribute('y2', y);
-            line.setAttribute('stroke', '#000');
-            line.setAttribute('stroke-width', lineWidth);
-            svg.appendChild(line);
+        const centerX = 28;
+        const centerY = 28;
+        const spacing = 56 / (complexity + 2);
+        
+        // Three layers with different angles (grid pattern preview)
+        const layers = [
+            { angle: 0, opacity: 0.8 },
+            { angle: 15, opacity: 0.6 },
+            { angle: -12, opacity: 0.5 }
+        ];
+        
+        for (let layerIdx = 0; layerIdx < layers.length; layerIdx++) {
+            const layer = layers[layerIdx];
+            
+            // Horizontal lines
+            for (let y = 0; y < 56 + spacing; y += spacing) {
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', 0);
+                line.setAttribute('y1', y);
+                line.setAttribute('x2', 56);
+                line.setAttribute('y2', y);
+                line.setAttribute('stroke', '#000');
+                line.setAttribute('stroke-width', lineWidth * (1 - layerIdx * 0.15));
+                line.setAttribute('stroke-opacity', layer.opacity);
+                line.setAttribute('transform', `rotate(${layer.angle} ${centerX} ${centerY})`);
+                svg.appendChild(line);
+            }
+            
+            // Vertical lines
+            for (let x = 0; x < 56 + spacing; x += spacing) {
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', x);
+                line.setAttribute('y1', 0);
+                line.setAttribute('x2', x);
+                line.setAttribute('y2', 56);
+                line.setAttribute('stroke', '#000');
+                line.setAttribute('stroke-width', lineWidth * (1 - layerIdx * 0.15));
+                line.setAttribute('stroke-opacity', layer.opacity);
+                line.setAttribute('transform', `rotate(${layer.angle} ${centerX} ${centerY})`);
+                svg.appendChild(line);
+            }
         }
-
-        // Second set with slight angle
-        for (let y = 0; y < 56 + spacing2; y += spacing2) {
-            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            line.setAttribute('x1', 0);
-            line.setAttribute('y1', y);
-            line.setAttribute('x2', 56);
-            line.setAttribute('y2', y);
-            line.setAttribute('stroke', '#000');
-            line.setAttribute('stroke-width', lineWidth * 0.7);
-            line.setAttribute('transform', 'rotate(5 28 28)');
-            svg.appendChild(line);
-        }
+        
+        // Center marker
+        const marker = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        marker.setAttribute('cx', centerX);
+        marker.setAttribute('cy', centerY);
+        marker.setAttribute('r', 1.5);
+        marker.setAttribute('fill', '#000');
+        marker.setAttribute('fill-opacity', '0.5');
+        svg.appendChild(marker);
     }
 
     generateMiniSpiralDistortion(svg, seed, complexity, lineWidth) {
@@ -3003,34 +3027,147 @@ class OpticalArtGenerator {
     generateMoireInterference(layerGroup) {
         const complexity = parseInt(document.getElementById('complexity').value);
         const lineWidth = parseInt(document.getElementById('line-width').value);
-        const spacing1 = this.actualHeight / complexity;
-        const spacing2 = this.actualHeight / (complexity + this.seededRandom(this.currentSeed) * 5);
+        const amplitude = parseInt(document.getElementById('amplitude').value);
+        const frequency = parseInt(document.getElementById('frequency').value);
+        const rotation = parseInt(document.getElementById('rotation').value);
+        const centerX = this.actualWidth / 2;
+        const centerY = this.actualHeight / 2;
 
-        // First set of lines
-        for (let y = 0; y < this.actualHeight + spacing1; y += spacing1) {
-            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            line.setAttribute('x1', 0);
-            line.setAttribute('y1', y);
-            line.setAttribute('x2', this.actualWidth);
-            line.setAttribute('y2', y);
-            line.setAttribute('stroke', '#000');
-            line.setAttribute('stroke-width', lineWidth);
-            layerGroup.appendChild(line);
-        }
+        // Use complexity for line density
+        const baseSpacing = Math.max(this.actualHeight / complexity, 2);
+        
+        // Use amplitude for spacing variation between layers
+        const spacingVariation = amplitude / 100;
+        
+        // Use frequency for rotation angles and number of layers
+        const numLayers = frequency > 66 ? 3 : frequency > 33 ? 2 : 1;
+        const angleStep = frequency / 10;
+        
+        // Create pattern type based on frequency
+        const patternType = frequency > 60 ? 'radial' : frequency > 30 ? 'grid' : 'lines';
 
-        // Second set of lines with slight angle and spacing difference
-        const angle = (this.seededRandom(this.currentSeed + 1) - 0.5) * 10;
-        for (let y = 0; y < this.actualHeight + spacing2; y += spacing2) {
-            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            line.setAttribute('x1', 0);
-            line.setAttribute('y1', y);
-            line.setAttribute('x2', this.actualWidth);
-            line.setAttribute('y2', y);
-            line.setAttribute('stroke', '#000');
-            line.setAttribute('stroke-width', lineWidth * 0.7);
-            line.setAttribute('transform', `rotate(${angle} ${this.actualWidth/2} ${this.actualHeight/2})`);
-            layerGroup.appendChild(line);
+        if (patternType === 'radial') {
+            // Radial moiré pattern with concentric circles
+            for (let layer = 0; layer < numLayers; layer++) {
+                const layerProgress = layer / Math.max(numLayers - 1, 1);
+                const spacing = baseSpacing * (1 + spacingVariation * layer * 0.2);
+                const maxRadius = Math.sqrt(this.actualWidth * this.actualWidth + this.actualHeight * this.actualHeight) / 2;
+                const numCircles = Math.ceil(maxRadius / spacing);
+                
+                for (let i = 0; i < numCircles; i++) {
+                    const radius = spacing * (i + 1);
+                    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    circle.setAttribute('cx', centerX);
+                    circle.setAttribute('cy', centerY);
+                    circle.setAttribute('r', radius);
+                    circle.setAttribute('fill', 'none');
+                    
+                    const color = this.getLineColor(layer, numLayers);
+                    circle.setAttribute('stroke', color);
+                    circle.setAttribute('stroke-width', lineWidth * (1 - layer * 0.2));
+                    circle.setAttribute('stroke-opacity', 0.7);
+                    
+                    // Rotation for each layer
+                    const layerRotation = rotation + angleStep * layer;
+                    if (layerRotation !== 0) {
+                        circle.setAttribute('transform', `rotate(${layerRotation} ${centerX} ${centerY})`);
+                    }
+                    
+                    layerGroup.appendChild(circle);
+                }
+            }
+        } else if (patternType === 'grid') {
+            // Grid pattern (horizontal + vertical)
+            for (let layer = 0; layer < numLayers; layer++) {
+                const layerProgress = layer / Math.max(numLayers - 1, 1);
+                const spacing = baseSpacing * (1 + spacingVariation * layer * 0.15);
+                const color = this.getLineColor(layer, numLayers);
+                const thickness = lineWidth * (1 - layer * 0.15);
+                const layerRotation = rotation + angleStep * layer * 1.5;
+                
+                // Horizontal lines
+                for (let y = 0; y < this.actualHeight + spacing; y += spacing) {
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', 0);
+                    line.setAttribute('y1', y);
+                    line.setAttribute('x2', this.actualWidth);
+                    line.setAttribute('y2', y);
+                    line.setAttribute('stroke', color);
+                    line.setAttribute('stroke-width', thickness);
+                    line.setAttribute('stroke-opacity', 0.7);
+                    
+                    if (layerRotation !== 0) {
+                        line.setAttribute('transform', `rotate(${layerRotation} ${centerX} ${centerY})`);
+                    }
+                    
+                    layerGroup.appendChild(line);
+                }
+                
+                // Vertical lines
+                for (let x = 0; x < this.actualWidth + spacing; x += spacing) {
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', x);
+                    line.setAttribute('y1', 0);
+                    line.setAttribute('x2', x);
+                    line.setAttribute('y2', this.actualHeight);
+                    line.setAttribute('stroke', color);
+                    line.setAttribute('stroke-width', thickness);
+                    line.setAttribute('stroke-opacity', 0.7);
+                    
+                    if (layerRotation !== 0) {
+                        line.setAttribute('transform', `rotate(${layerRotation} ${centerX} ${centerY})`);
+                    }
+                    
+                    layerGroup.appendChild(line);
+                }
+            }
+        } else {
+            // Linear pattern with multiple angles (traditional moiré)
+            const layers = Math.max(2, numLayers + 1);
+            
+            for (let layer = 0; layer < layers; layer++) {
+                const layerProgress = layer / (layers - 1);
+                
+                // Variable spacing for each layer to create moiré
+                const spacing = baseSpacing * (1 + spacingVariation * (layer * 0.1 + this.seededRandom(this.currentSeed + layer) * 0.1));
+                
+                // Different angles for each layer
+                const layerAngle = rotation + angleStep * layer;
+                
+                const color = this.getLineColor(layer, layers);
+                const thickness = lineWidth * (1 - layer * 0.12);
+                
+                // Calculate number of lines needed (accounting for rotation)
+                const diagonal = Math.sqrt(this.actualWidth * this.actualWidth + this.actualHeight * this.actualHeight);
+                const numLines = Math.ceil(diagonal / spacing) + 10;
+                const startY = -diagonal / 2;
+                
+                for (let i = 0; i < numLines; i++) {
+                    const y = startY + i * spacing;
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', -this.actualWidth);
+                    line.setAttribute('y1', y);
+                    line.setAttribute('x2', this.actualWidth * 2);
+                    line.setAttribute('y2', y);
+                    line.setAttribute('stroke', color);
+                    line.setAttribute('stroke-width', thickness);
+                    line.setAttribute('stroke-opacity', 0.7 - layer * 0.1);
+                    
+                    line.setAttribute('transform', `rotate(${layerAngle} ${centerX} ${centerY})`);
+                    
+                    layerGroup.appendChild(line);
+                }
+            }
         }
+        
+        // Add reference point
+        const marker = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        marker.setAttribute('cx', centerX);
+        marker.setAttribute('cy', centerY);
+        marker.setAttribute('r', Math.max(2, lineWidth));
+        marker.setAttribute('fill', this.getLineColor(0, 1));
+        marker.setAttribute('fill-opacity', '0.5');
+        layerGroup.appendChild(marker);
     }
 
     generateSpiralDistortion(layerGroup) {
