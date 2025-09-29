@@ -106,10 +106,10 @@ class OpticalArtGenerator {
             'concentric-circles': 'Hypnotic wavy rings with golden ratio spacing, variable thickness, breathing effects, and alternating fills creating powerful depth illusion',
             'diagonal-stripes': 'Dynamic Op-Art stripes with wave distortion, variable thickness, and alternating fills creating chevron-like patterns with 3D depth',
             'cube-illusion': 'Creates mesmerizing isometric cube arrays with Escher-style impossible geometry, dynamic perspective, and wave-based depth modulation',
-            'eye-pattern': 'Creates eye-like shapes with concentric curves for mesmerizing effects',
+            'eye-pattern': 'Psychedelic eye with organic distortion, detailed iris lines, realistic pupil with highlight, and eyelid curves creating hypnotic depth',
             'square-tunnel': '3D vortex tunnel with exponential perspective, spiral twist, alternating fills, and depth-based transformations rivaling Radial Vortex',
-            'wave-displacement': 'Horizontal stripes displaced by sine waves creating bulging illusions',
-            'circular-displacement': 'Straight lines warped by circular displacement fields',
+            'wave-displacement': 'Multi-wave interference field with standing waves, traveling waves, radial sources, and 3D surface bands creating complex wave patterns',
+            'circular-displacement': 'Magnetic field visualization with multiple vortex centers, alternating charges, vector field distortion, and black hole lensing effects',
             'moire-interference': 'Overlapping patterns creating moiré interference effects',
             'spiral-distortion': 'Radial patterns with spiral displacement creating depth',
             'perlin-displacement': 'Organic patterns from a Perlin noise field',
@@ -662,57 +662,238 @@ class OpticalArtGenerator {
     }
 
     generateMiniWaveDisplacement(svg, seed, complexity, lineWidth) {
-        const spacing = 56 / complexity;
-        for (let y = 0; y < 56 + spacing; y += spacing) {
+        const numLines = 12;
+        const spacing = 56 / numLines;
+        
+        // Wave sources for interference
+        const sources = [
+            { x: 18, y: 28 },
+            { x: 38, y: 28 },
+            { x: 28, y: 18 }
+        ];
+        
+        for (let i = 0; i < numLines; i++) {
+            const y = i * spacing;
             const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            let pathData = `M 0 ${y}`;
-            for (let x = 0; x <= 56; x += 2) {
-                const wave = Math.sin((x / 56) * Math.PI * 4) * 3;
-                pathData += ` L ${x} ${y + wave}`;
+            let pathData = '';
+            
+            const numPoints = 40;
+            for (let j = 0; j <= numPoints; j++) {
+                const x = (56 * j) / numPoints;
+                
+                // Interference pattern
+                let displacement = 0;
+                for (const source of sources) {
+                    const dist = Math.sqrt(Math.pow(x - source.x, 2) + Math.pow(y - source.y, 2));
+                    displacement += Math.sin(dist * 0.3) * Math.exp(-dist / 30) * 2;
+                }
+                
+                // Add horizontal wave
+                displacement += Math.sin((x / 56) * Math.PI * 3) * 0.5;
+                
+                const finalY = y + displacement;
+                
+                if (j === 0) {
+                    pathData = `M ${x} ${finalY}`;
+                } else {
+                    pathData += ` L ${x} ${finalY}`;
+                }
             }
+            
             path.setAttribute('d', pathData);
-            path.setAttribute('fill', 'none');
-            path.setAttribute('stroke', '#000');
-            path.setAttribute('stroke-width', lineWidth);
+            
+            if (i % 4 === 0) {
+                path.setAttribute('fill', '#ddd');
+                path.setAttribute('fill-opacity', '0.3');
+                path.setAttribute('stroke', '#000');
+                path.setAttribute('stroke-width', lineWidth * 0.5);
+            } else {
+                path.setAttribute('fill', 'none');
+                path.setAttribute('stroke', '#000');
+                path.setAttribute('stroke-width', lineWidth);
+            }
+            
             svg.appendChild(path);
+        }
+        
+        // Wave source markers
+        for (const source of sources) {
+            const marker = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            marker.setAttribute('cx', source.x);
+            marker.setAttribute('cy', source.y);
+            marker.setAttribute('r', 1.5);
+            marker.setAttribute('fill', '#666');
+            marker.setAttribute('fill-opacity', '0.5');
+            svg.appendChild(marker);
         }
     }
 
     generateMiniEyePattern(svg, seed, complexity, lineWidth) {
         const centerX = 28;
         const centerY = 28;
-        for (let i = 0; i < complexity; i++) {
-            const ellipse = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
-            const rx = (20 / complexity) * (i + 1);
-            const ry = (10 / complexity) * (i + 1);
-            ellipse.setAttribute('cx', centerX);
-            ellipse.setAttribute('cy', centerY);
-            ellipse.setAttribute('rx', rx);
-            ellipse.setAttribute('ry', ry);
-            ellipse.setAttribute('fill', 'none');
-            ellipse.setAttribute('stroke', '#000');
-            ellipse.setAttribute('stroke-width', lineWidth);
-            svg.appendChild(ellipse);
+        const maxRadius = 24;
+        const numRings = 10;
+        
+        // Organic eye rings
+        for (let i = 0; i < numRings; i++) {
+            const progress = i / numRings;
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            let pathData = '';
+            
+            const baseRx = maxRadius * progress;
+            const baseRy = maxRadius * 0.6 * progress;
+            
+            const numPoints = 40;
+            for (let j = 0; j <= numPoints; j++) {
+                const angle = (Math.PI * 2 * j) / numPoints;
+                const wave = Math.sin(angle * 2) * 0.1 + Math.sin(angle * 4) * 0.05;
+                const modulation = 1 + wave;
+                
+                const x = centerX + baseRx * modulation * Math.cos(angle);
+                const y = centerY + baseRy * modulation * Math.sin(angle);
+                
+                if (j === 0) {
+                    pathData = `M ${x} ${y}`;
+                } else {
+                    pathData += ` L ${x} ${y}`;
+                }
+            }
+            pathData += ' Z';
+            
+            path.setAttribute('d', pathData);
+            
+            if (i % 3 === 0) {
+                path.setAttribute('fill', '#555');
+                path.setAttribute('fill-opacity', '0.3');
+                path.setAttribute('stroke', '#000');
+                path.setAttribute('stroke-width', lineWidth * 0.3);
+            } else if (i % 3 === 1) {
+                path.setAttribute('fill', 'none');
+                path.setAttribute('stroke', '#000');
+                path.setAttribute('stroke-width', lineWidth);
+            } else {
+                path.setAttribute('fill', '#ddd');
+                path.setAttribute('fill-opacity', '0.2');
+                path.setAttribute('stroke', 'none');
+            }
+            
+            svg.appendChild(path);
         }
+        
+        // Iris lines
+        const irisRadius = 7;
+        const pupilRadius = 3;
+        for (let i = 0; i < 16; i++) {
+            const angle = (Math.PI * 2 * i) / 16;
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', centerX + pupilRadius * Math.cos(angle));
+            line.setAttribute('y1', centerY + pupilRadius * Math.sin(angle));
+            line.setAttribute('x2', centerX + irisRadius * Math.cos(angle));
+            line.setAttribute('y2', centerY + irisRadius * Math.sin(angle));
+            line.setAttribute('stroke', '#000');
+            line.setAttribute('stroke-width', lineWidth * 0.2);
+            line.setAttribute('stroke-opacity', '0.4');
+            svg.appendChild(line);
+        }
+        
+        // Pupil
+        const pupil = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        pupil.setAttribute('cx', centerX);
+        pupil.setAttribute('cy', centerY);
+        pupil.setAttribute('r', pupilRadius);
+        pupil.setAttribute('fill', '#000');
+        svg.appendChild(pupil);
+        
+        // Highlight
+        const highlight = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        highlight.setAttribute('cx', centerX - 1);
+        highlight.setAttribute('cy', centerY - 1);
+        highlight.setAttribute('r', 1);
+        highlight.setAttribute('fill', '#fff');
+        highlight.setAttribute('fill-opacity', '0.7');
+        svg.appendChild(highlight);
     }
 
     generateMiniCircularDisplacement(svg, seed, complexity, lineWidth) {
-        const spacing = 56 / complexity;
-        for (let y = 0; y < 56 + spacing; y += spacing) {
+        const numLines = 14;
+        const spacing = 56 / numLines;
+        
+        // Vortex centers
+        const vortices = [
+            { x: 18, y: 28, charge: 1 },
+            { x: 38, y: 28, charge: -1 }
+        ];
+        
+        for (let i = 0; i < numLines; i++) {
+            const y = i * spacing;
             const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            let pathData = `M 0 ${y}`;
-            for (let x = 0; x <= 56; x += 1) {
-                const dx = x - 28;
-                const dy = y - 28;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                const displacement = Math.sin(distance * 0.3) * 2;
-                pathData += ` L ${x + displacement} ${y}`;
+            let pathData = '';
+            
+            const numPoints = 50;
+            for (let j = 0; j <= numPoints; j++) {
+                const x = (56 * j) / numPoints;
+                
+                // Calculate vector field
+                let dispX = 0, dispY = 0;
+                
+                for (const vortex of vortices) {
+                    const dx = x - vortex.x;
+                    const dy = y - vortex.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    const angle = Math.atan2(dy, dx);
+                    
+                    if (dist > 2) {
+                        const decay = Math.exp(-dist / 15);
+                        const strength = (decay / Math.sqrt(dist)) * 3;
+                        
+                        // Tangential
+                        const tangAngle = angle + (Math.PI / 2) * vortex.charge;
+                        dispX += Math.cos(tangAngle) * strength;
+                        dispY += Math.sin(tangAngle) * strength;
+                    }
+                }
+                
+                const finalX = x + dispX;
+                const finalY = y + dispY;
+                
+                if (j === 0) {
+                    pathData = `M ${finalX} ${finalY}`;
+                } else {
+                    pathData += ` L ${finalX} ${finalY}`;
+                }
             }
+            
             path.setAttribute('d', pathData);
             path.setAttribute('fill', 'none');
             path.setAttribute('stroke', '#000');
             path.setAttribute('stroke-width', lineWidth);
             svg.appendChild(path);
+        }
+        
+        // Vortex markers with field lines
+        for (const vortex of vortices) {
+            // Field lines
+            for (let ring = 1; ring <= 2; ring++) {
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', vortex.x);
+                circle.setAttribute('cy', vortex.y);
+                circle.setAttribute('r', ring * 6);
+                circle.setAttribute('fill', 'none');
+                circle.setAttribute('stroke', '#666');
+                circle.setAttribute('stroke-width', lineWidth * 0.2);
+                circle.setAttribute('stroke-opacity', 0.3);
+                circle.setAttribute('stroke-dasharray', '2,2');
+                svg.appendChild(circle);
+            }
+            
+            // Center marker
+            const marker = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            marker.setAttribute('cx', vortex.x);
+            marker.setAttribute('cy', vortex.y);
+            marker.setAttribute('r', 2);
+            marker.setAttribute('fill', vortex.charge > 0 ? '#333' : '#666');
+            marker.setAttribute('fill-opacity', '0.7');
+            svg.appendChild(marker);
         }
     }
 
@@ -2091,36 +2272,182 @@ class OpticalArtGenerator {
     generateEyePattern(layerGroup) {
         const complexity = parseInt(document.getElementById('complexity').value);
         const lineWidth = parseInt(document.getElementById('line-width').value);
+        const amplitude = parseInt(document.getElementById('amplitude').value);
+        const frequency = parseInt(document.getElementById('frequency').value);
         const centerX = this.actualWidth / 2;
         const centerY = this.actualHeight / 2;
 
-        // Create eye shape using ellipses
-        for (let i = 0; i < complexity; i++) {
-            const ellipse = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+        const maxRadius = Math.min(this.actualWidth, this.actualHeight) * 0.45;
+        const numRings = Math.max(15, complexity);
+        
+        // Use amplitude for organic distortion intensity
+        const distortionIntensity = amplitude / 100;
+        
+        // Use frequency for iris detail complexity
+        const irisDetailLevel = Math.max(8, Math.floor(frequency / 10));
 
-            const rx = (this.actualWidth * 0.4 / complexity) * (i + 1);
-            const ry = (this.actualHeight * 0.2 / complexity) * (i + 1);
-
-            const waveOffset = Math.sin((this.currentSeed + i * 0.2) * Math.PI * 2) * 20;
-
-            ellipse.setAttribute('cx', centerX);
-            ellipse.setAttribute('cy', centerY + waveOffset);
-            ellipse.setAttribute('rx', rx);
-            ellipse.setAttribute('ry', ry);
-            ellipse.setAttribute('fill', 'none');
-            ellipse.setAttribute('stroke', '#000');
-            ellipse.setAttribute('stroke-width', lineWidth);
-
-            layerGroup.appendChild(ellipse);
+        // Create organic eye shape with distorted ellipses
+        for (let i = 0; i < numRings; i++) {
+            const progress = i / numRings;
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            let pathData = '';
+            
+            // Ellipse parameters with organic variation
+            const baseRx = maxRadius * progress;
+            const baseRy = maxRadius * 0.6 * progress;
+            
+            const numPoints = 120;
+            const angleStep = (Math.PI * 2) / numPoints;
+            
+            for (let angle = 0; angle <= Math.PI * 2; angle += angleStep) {
+                // Add multiple wave frequencies for organic feel
+                const organicWave1 = Math.sin(angle * 2 + this.currentSeed * 10) * distortionIntensity * 0.1;
+                const organicWave2 = Math.sin(angle * 4 + progress * Math.PI * 2) * distortionIntensity * 0.05;
+                const organicWave3 = Math.sin(angle * 8) * distortionIntensity * 0.03;
+                
+                const modulation = 1 + organicWave1 + organicWave2 + organicWave3;
+                
+                const rx = baseRx * modulation;
+                const ry = baseRy * modulation;
+                
+                const x = centerX + rx * Math.cos(angle);
+                const y = centerY + ry * Math.sin(angle);
+                
+                if (pathData === '') {
+                    pathData = `M ${x} ${y}`;
+                } else {
+                    pathData += ` L ${x} ${y}`;
+                }
+            }
+            pathData += ' Z';
+            
+            path.setAttribute('d', pathData);
+            
+            // Color and style variations
+            const colorIndex = i;
+            const color = this.getLineColor(colorIndex, numRings);
+            const colorMode = document.getElementById('color-mode').value;
+            
+            // Alternating filled/outline for depth
+            if (i % 3 === 0) {
+                path.setAttribute('fill', color);
+                path.setAttribute('fill-opacity', '0.4');
+                path.setAttribute('stroke', color);
+                path.setAttribute('stroke-width', lineWidth * 0.5);
+            } else if (i % 3 === 1) {
+                path.setAttribute('fill', 'none');
+                path.setAttribute('stroke', color);
+                path.setAttribute('stroke-width', lineWidth);
+            } else {
+                if (colorMode === 'black') {
+                    path.setAttribute('fill', '#f0f0f0');
+                    path.setAttribute('fill-opacity', '0.3');
+                    path.setAttribute('stroke', '#000');
+                    path.setAttribute('stroke-width', lineWidth * 0.3);
+                } else {
+                    path.setAttribute('fill', color);
+                    path.setAttribute('fill-opacity', '0.2');
+                    path.setAttribute('stroke', 'none');
+                }
+            }
+            
+            layerGroup.appendChild(path);
         }
-
-        // Add pupil
+        
+        // Add radial iris lines for detail
+        const irisRadius = maxRadius * 0.3;
+        const pupilRadius = maxRadius * 0.12;
+        
+        for (let i = 0; i < irisDetailLevel * 3; i++) {
+            const angle = (Math.PI * 2 * i) / (irisDetailLevel * 3);
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            
+            // Start from pupil edge
+            const startX = centerX + pupilRadius * Math.cos(angle);
+            const startY = centerY + pupilRadius * Math.sin(angle);
+            
+            // Create wavy iris line
+            let pathData = `M ${startX} ${startY}`;
+            const numSegments = 20;
+            
+            for (let t = 0; t <= numSegments; t++) {
+                const progress = t / numSegments;
+                const radius = pupilRadius + (irisRadius - pupilRadius) * progress;
+                
+                // Add wave to iris lines for organic texture
+                const waveOffset = Math.sin(progress * Math.PI * 3) * distortionIntensity * 5;
+                const offsetAngle = angle + waveOffset * 0.01;
+                
+                const x = centerX + radius * Math.cos(offsetAngle);
+                const y = centerY + radius * Math.sin(offsetAngle);
+                
+                pathData += ` L ${x} ${y}`;
+            }
+            
+            path.setAttribute('d', pathData);
+            path.setAttribute('fill', 'none');
+            
+            const irisColor = this.getLineColor(i, irisDetailLevel * 3);
+            path.setAttribute('stroke', irisColor);
+            path.setAttribute('stroke-width', lineWidth * 0.3);
+            path.setAttribute('stroke-opacity', '0.6');
+            
+            layerGroup.appendChild(path);
+        }
+        
+        // Add animated pupil with gradient effect
+        const pupilGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        
+        // Outer pupil ring (iris border)
+        const pupilBorder = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        pupilBorder.setAttribute('cx', centerX);
+        pupilBorder.setAttribute('cy', centerY);
+        pupilBorder.setAttribute('r', pupilRadius * 1.2);
+        pupilBorder.setAttribute('fill', this.getLineColor(0, 1));
+        pupilBorder.setAttribute('fill-opacity', '0.8');
+        pupilGroup.appendChild(pupilBorder);
+        
+        // Main pupil
         const pupil = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         pupil.setAttribute('cx', centerX);
         pupil.setAttribute('cy', centerY);
-        pupil.setAttribute('r', Math.min(this.actualWidth, this.actualHeight) * 0.05);
+        pupil.setAttribute('r', pupilRadius);
         pupil.setAttribute('fill', '#000');
-        layerGroup.appendChild(pupil);
+        pupilGroup.appendChild(pupil);
+        
+        // Pupil highlight for realism
+        const highlight = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        highlight.setAttribute('cx', centerX - pupilRadius * 0.3);
+        highlight.setAttribute('cy', centerY - pupilRadius * 0.3);
+        highlight.setAttribute('r', pupilRadius * 0.3);
+        highlight.setAttribute('fill', '#fff');
+        highlight.setAttribute('fill-opacity', '0.6');
+        pupilGroup.appendChild(highlight);
+        
+        layerGroup.appendChild(pupilGroup);
+        
+        // Add eyelid curves for realism
+        const eyelidTop = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const eyelidBottom = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        
+        const eyelidWidth = maxRadius * 1.1;
+        const eyelidCurve = maxRadius * 0.3;
+        
+        // Top eyelid
+        eyelidTop.setAttribute('d', `M ${centerX - eyelidWidth} ${centerY} Q ${centerX} ${centerY - eyelidCurve} ${centerX + eyelidWidth} ${centerY}`);
+        eyelidTop.setAttribute('fill', 'none');
+        eyelidTop.setAttribute('stroke', this.getLineColor(0, 1));
+        eyelidTop.setAttribute('stroke-width', lineWidth * 2);
+        eyelidTop.setAttribute('stroke-linecap', 'round');
+        layerGroup.appendChild(eyelidTop);
+        
+        // Bottom eyelid
+        eyelidBottom.setAttribute('d', `M ${centerX - eyelidWidth} ${centerY} Q ${centerX} ${centerY + eyelidCurve * 0.7} ${centerX + eyelidWidth} ${centerY}`);
+        eyelidBottom.setAttribute('fill', 'none');
+        eyelidBottom.setAttribute('stroke', this.getLineColor(0, 1));
+        eyelidBottom.setAttribute('stroke-width', lineWidth * 2);
+        eyelidBottom.setAttribute('stroke-linecap', 'round');
+        layerGroup.appendChild(eyelidBottom);
     }
 
     generateSquareTunnel(layerGroup) {
@@ -2229,36 +2556,122 @@ class OpticalArtGenerator {
         const centerX = this.actualWidth / 2;
         const centerY = this.actualHeight / 2;
 
-        // Create base horizontal stripes
-        const stripeSpacing = this.actualHeight / complexity;
-        const totalLines = Math.ceil(this.actualHeight / stripeSpacing);
+        // Use complexity for line density
+        const numLines = Math.max(20, complexity);
+        const stripeSpacing = this.actualHeight / numLines;
+        
+        // Use amplitude for wave intensity
+        const waveAmplitude = amplitude / 10;
+        
+        // Use frequency for wave complexity (number of wave sources)
+        const numWaveSources = Math.max(2, Math.floor(frequency / 20));
+
+        // Create multiple wave source points for interference
+        const waveSources = [];
+        for (let i = 0; i < numWaveSources; i++) {
+            const angle = (Math.PI * 2 * i) / numWaveSources;
+            const radius = Math.min(this.actualWidth, this.actualHeight) * 0.3;
+            waveSources.push({
+                x: centerX + radius * Math.cos(angle),
+                y: centerY + radius * Math.sin(angle),
+                phase: i * Math.PI / 2
+            });
+        }
 
         let lineIndex = 0;
         for (let y = 0; y < this.actualHeight + stripeSpacing; y += stripeSpacing) {
             const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            let pathData = `M 0 ${y}`;
-
-            // Create sine wave displacement based on distance from center
-            for (let x = 0; x <= this.actualWidth; x += 2) {
-                const distanceFromCenter = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
-                const maxDistance = Math.sqrt(Math.pow(centerX, 2) + Math.pow(centerY, 2));
-                const normalizedDistance = distanceFromCenter / maxDistance;
-
-                // Displacement intensity decreases with distance
-                const intensity = Math.exp(-normalizedDistance * 3) * (amplitude / 20);
-
-                // Multiple wave frequencies for complexity
-                const wave1 = Math.sin((x / this.actualWidth) * Math.PI * frequency + this.currentSeed * 10) * intensity;
-                const wave2 = Math.sin((distanceFromCenter / 50) * Math.PI * 2 + this.currentSeed * 5) * intensity * 0.5;
-
-                const displacedY = y + wave1 + wave2;
-                pathData += ` L ${x} ${displacedY}`;
+            let pathData = '';
+            
+            const lineProgress = y / this.actualHeight;
+            
+            // Sample points along the line
+            const numPoints = 200;
+            for (let i = 0; i <= numPoints; i++) {
+                const x = (this.actualWidth * i) / numPoints;
+                
+                // Calculate interference from all wave sources
+                let totalDisplacement = 0;
+                
+                for (const source of waveSources) {
+                    const distanceToSource = Math.sqrt(
+                        Math.pow(x - source.x, 2) + Math.pow(y - source.y, 2)
+                    );
+                    
+                    // Radial wave with decay
+                    const waveNumber = 0.05 + (frequency / 1000);
+                    const decay = Math.exp(-distanceToSource / 400);
+                    const wave = Math.sin(distanceToSource * waveNumber + source.phase + this.currentSeed * 10) * decay;
+                    
+                    totalDisplacement += wave;
+                }
+                
+                // Add horizontal traveling wave
+                const travelingWave = Math.sin((x / this.actualWidth) * Math.PI * frequency * 0.1 + this.currentSeed * 5);
+                totalDisplacement += travelingWave * 0.3;
+                
+                // Add standing wave pattern
+                const standingWave = Math.sin((x / this.actualWidth) * Math.PI * 4) * Math.cos(lineProgress * Math.PI * 3);
+                totalDisplacement += standingWave * 0.2;
+                
+                // Scale by amplitude
+                const displacedY = y + totalDisplacement * waveAmplitude;
+                
+                if (i === 0) {
+                    pathData = `M ${x} ${displacedY}`;
+                } else {
+                    pathData += ` L ${x} ${displacedY}`;
+                }
             }
 
             path.setAttribute('d', pathData);
-            path.setAttribute('fill', 'none');
-            path.setAttribute('stroke', this.getLineColor(lineIndex, totalLines));
-            path.setAttribute('stroke-width', lineWidth);
+            
+            // Alternating styles for 3D surface effect
+            const color = this.getLineColor(lineIndex, numLines);
+            const colorMode = document.getElementById('color-mode').value;
+            
+            if (lineIndex % 4 === 0) {
+                // Filled bands for 3D effect
+                const nextY = y + stripeSpacing;
+                
+                // Complete the band
+                for (let i = numPoints; i >= 0; i--) {
+                    const x = (this.actualWidth * i) / numPoints;
+                    
+                    // Calculate next line displacement
+                    let totalDisplacement = 0;
+                    for (const source of waveSources) {
+                        const distanceToSource = Math.sqrt(
+                            Math.pow(x - source.x, 2) + Math.pow(nextY - source.y, 2)
+                        );
+                        const waveNumber = 0.05 + (frequency / 1000);
+                        const decay = Math.exp(-distanceToSource / 400);
+                        const wave = Math.sin(distanceToSource * waveNumber + source.phase + this.currentSeed * 10) * decay;
+                        totalDisplacement += wave;
+                    }
+                    
+                    const travelingWave = Math.sin((x / this.actualWidth) * Math.PI * frequency * 0.1 + this.currentSeed * 5);
+                    totalDisplacement += travelingWave * 0.3;
+                    
+                    const nextLineProgress = nextY / this.actualHeight;
+                    const standingWave = Math.sin((x / this.actualWidth) * Math.PI * 4) * Math.cos(nextLineProgress * Math.PI * 3);
+                    totalDisplacement += standingWave * 0.2;
+                    
+                    const displacedY = nextY + totalDisplacement * waveAmplitude;
+                    pathData += ` L ${x} ${displacedY}`;
+                }
+                pathData += ' Z';
+                
+                path.setAttribute('fill', color);
+                path.setAttribute('fill-opacity', '0.3');
+                path.setAttribute('stroke', color);
+                path.setAttribute('stroke-width', lineWidth * 0.5);
+            } else {
+                // Outline only
+                path.setAttribute('fill', 'none');
+                path.setAttribute('stroke', color);
+                path.setAttribute('stroke-width', lineWidth);
+            }
 
             if (rotation !== 0) {
                 path.setAttribute('transform', `rotate(${rotation} ${centerX} ${centerY})`);
@@ -2267,47 +2680,206 @@ class OpticalArtGenerator {
             layerGroup.appendChild(path);
             lineIndex++;
         }
+        
+        // Add wave source markers
+        for (let i = 0; i < waveSources.length; i++) {
+            const source = waveSources[i];
+            const marker = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            marker.setAttribute('cx', source.x);
+            marker.setAttribute('cy', source.y);
+            marker.setAttribute('r', Math.max(2, lineWidth));
+            marker.setAttribute('fill', this.getLineColor(i, waveSources.length));
+            marker.setAttribute('fill-opacity', '0.5');
+            marker.setAttribute('stroke', this.getLineColor(i, waveSources.length));
+            marker.setAttribute('stroke-width', lineWidth);
+            
+            if (rotation !== 0) {
+                marker.setAttribute('transform', `rotate(${rotation} ${centerX} ${centerY})`);
+            }
+            
+            layerGroup.appendChild(marker);
+        }
     }
 
     generateCircularDisplacement(layerGroup) {
         const complexity = parseInt(document.getElementById('complexity').value);
         const lineWidth = parseInt(document.getElementById('line-width').value);
+        const amplitude = parseInt(document.getElementById('amplitude').value);
+        const frequency = parseInt(document.getElementById('frequency').value);
+        const rotation = parseInt(document.getElementById('rotation').value);
         const centerX = this.actualWidth / 2;
         const centerY = this.actualHeight / 2;
 
-        // Create horizontal lines that get displaced by circular field
-        const lineSpacing = this.actualHeight / complexity;
-        const totalLines = Math.ceil(this.actualHeight / lineSpacing);
+        // Use complexity for line density
+        const numLines = Math.max(20, complexity);
+        const lineSpacing = this.actualHeight / numLines;
+        
+        // Use amplitude for field strength
+        const fieldStrength = amplitude / 5;
+        
+        // Use frequency for number of vortex centers
+        const numVortices = Math.max(2, Math.floor(frequency / 25));
+
+        // Create multiple vortex centers (magnetic field sources)
+        const vortices = [];
+        for (let i = 0; i < numVortices; i++) {
+            const angle = (Math.PI * 2 * i) / numVortices + this.currentSeed * 10;
+            const radius = Math.min(this.actualWidth, this.actualHeight) * 0.25;
+            vortices.push({
+                x: centerX + radius * Math.cos(angle),
+                y: centerY + radius * Math.sin(angle),
+                charge: (i % 2 === 0) ? 1 : -1, // Alternating positive/negative vortices
+                strength: 1 + (i / numVortices) * 0.5
+            });
+        }
 
         let lineIndex = 0;
         for (let y = 0; y < this.actualHeight + lineSpacing; y += lineSpacing) {
             const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            let pathData = `M 0 ${y}`;
-
-            for (let x = 0; x <= this.actualWidth; x += 1) {
-                const dx = x - centerX;
-                const dy = y - centerY;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                const angle = Math.atan2(dy, dx);
-
-                // Create circular displacement field
-                const fieldRadius = Math.min(this.actualWidth, this.actualHeight) * 0.3;
-                const fieldStrength = Math.exp(-(distance / fieldRadius)) * 30;
-
-                // Displacement perpendicular to radius
-                const displacementX = Math.sin(angle + Math.PI/2) * fieldStrength * Math.sin(distance * 0.1 + this.currentSeed * 5);
-                const displacementY = -Math.cos(angle + Math.PI/2) * fieldStrength * Math.sin(distance * 0.1 + this.currentSeed * 5);
-
-                pathData += ` L ${x + displacementX} ${y + displacementY}`;
+            let pathData = '';
+            
+            const numPoints = 150;
+            
+            for (let i = 0; i <= numPoints; i++) {
+                const x = (this.actualWidth * i) / numPoints;
+                
+                // Calculate vector field from all vortices
+                let totalDisplacementX = 0;
+                let totalDisplacementY = 0;
+                
+                for (const vortex of vortices) {
+                    const dx = x - vortex.x;
+                    const dy = y - vortex.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    const angle = Math.atan2(dy, dx);
+                    
+                    if (distance < 5) continue; // Avoid singularity at center
+                    
+                    // Vortex field (circular motion around center)
+                    const decay = Math.exp(-distance / 200) * vortex.strength;
+                    const vortexStrength = (fieldStrength * decay) / Math.sqrt(distance);
+                    
+                    // Tangential component (circular flow)
+                    const tangentialAngle = angle + (Math.PI / 2) * vortex.charge;
+                    totalDisplacementX += Math.cos(tangentialAngle) * vortexStrength;
+                    totalDisplacementY += Math.sin(tangentialAngle) * vortexStrength;
+                    
+                    // Radial component (attraction/repulsion)
+                    const radialStrength = vortexStrength * 0.3 * vortex.charge;
+                    totalDisplacementX += Math.cos(angle) * radialStrength;
+                    totalDisplacementY += Math.sin(angle) * radialStrength;
+                }
+                
+                // Add black hole distortion effect at center
+                const distToCenter = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+                const angleToCenter = Math.atan2(y - centerY, x - centerX);
+                
+                if (distToCenter > 10) {
+                    // Lens/gravitational lensing effect
+                    const lensStrength = fieldStrength * 0.5 / distToCenter;
+                    totalDisplacementX -= Math.cos(angleToCenter) * lensStrength;
+                    totalDisplacementY -= Math.sin(angleToCenter) * lensStrength;
+                }
+                
+                const finalX = x + totalDisplacementX;
+                const finalY = y + totalDisplacementY;
+                
+                if (i === 0) {
+                    pathData = `M ${finalX} ${finalY}`;
+                } else {
+                    pathData += ` L ${finalX} ${finalY}`;
+                }
             }
 
             path.setAttribute('d', pathData);
+            
+            // Color and styling
+            const color = this.getLineColor(lineIndex, numLines);
+            const colorMode = document.getElementById('color-mode').value;
+            
+            // Variable thickness based on position
+            const distFromCenter = Math.abs(y - centerY);
+            const maxDist = this.actualHeight / 2;
+            const thickness = lineWidth * (0.5 + 0.5 * (1 - distFromCenter / maxDist));
+            
             path.setAttribute('fill', 'none');
-            path.setAttribute('stroke', this.getLineColor(lineIndex, totalLines));
-            path.setAttribute('stroke-width', lineWidth);
+            path.setAttribute('stroke', color);
+            path.setAttribute('stroke-width', thickness);
+            
+            if (rotation !== 0) {
+                path.setAttribute('transform', `rotate(${rotation} ${centerX} ${centerY})`);
+            }
+            
             layerGroup.appendChild(path);
             lineIndex++;
         }
+        
+        // Draw vortex centers with field lines
+        for (let i = 0; i < vortices.length; i++) {
+            const vortex = vortices[i];
+            const vortexColor = this.getLineColor(i, vortices.length);
+            
+            // Draw circular field lines around vortex
+            const numRings = 5;
+            for (let ring = 1; ring <= numRings; ring++) {
+                const radius = ring * 20;
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', vortex.x);
+                circle.setAttribute('cy', vortex.y);
+                circle.setAttribute('r', radius);
+                circle.setAttribute('fill', 'none');
+                circle.setAttribute('stroke', vortexColor);
+                circle.setAttribute('stroke-width', lineWidth * 0.3);
+                circle.setAttribute('stroke-opacity', 0.3 * (1 - ring / numRings));
+                circle.setAttribute('stroke-dasharray', '5,5');
+                
+                if (rotation !== 0) {
+                    circle.setAttribute('transform', `rotate(${rotation} ${centerX} ${centerY})`);
+                }
+                
+                layerGroup.appendChild(circle);
+            }
+            
+            // Vortex center marker
+            const marker = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            marker.setAttribute('cx', vortex.x);
+            marker.setAttribute('cy', vortex.y);
+            marker.setAttribute('r', Math.max(3, lineWidth * 1.5));
+            marker.setAttribute('fill', vortexColor);
+            marker.setAttribute('fill-opacity', '0.7');
+            marker.setAttribute('stroke', vortexColor);
+            marker.setAttribute('stroke-width', lineWidth);
+            
+            if (rotation !== 0) {
+                marker.setAttribute('transform', `rotate(${rotation} ${centerX} ${centerY})`);
+            }
+            
+            layerGroup.appendChild(marker);
+            
+            // Direction indicator
+            const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            const arrowSize = 8;
+            const arrowAngle = vortex.charge > 0 ? 0 : Math.PI;
+            const arrowPath = `M ${vortex.x + arrowSize} ${vortex.y} 
+                               L ${vortex.x + arrowSize * 0.5} ${vortex.y + arrowSize * 0.5}
+                               L ${vortex.x + arrowSize * 0.5} ${vortex.y - arrowSize * 0.5} Z`;
+            arrow.setAttribute('d', arrowPath);
+            arrow.setAttribute('fill', '#fff');
+            arrow.setAttribute('fill-opacity', '0.8');
+            arrow.setAttribute('transform', `rotate(${arrowAngle * 180 / Math.PI + (rotation || 0)} ${vortex.x} ${vortex.y})`);
+            layerGroup.appendChild(arrow);
+        }
+        
+        // Add center attractor
+        const centerMarker = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        centerMarker.setAttribute('cx', centerX);
+        centerMarker.setAttribute('cy', centerY);
+        centerMarker.setAttribute('r', Math.max(4, lineWidth * 2));
+        centerMarker.setAttribute('fill', this.getLineColor(0, 1));
+        centerMarker.setAttribute('fill-opacity', '0.5');
+        centerMarker.setAttribute('stroke', this.getLineColor(0, 1));
+        centerMarker.setAttribute('stroke-width', lineWidth);
+        layerGroup.appendChild(centerMarker);
     }
 
     generateAdvancedEyePattern(layerGroup) {
