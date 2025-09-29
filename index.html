@@ -149,6 +149,41 @@
                 </div>
 
                 <div id="tab-actions" class="tab-content">
+                    <div class="preset-group">
+                        <h4>⚡ Quick Presets</h4>
+                        <p class="preset-hint">Shift+[1-9] to save, [1-9] to recall</p>
+                        <div class="preset-slots">
+                            <button class="preset-slot" data-slot="1">1<span class="preset-status">Empty</span></button>
+                            <button class="preset-slot" data-slot="2">2<span class="preset-status">Empty</span></button>
+                            <button class="preset-slot" data-slot="3">3<span class="preset-status">Empty</span></button>
+                            <button class="preset-slot" data-slot="4">4<span class="preset-status">Empty</span></button>
+                            <button class="preset-slot" data-slot="5">5<span class="preset-status">Empty</span></button>
+                            <button class="preset-slot" data-slot="6">6<span class="preset-status">Empty</span></button>
+                            <button class="preset-slot" data-slot="7">7<span class="preset-status">Empty</span></button>
+                            <button class="preset-slot" data-slot="8">8<span class="preset-status">Empty</span></button>
+                            <button class="preset-slot" data-slot="9">9<span class="preset-status">Empty</span></button>
+                        </div>
+                        <div class="preset-controls">
+                            <button id="mutate-btn" class="secondary-btn">🎲 Mutate Settings</button>
+                            <button id="clear-presets-btn" class="secondary-btn">Clear All Presets</button>
+                        </div>
+                    </div>
+                    <div class="morph-group">
+                        <h4>🔄 A/B Morph</h4>
+                        <div class="morph-controls">
+                            <select id="morph-preset-a">
+                                <option value="">Select Preset A</option>
+                            </select>
+                            <select id="morph-preset-b">
+                                <option value="">Select Preset B</option>
+                            </select>
+                        </div>
+                        <div class="morph-slider-container">
+                            <label for="morph-slider">Morph: <span id="morph-value">50%</span></label>
+                            <input type="range" id="morph-slider" min="0" max="100" value="50">
+                        </div>
+                        <button id="apply-morph-btn" class="primary-btn">Apply Morph</button>
+                    </div>
                     <div class="save-load-group">
                         <h4>Pattern Library</h4>
                         <button id="save-pattern-btn" class="secondary-btn">Save Pattern</button>

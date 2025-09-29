@@ -132,6 +132,7 @@ class OpticalArtGenerator {
         this.perlin = new PerlinNoise(); // Create a single instance
         this.setupTabs();
         this.setupEventListeners();
+        this.setupPresetListeners();
         this.updateSliderValues();
         this.updateCanvasSize();
         this.updatePatternInfo();
@@ -3980,6 +3981,224 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
             console.error('Error deleting pattern:', error);
             this.showError('Failed to delete pattern');
         }
+    }
+
+    // ==================== PRESET SNAPSHOTS SYSTEM ====================
+
+    getCurrentSettings() {
+        return {
+            patternType: document.getElementById('pattern-type').value,
+            complexity: parseInt(document.getElementById('complexity').value),
+            lineWidth: parseInt(document.getElementById('line-width').value),
+            frequency: parseInt(document.getElementById('frequency').value),
+            amplitude: parseInt(document.getElementById('amplitude').value),
+            rotation: parseInt(document.getElementById('rotation').value),
+            colorMode: document.getElementById('color-mode').value,
+            lineColor: document.getElementById('line-color')?.value || '#ff0000',
+            gradientColor1: document.getElementById('gradient-color-1')?.value || '#ff00ff',
+            gradientColor2: document.getElementById('gradient-color-2')?.value || '#00ffff',
+            seed: this.currentSeed
+        };
+    }
+
+    applySettings(settings) {
+        document.getElementById('pattern-type').value = settings.patternType;
+        document.getElementById('complexity').value = settings.complexity;
+        document.getElementById('line-width').value = settings.lineWidth;
+        document.getElementById('frequency').value = settings.frequency;
+        document.getElementById('amplitude').value = settings.amplitude;
+        document.getElementById('rotation').value = settings.rotation;
+        document.getElementById('color-mode').value = settings.colorMode;
+        if (settings.lineColor) document.getElementById('line-color').value = settings.lineColor;
+        if (settings.gradientColor1) document.getElementById('gradient-color-1').value = settings.gradientColor1;
+        if (settings.gradientColor2) document.getElementById('gradient-color-2').value = settings.gradientColor2;
+        this.currentSeed = settings.seed;
+        
+        this.updateSliderValues();
+        this.updatePatternInfo();
+        this.generatePattern(true);
+    }
+
+    savePreset(slot) {
+        const settings = this.getCurrentSettings();
+        const presets = JSON.parse(localStorage.getItem('opticalArtPresets') || '{}');
+        presets[slot] = {
+            ...settings,
+            timestamp: Date.now(),
+            name: `Preset ${slot}`
+        };
+        localStorage.setItem('opticalArtPresets', JSON.stringify(presets));
+        this.updatePresetUI();
+        this.updateMorphDropdowns();
+        this.showSuccess(`Saved to Preset ${slot}`);
+    }
+
+    loadPreset(slot) {
+        const presets = JSON.parse(localStorage.getItem('opticalArtPresets') || '{}');
+        const preset = presets[slot];
+        if (!preset) {
+            this.showError(`Preset ${slot} is empty`);
+            return;
+        }
+        this.applySettings(preset);
+        this.showSuccess(`Loaded Preset ${slot}`);
+    }
+
+    updatePresetUI() {
+        const presets = JSON.parse(localStorage.getItem('opticalArtPresets') || '{}');
+        document.querySelectorAll('.preset-slot').forEach(button => {
+            const slot = button.dataset.slot;
+            const status = button.querySelector('.preset-status');
+            if (presets[slot]) {
+                button.classList.add('filled');
+                status.textContent = presets[slot].patternType.split('-')[0];
+            } else {
+                button.classList.remove('filled');
+                status.textContent = 'Empty';
+            }
+        });
+    }
+
+    updateMorphDropdowns() {
+        const presets = JSON.parse(localStorage.getItem('opticalArtPresets') || '{}');
+        const dropdownA = document.getElementById('morph-preset-a');
+        const dropdownB = document.getElementById('morph-preset-b');
+        
+        [dropdownA, dropdownB].forEach(dropdown => {
+            const currentValue = dropdown.value;
+            dropdown.innerHTML = '<option value="">Select Preset</option>';
+            for (let i = 1; i <= 9; i++) {
+                if (presets[i]) {
+                    const option = document.createElement('option');
+                    option.value = i;
+                    option.textContent = `Preset ${i}: ${presets[i].patternType}`;
+                    dropdown.appendChild(option);
+                }
+            }
+            dropdown.value = currentValue;
+        });
+    }
+
+    morphPresets() {
+        const slotA = document.getElementById('morph-preset-a').value;
+        const slotB = document.getElementById('morph-preset-b').value;
+        const morphValue = parseInt(document.getElementById('morph-slider').value) / 100;
+        
+        if (!slotA || !slotB) {
+            this.showError('Please select both Preset A and Preset B');
+            return;
+        }
+        
+        const presets = JSON.parse(localStorage.getItem('opticalArtPresets') || '{}');
+        const presetA = presets[slotA];
+        const presetB = presets[slotB];
+        
+        if (!presetA || !presetB) {
+            this.showError('Selected presets not found');
+            return;
+        }
+        
+        // Linear interpolation between settings
+        const morphed = {
+            patternType: morphValue < 0.5 ? presetA.patternType : presetB.patternType,
+            complexity: Math.round(presetA.complexity * (1 - morphValue) + presetB.complexity * morphValue),
+            lineWidth: Math.round(presetA.lineWidth * (1 - morphValue) + presetB.lineWidth * morphValue),
+            frequency: Math.round(presetA.frequency * (1 - morphValue) + presetB.frequency * morphValue),
+            amplitude: Math.round(presetA.amplitude * (1 - morphValue) + presetB.amplitude * morphValue),
+            rotation: Math.round(presetA.rotation * (1 - morphValue) + presetB.rotation * morphValue),
+            colorMode: morphValue < 0.5 ? presetA.colorMode : presetB.colorMode,
+            lineColor: presetA.lineColor,
+            gradientColor1: presetA.gradientColor1,
+            gradientColor2: presetA.gradientColor2,
+            seed: morphValue < 0.5 ? presetA.seed : presetB.seed
+        };
+        
+        this.applySettings(morphed);
+        this.showSuccess(`Morphed ${Math.round(morphValue * 100)}% from A to B`);
+    }
+
+    mutateSettings() {
+        const current = this.getCurrentSettings();
+        const mutationAmount = 0.2; // 20% variation
+        
+        const mutated = {
+            ...current,
+            complexity: Math.max(5, Math.min(2000, Math.round(current.complexity * (1 + (Math.random() - 0.5) * mutationAmount * 2)))),
+            lineWidth: Math.max(1, Math.min(8, Math.round(current.lineWidth * (1 + (Math.random() - 0.5) * mutationAmount * 2)))),
+            frequency: Math.max(1, Math.min(100, Math.round(current.frequency * (1 + (Math.random() - 0.5) * mutationAmount * 2)))),
+            amplitude: Math.max(-1000, Math.min(1000, Math.round(current.amplitude * (1 + (Math.random() - 0.5) * mutationAmount * 2)))),
+            rotation: Math.max(-180, Math.min(180, Math.round(current.rotation + (Math.random() - 0.5) * 90))),
+            seed: Math.random()
+        };
+        
+        this.applySettings(mutated);
+        this.showSuccess('Settings mutated! 🎲');
+    }
+
+    clearAllPresets() {
+        if (!confirm('Clear all presets? This cannot be undone.')) {
+            return;
+        }
+        localStorage.removeItem('opticalArtPresets');
+        this.updatePresetUI();
+        this.updateMorphDropdowns();
+        this.showSuccess('All presets cleared');
+    }
+
+    setupPresetListeners() {
+        // Preset slot buttons
+        document.querySelectorAll('.preset-slot').forEach(button => {
+            button.addEventListener('click', () => {
+                const slot = button.dataset.slot;
+                this.loadPreset(slot);
+            });
+        });
+        
+        // Mutate button
+        document.getElementById('mutate-btn').addEventListener('click', () => {
+            this.mutateSettings();
+        });
+        
+        // Clear presets button
+        document.getElementById('clear-presets-btn').addEventListener('click', () => {
+            this.clearAllPresets();
+        });
+        
+        // Morph slider
+        document.getElementById('morph-slider').addEventListener('input', (e) => {
+            document.getElementById('morph-value').textContent = e.target.value + '%';
+        });
+        
+        // Apply morph button
+        document.getElementById('apply-morph-btn').addEventListener('click', () => {
+            this.morphPresets();
+        });
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Ignore if typing in an input field
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                return;
+            }
+            
+            // Number keys 1-9
+            const num = parseInt(e.key);
+            if (num >= 1 && num <= 9) {
+                if (e.shiftKey) {
+                    // Shift + Number = Save to preset
+                    e.preventDefault();
+                    this.savePreset(num);
+                } else {
+                    // Number only = Load preset
+                    e.preventDefault();
+                    this.loadPreset(num);
+                }
+            }
+        });
+        
+        // Initialize UI
+        this.updatePresetUI();
+        this.updateMorphDropdowns();
     }
 }
 
