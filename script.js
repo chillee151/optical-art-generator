@@ -1223,7 +1223,8 @@ class OpticalArtGenerator {
         });
 
         document.getElementById('variation-btn').addEventListener('click', () => {
-            this.currentSeed += 0.1;
+            // Add a random variation (0.3 to 0.7) for noticeable changes
+            this.currentSeed += 0.3 + Math.random() * 0.4;
             this.generatePattern(true);
         });
 
