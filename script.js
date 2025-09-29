@@ -103,11 +103,11 @@ class OpticalArtGenerator {
             this.panX = 0;
             this.panY = 0;
         this.patternInfo = {
-            'concentric-circles': 'Creates hypnotic circular patterns with varying spacing to produce optical illusions',
-            'diagonal-stripes': 'Generates diagonal line patterns that create depth and movement effects',
+            'concentric-circles': 'Hypnotic wavy rings with golden ratio spacing, variable thickness, breathing effects, and alternating fills creating powerful depth illusion',
+            'diagonal-stripes': 'Dynamic Op-Art stripes with wave distortion, variable thickness, and alternating fills creating chevron-like patterns with 3D depth',
             'cube-illusion': 'Creates mesmerizing isometric cube arrays with Escher-style impossible geometry, dynamic perspective, and wave-based depth modulation',
             'eye-pattern': 'Creates eye-like shapes with concentric curves for mesmerizing effects',
-            'square-tunnel': 'Generates tunnel-like square spirals that appear to recede into distance',
+            'square-tunnel': '3D vortex tunnel with exponential perspective, spiral twist, alternating fills, and depth-based transformations rivaling Radial Vortex',
             'wave-displacement': 'Horizontal stripes displaced by sine waves creating bulging illusions',
             'circular-displacement': 'Straight lines warped by circular displacement fields',
             'moire-interference': 'Overlapping patterns creating moiré interference effects',
@@ -516,52 +516,148 @@ class OpticalArtGenerator {
     generateMiniConcentricCircles(svg, seed, complexity, lineWidth) {
         const centerX = 28;
         const centerY = 28;
-        const maxRadius = 22;
+        const maxRadius = 26;
+        const numRings = 12;
 
-        for (let i = 0; i < complexity; i++) {
-            const radius = (maxRadius / complexity) * (i + 1);
-            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            circle.setAttribute('cx', centerX);
-            circle.setAttribute('cy', centerY);
-            circle.setAttribute('r', radius);
-            circle.setAttribute('fill', 'none');
-            circle.setAttribute('stroke', '#000');
-            circle.setAttribute('stroke-width', lineWidth);
-            svg.appendChild(circle);
+        for (let i = 0; i < numRings; i++) {
+            const progress = i / numRings;
+            const baseRadius = maxRadius * progress;
+            
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            let pathData = '';
+            
+            const numPoints = 60;
+            const angleStep = (Math.PI * 2) / numPoints;
+            
+            for (let angle = 0; angle <= Math.PI * 2; angle += angleStep) {
+                // Wave modulation
+                const waveModulation = 1 + Math.sin(angle * 3) * 0.15;
+                const radius = baseRadius * waveModulation;
+                
+                const x = centerX + radius * Math.cos(angle);
+                const y = centerY + radius * Math.sin(angle);
+                
+                if (pathData === '') {
+                    pathData = `M ${x} ${y}`;
+                } else {
+                    pathData += ` L ${x} ${y}`;
+                }
+            }
+            pathData += ' Z';
+            
+            path.setAttribute('d', pathData);
+            
+            // Alternating styles
+            if (i % 3 === 0) {
+                path.setAttribute('fill', '#333');
+                path.setAttribute('fill-opacity', '0.6');
+                path.setAttribute('stroke', '#000');
+                path.setAttribute('stroke-width', lineWidth * 0.5);
+            } else if (i % 3 === 1) {
+                path.setAttribute('fill', 'none');
+                path.setAttribute('stroke', '#000');
+                path.setAttribute('stroke-width', lineWidth);
+            } else {
+                path.setAttribute('fill', '#fff');
+                path.setAttribute('fill-opacity', '0.3');
+                path.setAttribute('stroke', '#000');
+                path.setAttribute('stroke-width', lineWidth * 0.3);
+            }
+            
+            svg.appendChild(path);
         }
     }
 
     generateMiniDiagonalStripes(svg, seed, complexity, lineWidth) {
-        const spacing = 56 / complexity;
-        for (let i = -28; i < 84; i += spacing) {
-            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            line.setAttribute('x1', i);
-            line.setAttribute('y1', 0);
-            line.setAttribute('x2', i + 56);
-            line.setAttribute('y2', 56);
-            line.setAttribute('stroke', '#000');
-            line.setAttribute('stroke-width', lineWidth);
-            line.setAttribute('transform', 'rotate(45 28 28)');
-            svg.appendChild(line);
+        const numStripes = 12;
+        const spacing = 80 / numStripes;
+        
+        for (let i = 0; i < numStripes; i++) {
+            const progress = i / numStripes;
+            const basePosition = -40 + i * spacing;
+            
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            let pathData = '';
+            
+            // Create wavy stripe
+            const numPoints = 30;
+            for (let t = 0; t <= 80; t += 80 / numPoints) {
+                const x = basePosition + t * 0.707;
+                const y = t * 0.707;
+                const waveOffset = Math.sin(t * 0.1 + progress * Math.PI * 2) * 2;
+                
+                const finalX = x + waveOffset * 0.707;
+                const finalY = y - waveOffset * 0.707;
+                
+                if (pathData === '') {
+                    pathData = `M ${finalX} ${finalY}`;
+                } else {
+                    pathData += ` L ${finalX} ${finalY}`;
+                }
+            }
+            
+            // Close stripe with width
+            const thickness = lineWidth * (0.5 + progress);
+            for (let t = 80; t >= 0; t -= 80 / numPoints) {
+                const x = basePosition + t * 0.707;
+                const y = t * 0.707;
+                const waveOffset = Math.sin(t * 0.1 + progress * Math.PI * 2) * 2;
+                
+                pathData += ` L ${x + waveOffset * 0.707 + thickness * 0.707} ${y - waveOffset * 0.707 + thickness * 0.707}`;
+            }
+            pathData += ' Z';
+            
+            path.setAttribute('d', pathData);
+            
+            // Alternating pattern
+            if (i % 4 === 0) {
+                path.setAttribute('fill', '#000');
+            } else if (i % 4 === 1) {
+                path.setAttribute('fill', 'none');
+                path.setAttribute('stroke', '#000');
+                path.setAttribute('stroke-width', lineWidth * 0.5);
+            } else if (i % 4 === 2) {
+                path.setAttribute('fill', '#fff');
+            } else {
+                path.setAttribute('fill', '#666');
+                path.setAttribute('fill-opacity', '0.6');
+            }
+            
+            path.setAttribute('transform', 'rotate(45 28 28)');
+            svg.appendChild(path);
         }
     }
 
     generateMiniSquareTunnel(svg, seed, complexity, lineWidth) {
         const centerX = 28;
         const centerY = 28;
+        const numSquares = 20;
 
-        for (let i = 0; i < complexity; i++) {
-            const scale = 1 - (i / complexity);
+        for (let i = 0; i < numSquares; i++) {
+            const progress = i / numSquares;
+            const scale = Math.pow(1 - progress, 1.5);
             const squareSize = 44 * scale;
-            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-            rect.setAttribute('x', centerX - squareSize / 2);
-            rect.setAttribute('y', centerY - squareSize / 2);
-            rect.setAttribute('width', squareSize);
-            rect.setAttribute('height', squareSize);
-            rect.setAttribute('fill', 'none');
-            rect.setAttribute('stroke', '#000');
-            rect.setAttribute('stroke-width', lineWidth);
-            svg.appendChild(rect);
+            const rotation = progress * 180; // Twist effect
+            
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            const half = squareSize / 2;
+            
+            const pathData = `M ${-half} ${-half} L ${half} ${-half} L ${half} ${half} L ${-half} ${half} Z`;
+            path.setAttribute('d', pathData);
+            
+            // Alternating fills
+            if (i % 2 === 0) {
+                path.setAttribute('fill', '#000');
+            } else {
+                path.setAttribute('fill', '#fff');
+            }
+            path.setAttribute('stroke', '#000');
+            path.setAttribute('stroke-width', lineWidth * 0.3);
+            
+            const transform = `translate(${centerX}, ${centerY}) rotate(${rotation})`;
+            path.setAttribute('transform', transform);
+            
+            svg.appendChild(path);
         }
     }
 
@@ -1589,54 +1685,231 @@ class OpticalArtGenerator {
         const complexity = parseInt(document.getElementById('complexity').value);
         const lineWidth = parseInt(document.getElementById('line-width').value);
         const amplitude = parseInt(document.getElementById('amplitude').value);
+        const frequency = parseInt(document.getElementById('frequency').value);
         const rotation = parseInt(document.getElementById('rotation').value);
         const centerX = this.actualWidth / 2;
         const centerY = this.actualHeight / 2;
-        const maxRadius = Math.min(this.actualWidth, this.actualHeight) * 0.45;
+        const maxRadius = Math.min(this.actualWidth, this.actualHeight) * 0.48;
 
-        for (let i = 0; i < complexity; i++) {
-            const radius = (maxRadius / complexity) * (i + 1);
-            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        // Use complexity for number of rings
+        const numRings = Math.max(10, complexity);
+        
+        // Use amplitude for wave modulation intensity
+        const waveIntensity = amplitude / 100;
+        
+        // Use frequency for wave count (breathing effect)
+        const waveCount = Math.max(2, Math.floor(frequency / 20));
+        
+        // Golden ratio for natural spacing (optional enhancement)
+        const phi = (1 + Math.sqrt(5)) / 2;
+        const useGoldenRatio = frequency > 50; // Use golden ratio at higher frequencies
 
-            const offsetX = (this.seededRandom(this.currentSeed + i * 0.1) - 0.5) * (amplitude / 2);
-            const offsetY = (this.seededRandom(this.currentSeed + i * 0.2) - 0.5) * (amplitude / 2);
-
-            circle.setAttribute('cx', centerX + offsetX);
-            circle.setAttribute('cy', centerY + offsetY);
-            circle.setAttribute('r', radius);
-            circle.setAttribute('fill', 'none');
-            circle.setAttribute('stroke', this.getLineColor(i, complexity));
-            circle.setAttribute('stroke-width', lineWidth);
-
-            if (rotation !== 0) {
-                circle.setAttribute('transform', `rotate(${rotation} ${centerX} ${centerY})`);
+        for (let i = 0; i < numRings; i++) {
+            const progress = i / numRings;
+            
+            // Calculate radius with optional golden ratio spacing
+            let baseRadius;
+            if (useGoldenRatio) {
+                baseRadius = maxRadius * (Math.pow(progress, 1 / phi));
+            } else {
+                baseRadius = maxRadius * progress;
             }
-
-            layerGroup.appendChild(circle);
+            
+            // Create wavy circle using path for more control
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            let pathData = '';
+            
+            const numPoints = 180; // High resolution for smooth curves
+            const angleStep = (Math.PI * 2) / numPoints;
+            
+            for (let angle = 0; angle <= Math.PI * 2; angle += angleStep) {
+                // Add wave modulation for organic breathing effect
+                const waveModulation = 1 + Math.sin(angle * waveCount + progress * Math.PI * 2) * waveIntensity * 0.2;
+                const radius = baseRadius * waveModulation;
+                
+                const x = centerX + radius * Math.cos(angle);
+                const y = centerY + radius * Math.sin(angle);
+                
+                if (pathData === '') {
+                    pathData = `M ${x} ${y}`;
+                } else {
+                    pathData += ` L ${x} ${y}`;
+                }
+            }
+            pathData += ' Z';
+            
+            path.setAttribute('d', pathData);
+            
+            // Variable thickness based on radius (thinner toward center)
+            const thickness = lineWidth * (0.5 + progress * 0.5);
+            
+            // Alternating fills for hypnotic depth effect
+            const colorIndex = i;
+            const color = this.getLineColor(colorIndex, numRings);
+            const colorMode = document.getElementById('color-mode').value;
+            
+            if (i % 3 === 0) {
+                // Every third ring: filled
+                path.setAttribute('fill', color);
+                path.setAttribute('fill-opacity', '0.6');
+                path.setAttribute('stroke', color);
+                path.setAttribute('stroke-width', thickness);
+            } else if (i % 3 === 1) {
+                // Every third ring: outline only
+                path.setAttribute('fill', 'none');
+                path.setAttribute('stroke', color);
+                path.setAttribute('stroke-width', thickness);
+            } else {
+                // Every third ring: semi-transparent
+                if (colorMode === 'black') {
+                    path.setAttribute('fill', '#fff');
+                    path.setAttribute('fill-opacity', '0.3');
+                    path.setAttribute('stroke', '#000');
+                    path.setAttribute('stroke-width', thickness * 0.5);
+                } else {
+                    path.setAttribute('fill', color);
+                    path.setAttribute('fill-opacity', '0.3');
+                    path.setAttribute('stroke', color);
+                    path.setAttribute('stroke-width', thickness * 0.5);
+                }
+            }
+            
+            if (rotation !== 0) {
+                const ringRotation = rotation + progress * 45; // Progressive rotation
+                path.setAttribute('transform', `rotate(${ringRotation} ${centerX} ${centerY})`);
+            }
+            
+            layerGroup.appendChild(path);
         }
+        
+        // Add center focal point
+        const centerCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        centerCircle.setAttribute('cx', centerX);
+        centerCircle.setAttribute('cy', centerY);
+        centerCircle.setAttribute('r', Math.max(3, lineWidth * 2));
+        centerCircle.setAttribute('fill', this.getLineColor(0, 1));
+        layerGroup.appendChild(centerCircle);
     }
 
     generateDiagonalStripes(layerGroup) {
         const complexity = parseInt(document.getElementById('complexity').value);
         const lineWidth = parseInt(document.getElementById('line-width').value);
-        const maxDimension = Math.max(this.actualWidth, this.actualHeight);
-        const spacing = maxDimension / complexity;
-
-        for (let i = -maxDimension; i < maxDimension * 2; i += spacing) {
-            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-
-            const offset = (this.seededRandom(this.currentSeed + i * 0.01) - 0.5) * 10;
-            const angle = 45 + (this.seededRandom(this.currentSeed + i * 0.02) - 0.5) * 20;
-
-            line.setAttribute('x1', i + offset);
-            line.setAttribute('y1', 0);
-            line.setAttribute('x2', i + maxDimension + offset);
-            line.setAttribute('y2', maxDimension);
-            line.setAttribute('stroke', '#000');
-            line.setAttribute('stroke-width', lineWidth);
-            line.setAttribute('transform', `rotate(${angle} ${this.actualWidth/2} ${this.actualHeight/2})`);
-
-            layerGroup.appendChild(line);
+        const amplitude = parseInt(document.getElementById('amplitude').value);
+        const frequency = parseInt(document.getElementById('frequency').value);
+        const rotation = parseInt(document.getElementById('rotation').value);
+        const centerX = this.actualWidth / 2;
+        const centerY = this.actualHeight / 2;
+        
+        const maxDimension = Math.sqrt(this.actualWidth * this.actualWidth + this.actualHeight * this.actualHeight);
+        
+        // Use complexity for number of stripes
+        const numStripes = Math.max(10, complexity);
+        const spacing = maxDimension / numStripes;
+        
+        // Use amplitude for wave distortion intensity
+        const waveIntensity = amplitude / 50;
+        
+        // Use frequency for wave frequency along stripes
+        const waveFrequency = frequency / 10;
+        
+        // Create Op-Art chevron effect with alternating fills
+        for (let i = 0; i < numStripes; i++) {
+            const progress = i / numStripes;
+            const basePosition = -maxDimension * 0.5 + i * spacing;
+            
+            // Create wavy stripe using path
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            let pathData = '';
+            
+            // Generate points along the stripe with wave distortion
+            const numPoints = 100;
+            const length = maxDimension * 1.5;
+            const step = length / numPoints;
+            
+            // Draw top edge of stripe
+            for (let t = 0; t <= length; t += step) {
+                const x = basePosition + t * Math.cos(Math.PI / 4);
+                const y = t * Math.sin(Math.PI / 4);
+                
+                // Add wave distortion perpendicular to stripe direction
+                const waveOffset = Math.sin(t * 0.01 * waveFrequency + progress * Math.PI * 2) * waveIntensity;
+                const offsetX = waveOffset * Math.cos(Math.PI / 4 + Math.PI / 2);
+                const offsetY = waveOffset * Math.sin(Math.PI / 4 + Math.PI / 2);
+                
+                const finalX = x + offsetX;
+                const finalY = y + offsetY;
+                
+                if (pathData === '') {
+                    pathData = `M ${finalX} ${finalY}`;
+                } else {
+                    pathData += ` L ${finalX} ${finalY}`;
+                }
+            }
+            
+            // Variable thickness for depth
+            const thickness = lineWidth * (0.5 + progress * 1.5);
+            
+            // Draw bottom edge of stripe (in reverse to create filled shape)
+            for (let t = length; t >= 0; t -= step) {
+                const x = basePosition + t * Math.cos(Math.PI / 4);
+                const y = t * Math.sin(Math.PI / 4);
+                
+                const waveOffset = Math.sin(t * 0.01 * waveFrequency + progress * Math.PI * 2) * waveIntensity;
+                const offsetX = waveOffset * Math.cos(Math.PI / 4 + Math.PI / 2);
+                const offsetY = waveOffset * Math.sin(Math.PI / 4 + Math.PI / 2);
+                
+                // Offset for stripe width
+                const widthOffsetX = thickness * Math.cos(Math.PI / 4 + Math.PI / 2);
+                const widthOffsetY = thickness * Math.sin(Math.PI / 4 + Math.PI / 2);
+                
+                const finalX = x + offsetX + widthOffsetX;
+                const finalY = y + offsetY + widthOffsetY;
+                
+                pathData += ` L ${finalX} ${finalY}`;
+            }
+            
+            pathData += ' Z';
+            path.setAttribute('d', pathData);
+            
+            // Op-Art alternating pattern
+            const colorIndex = i;
+            const color = this.getLineColor(colorIndex, numStripes);
+            const colorMode = document.getElementById('color-mode').value;
+            
+            if (i % 4 === 0) {
+                // Filled stripes
+                path.setAttribute('fill', color);
+                path.setAttribute('fill-opacity', '1');
+                path.setAttribute('stroke', 'none');
+            } else if (i % 4 === 1) {
+                // Outlined stripes
+                path.setAttribute('fill', 'none');
+                path.setAttribute('stroke', color);
+                path.setAttribute('stroke-width', lineWidth);
+            } else if (i % 4 === 2) {
+                // White/light stripes for contrast
+                if (colorMode === 'black') {
+                    path.setAttribute('fill', '#fff');
+                    path.setAttribute('fill-opacity', '1');
+                    path.setAttribute('stroke', 'none');
+                } else {
+                    path.setAttribute('fill', color);
+                    path.setAttribute('fill-opacity', '0.3');
+                    path.setAttribute('stroke', 'none');
+                }
+            } else {
+                // Gradient-like effect with semi-transparent
+                path.setAttribute('fill', color);
+                path.setAttribute('fill-opacity', '0.6');
+                path.setAttribute('stroke', color);
+                path.setAttribute('stroke-width', lineWidth * 0.3);
+            }
+            
+            // Apply rotation
+            const angle = 45 + rotation;
+            path.setAttribute('transform', `rotate(${angle} ${centerX} ${centerY})`);
+            
+            layerGroup.appendChild(path);
         }
     }
 
@@ -1853,28 +2126,98 @@ class OpticalArtGenerator {
     generateSquareTunnel(layerGroup) {
         const complexity = parseInt(document.getElementById('complexity').value);
         const lineWidth = parseInt(document.getElementById('line-width').value);
+        const amplitude = parseInt(document.getElementById('amplitude').value);
+        const frequency = parseInt(document.getElementById('frequency').value);
         const centerX = this.actualWidth / 2;
         const centerY = this.actualHeight / 2;
 
-        for (let i = 0; i < complexity; i++) {
-            const scale = 1 - (i / complexity);
-            const maxDimension = Math.max(this.actualWidth, this.actualHeight);
-            const squareSize = maxDimension * scale * 0.8;
+        // Use complexity for number of squares (rings)
+        const numSquares = Math.max(20, complexity);
+        const maxDimension = Math.max(this.actualWidth, this.actualHeight);
+        
+        // Use amplitude for perspective distortion intensity
+        const perspectiveStrength = amplitude / 100;
+        
+        // Use frequency for rotation twist
+        const twistFactor = frequency / 50;
 
-            const rotation = (this.seededRandom(this.currentSeed + i * 0.1) - 0.5) * 10;
-
-            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-            rect.setAttribute('x', centerX - squareSize / 2);
-            rect.setAttribute('y', centerY - squareSize / 2);
-            rect.setAttribute('width', squareSize);
-            rect.setAttribute('height', squareSize);
-            rect.setAttribute('fill', 'none');
-            rect.setAttribute('stroke', '#000');
-            rect.setAttribute('stroke-width', lineWidth);
-            rect.setAttribute('transform', `rotate(${rotation} ${centerX} ${centerY})`);
-
-            layerGroup.appendChild(rect);
+        for (let i = 0; i < numSquares; i++) {
+            // Non-linear scaling for better perspective (exponential)
+            const progress = i / numSquares;
+            const scale = Math.pow(1 - progress, 1.5); // Exponential decay for depth
+            
+            // Calculate size with perspective
+            const baseSize = maxDimension * scale * 0.9;
+            
+            // Add spiral twist - rotation increases toward center
+            const rotation = progress * twistFactor * 360;
+            
+            // Add wave modulation to size for organic feel
+            const waveModulation = 1 + Math.sin(progress * Math.PI * 4) * perspectiveStrength * 0.1;
+            const squareSize = baseSize * waveModulation;
+            
+            // Calculate depth-based offset for 3D effect
+            const depthOffset = (1 - scale) * perspectiveStrength * 5;
+            
+            // Create path for more control over shape
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            
+            // Calculate corners with slight perspective distortion
+            const half = squareSize / 2;
+            const perspectiveDistortion = 1 + (1 - scale) * perspectiveStrength * 0.1;
+            
+            const corners = [
+                [-half * perspectiveDistortion, -half * perspectiveDistortion],
+                [half * perspectiveDistortion, -half * perspectiveDistortion],
+                [half * perspectiveDistortion, half * perspectiveDistortion],
+                [-half * perspectiveDistortion, half * perspectiveDistortion]
+            ];
+            
+            // Build path
+            let pathData = `M ${corners[0][0]} ${corners[0][1]}`;
+            for (let j = 1; j < corners.length; j++) {
+                pathData += ` L ${corners[j][0]} ${corners[j][1]}`;
+            }
+            pathData += ' Z';
+            
+            path.setAttribute('d', pathData);
+            
+            // Alternating fills for 3D tunnel effect (like Radial Vortex)
+            const colorIndex = i;
+            const color = this.getLineColor(colorIndex, numSquares);
+            const colorMode = document.getElementById('color-mode').value;
+            
+            if (i % 2 === 0) {
+                path.setAttribute('fill', color);
+                path.setAttribute('fill-opacity', '1');
+                path.setAttribute('stroke', 'none');
+            } else {
+                if (colorMode === 'black') {
+                    path.setAttribute('fill', '#fff');
+                    path.setAttribute('fill-opacity', '1');
+                    path.setAttribute('stroke', 'none');
+                } else {
+                    path.setAttribute('fill', color);
+                    path.setAttribute('fill-opacity', '0.5');
+                    path.setAttribute('stroke', color);
+                    path.setAttribute('stroke-width', lineWidth * 0.5);
+                }
+            }
+            
+            // Apply rotation and center transformation
+            const transform = `translate(${centerX + depthOffset}, ${centerY + depthOffset}) rotate(${rotation})`;
+            path.setAttribute('transform', transform);
+            
+            layerGroup.appendChild(path);
         }
+        
+        // Add center focal point
+        const centerDot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        centerDot.setAttribute('cx', centerX);
+        centerDot.setAttribute('cy', centerY);
+        centerDot.setAttribute('r', Math.max(2, lineWidth));
+        centerDot.setAttribute('fill', this.getLineColor(0, 1));
+        layerGroup.appendChild(centerDot);
     }
 
     generateWaveDisplacement(layerGroup) {
