@@ -559,10 +559,17 @@ header p {
     margin-bottom: 10px;
 }
 
+.preset-slot-container {
+    display: flex;
+    align-items: stretch;
+    gap: 3px;
+}
+
 .preset-slot {
+    flex: 1;
     padding: 10px 6px;
     border: 2px solid rgba(0, 0, 0, 0.1);
-    border-radius: 6px;
+    border-radius: 6px 0 0 6px;
     background: white;
     cursor: pointer;
     transition: var(--transition-smooth);
@@ -572,6 +579,31 @@ header p {
     flex-direction: column;
     align-items: center;
     gap: 2px;
+}
+
+.preset-save-btn {
+    padding: 4px 6px;
+    border: 2px solid rgba(102, 234, 126, 0.3);
+    border-radius: 0 6px 6px 0;
+    background: linear-gradient(135deg, rgba(102, 234, 126, 0.1) 0%, rgba(75, 162, 118, 0.1) 100%);
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 30px;
+}
+
+.preset-save-btn:hover {
+    background: linear-gradient(135deg, rgba(102, 234, 126, 0.3) 0%, rgba(75, 162, 118, 0.25) 100%);
+    border-color: rgba(102, 234, 126, 0.8);
+    transform: scale(1.05);
+    box-shadow: 0 0 8px rgba(102, 234, 126, 0.5);
+}
+
+.preset-save-btn:active {
+    transform: scale(0.95);
 }
 
 .preset-slot:hover {
