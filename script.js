@@ -4149,13 +4149,17 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
     }
 
     setupPresetListeners() {
+        console.log('🎯 setupPresetListeners called');
+        
         // Preset slot buttons
         document.querySelectorAll('.preset-slot').forEach(button => {
             button.addEventListener('click', () => {
                 const slot = button.dataset.slot;
+                console.log('Preset button clicked:', slot);
                 this.loadPreset(slot);
             });
         });
+        console.log('✅ Preset button listeners attached');
         
         // Mutate button
         document.getElementById('mutate-btn').addEventListener('click', () => {
@@ -4178,6 +4182,7 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         });
         
         // Keyboard shortcuts
+        console.log('⌨️ Setting up keyboard shortcuts listener');
         document.addEventListener('keydown', (e) => {
             console.log('Keydown event:', e.key, 'Shift:', e.shiftKey, 'Target:', e.target.tagName);
             
