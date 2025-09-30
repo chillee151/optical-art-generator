@@ -1315,6 +1315,11 @@ class OpticalArtGenerator {
             }
         });
 
+        // Animation speed slider
+        document.getElementById('animation-speed').addEventListener('input', (e) => {
+            document.getElementById('animation-speed-value').textContent = `${parseFloat(e.target.value).toFixed(1)}x`;
+        });
+
         // Video duration slider
         document.getElementById('video-duration').addEventListener('input', (e) => {
             document.getElementById('video-duration-value').textContent = `${e.target.value}s`;
@@ -1383,7 +1388,8 @@ class OpticalArtGenerator {
         const animate = (currentTime) => {
             if (!startTime) startTime = currentTime;
             const elapsedTime = currentTime - startTime; // elapsedTime is in milliseconds
-            this.slowAnimationTime = elapsedTime / 10000; // Progress 10 times slower than seconds
+            const speedMultiplier = parseFloat(document.getElementById('animation-speed').value);
+            this.slowAnimationTime = (elapsedTime / 10000) * speedMultiplier; // Apply speed multiplier
 
             this.generatePattern(true, this.slowAnimationTime); // Pass slowAnimationTime
 
