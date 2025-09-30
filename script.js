@@ -1332,9 +1332,13 @@ class OpticalArtGenerator {
             document.getElementById('video-duration-value').textContent = `${e.target.value}s`;
         });
 
-        // Record video button
+        // Record video buttons
         document.getElementById('record-video-btn').addEventListener('click', () => {
-            this.recordVideo();
+            this.recordVideoWebM();
+        });
+        
+        document.getElementById('record-mp4-btn').addEventListener('click', () => {
+            this.recordVideoMP4();
         });
 
         document.getElementById('zoom-in-btn').addEventListener('click', () => this.zoomIn());
@@ -1400,9 +1404,11 @@ class OpticalArtGenerator {
         if (this.isAnimating) {
             this.startAnimation();
             document.getElementById('record-video-btn').disabled = false;
+            document.getElementById('record-mp4-btn').disabled = false;
         } else {
             this.stopAnimation();
             document.getElementById('record-video-btn').disabled = true;
+            document.getElementById('record-mp4-btn').disabled = true;
         }
     }
 
@@ -1511,7 +1517,7 @@ class OpticalArtGenerator {
         }
     }
 
-    async recordVideo() {
+    async recordVideoWebM() {
         const duration = parseInt(document.getElementById('video-duration').value) * 1000; // Convert to ms
         const fps = 30; // 30 frames per second
         const frameInterval = 1000 / fps;
@@ -1658,6 +1664,129 @@ class OpticalArtGenerator {
             console.error('Video recording error:', error);
             this.showError('Failed to record video. Your browser may not support this feature.');
             document.getElementById('recording-status').classList.add('hidden');
+        }
+    }
+
+    async recordVideoMP4() {
+        const duration = parseInt(document.getElementById('video-duration').value);
+        const fps = 30;
+        
+        try {
+            this.showSuccess('🎬 Loading FFmpeg... (first time may take 30 seconds)');
+            
+            // Load FFmpeg.wasm if not already loaded
+            if (!this.ffmpeg) {
+                const { FFmpeg } = FFmpegWASM;
+                this.ffmpeg = new FFmpeg();
+                await this.ffmpeg.load({
+                    coreURL: 'https://unpkg.com/@ffmpeg/core@0.12.4/dist/umd/ffmpeg-core.js'
+                });
+                console.log('✅ FFmpeg loaded!');
+            }
+            
+            // Show recording status
+            document.getElementById('recording-status').classList.remove('hidden');
+            const timerElement = document.getElementById('record-timer');
+            timerElement.textContent = 'Capturing frames...';
+            
+            // Create canvas for frame capture
+            const canvas = document.createElement('canvas');
+            canvas.width = this.actualWidth;
+            canvas.height = this.actualHeight;
+            const ctx = canvas.getContext('2d');
+            
+            // Capture all frames
+            const totalFrames = duration * fps;
+            const frames = [];
+            
+            for (let frameNum = 0; frameNum < totalFrames; frameNum++) {
+                // Update timer
+                const elapsed = frameNum / fps;
+                timerElement.textContent = `Capturing: ${elapsed.toFixed(1)}s / ${duration}s`;
+                
+                // Convert SVG to canvas
+                const svgElement = this.canvas.querySelector('svg');
+                if (!svgElement) {
+                    throw new Error('No SVG element found');
+                }
+                
+                const svgData = new XMLSerializer().serializeToString(svgElement);
+                const img = new Image();
+                const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+                const url = URL.createObjectURL(svgBlob);
+                
+                // Wait for image to load
+                await new Promise((resolve, reject) => {
+                    img.onload = () => {
+                        ctx.fillStyle = 'white';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0);
+                        URL.revokeObjectURL(url);
+                        
+                        // Convert canvas to PNG blob
+                        canvas.toBlob((blob) => {
+                            frames.push(blob);
+                            resolve();
+                        }, 'image/png');
+                    };
+                    img.onerror = reject;
+                    img.src = url;
+                });
+                
+                // Wait for next frame time
+                await new Promise(resolve => setTimeout(resolve, 1000 / fps));
+            }
+            
+            timerElement.textContent = 'Encoding to MP4... (may take a minute)';
+            
+            // Write frames to FFmpeg
+            for (let i = 0; i < frames.length; i++) {
+                const frameData = new Uint8Array(await frames[i].arrayBuffer());
+                const paddedNum = String(i + 1).padStart(5, '0');
+                await this.ffmpeg.writeFile(`frame${paddedNum}.png`, frameData);
+                
+                if (i % 30 === 0) {
+                    timerElement.textContent = `Encoding: ${Math.round((i / frames.length) * 100)}%`;
+                }
+            }
+            
+            // Encode to MP4 with H.264
+            await this.ffmpeg.exec([
+                '-framerate', String(fps),
+                '-i', 'frame%05d.png',
+                '-c:v', 'libx264',
+                '-preset', 'fast',
+                '-pix_fmt', 'yuv420p',
+                '-movflags', '+faststart',
+                'output.mp4'
+            ]);
+            
+            // Read the output file
+            const data = await this.ffmpeg.readFile('output.mp4');
+            
+            // Download the MP4
+            const blob = new Blob([data.buffer], { type: 'video/mp4' });
+            const downloadUrl = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            a.download = `optical-art-${Date.now()}.mp4`;
+            a.click();
+            URL.revokeObjectURL(downloadUrl);
+            
+            // Cleanup
+            for (let i = 0; i < frames.length; i++) {
+                const paddedNum = String(i + 1).padStart(5, '0');
+                await this.ffmpeg.deleteFile(`frame${paddedNum}.png`);
+            }
+            await this.ffmpeg.deleteFile('output.mp4');
+            
+            document.getElementById('recording-status').classList.add('hidden');
+            this.showSuccess('🎬 MP4 video exported! Works on iPhone/Safari! ✅');
+            
+        } catch (error) {
+            console.error('MP4 recording error:', error);
+            document.getElementById('recording-status').classList.add('hidden');
+            this.showError(`Failed to create MP4: ${error.message}. Try WebM instead.`);
         }
     }
 
