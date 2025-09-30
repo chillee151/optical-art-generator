@@ -7,14 +7,17 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 ### v5.1.0 (Latest - VIDEO EXPORT!)
 
 **🎬 VIDEO RECORDING & ANIMATION IMPROVEMENTS:**
-- **Record Video Button**: Export animations as WebM video files!
+- **Record Video Button**: Export animations as MP4 or WebM video files!
   - Configurable duration: 3-30 seconds
   - 30 FPS, high quality (5 Mbps bitrate)
+  - **H.264/MP4**: Universal compatibility (works on iPhone/iPad!)
+  - Smart codec detection: Tries H.264 first, falls back to VP9/VP8
   - Real-time recording progress display
   - Only enabled when animation is active
   - One-click download when complete
 - **Enhanced Animation**: Smoother frame rendering for video capture
 - **Professional Export**: Perfect for social media, presentations, portfolios
+- **iPhone Compatible**: H.264 codec works on all Apple devices
 - **Browser-Native**: No external dependencies, works offline
 
 ### v5.0.0 (MAJOR UPDATE)
@@ -109,7 +112,7 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 - **🎲 Randomize All** - Total randomization: pattern + settings + colors
 - **⚡ Preset Snapshots** - 9 quick-save slots with keyboard shortcuts
 - **🔄 A/B Morphing** - Smooth interpolation between two saved presets
-- **🎬 Video Recording** - Export animations as WebM video (3-30 sec, 30 FPS)
+- **🎬 Video Recording** - Export animations as MP4/WebM video (3-30 sec, 30 FPS, iPhone compatible!)
 - **🎥 Animate Pattern** - Live animation with configurable parameters
 - **Bidirectional Controls** - Amplitude and rotation sliders support negative values for inverted/mirrored effects
 - **Mouse Wheel Zoom** - Scroll to zoom in/out on canvas for detailed exploration
@@ -193,7 +196,7 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 - **SVG Export** - Vector format with millimeter units for LightBurn
 - **PNG Export** - High-resolution (8x scale) lossless images
 - **JPG Export** - Compressed format (95% quality)
-- **WebM Video** - Animated patterns (3-30 sec, 30 FPS, 5 Mbps quality)
+- **MP4/WebM Video** - Animated patterns (H.264 codec, 3-30 sec, 30 FPS, iPhone compatible!)
 - **Smart Filenames** - Auto-naming with pattern type, settings, timestamp
 
 ### 🛡️ Enhanced User Experience

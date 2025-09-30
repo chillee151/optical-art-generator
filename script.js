@@ -1415,10 +1415,54 @@ class OpticalArtGenerator {
             
             // Create MediaRecorder stream
             const stream = canvas.captureStream(fps);
-            const mediaRecorder = new MediaRecorder(stream, {
-                mimeType: 'video/webm;codecs=vp9',
-                videoBitsPerSecond: 5000000 // 5 Mbps for good quality
-            });
+            
+            // Try H.264/MP4 first (best compatibility, works on iPhone!)
+            // Fall back to VP9/WebM if not supported
+            let options;
+            let fileExtension;
+            let mimeType;
+            
+            if (MediaRecorder.isTypeSupported('video/mp4;codecs=h264')) {
+                options = {
+                    mimeType: 'video/mp4;codecs=h264',
+                    videoBitsPerSecond: 5000000
+                };
+                fileExtension = 'mp4';
+                mimeType = 'video/mp4';
+                console.log('Using H.264/MP4 (iPhone compatible!)');
+            } else if (MediaRecorder.isTypeSupported('video/webm;codecs=h264')) {
+                options = {
+                    mimeType: 'video/webm;codecs=h264',
+                    videoBitsPerSecond: 5000000
+                };
+                fileExtension = 'webm';
+                mimeType = 'video/webm';
+                console.log('Using H.264/WebM');
+            } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
+                options = {
+                    mimeType: 'video/webm;codecs=vp9',
+                    videoBitsPerSecond: 5000000
+                };
+                fileExtension = 'webm';
+                mimeType = 'video/webm';
+                console.log('Using VP9/WebM (fallback)');
+            } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
+                options = {
+                    mimeType: 'video/webm;codecs=vp8',
+                    videoBitsPerSecond: 5000000
+                };
+                fileExtension = 'webm';
+                mimeType = 'video/webm';
+                console.log('Using VP8/WebM (fallback)');
+            } else {
+                // Last resort - let browser choose
+                options = { videoBitsPerSecond: 5000000 };
+                fileExtension = 'webm';
+                mimeType = 'video/webm';
+                console.log('Using browser default codec');
+            }
+            
+            const mediaRecorder = new MediaRecorder(stream, options);
             
             const chunks = [];
             mediaRecorder.ondataavailable = (e) => {
@@ -1428,17 +1472,17 @@ class OpticalArtGenerator {
             };
             
             mediaRecorder.onstop = () => {
-                const blob = new Blob(chunks, { type: 'video/webm' });
+                const blob = new Blob(chunks, { type: mimeType });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `optical-art-${Date.now()}.webm`;
+                a.download = `optical-art-${Date.now()}.${fileExtension}`;
                 a.click();
                 URL.revokeObjectURL(url);
                 
                 // Hide recording status
                 document.getElementById('recording-status').classList.add('hidden');
-                this.showSuccess('🎬 Video exported successfully!');
+                this.showSuccess(`🎬 Video exported as ${fileExtension.toUpperCase()}!`);
             };
             
             // Show recording status
