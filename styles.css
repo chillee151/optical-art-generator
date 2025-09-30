@@ -728,6 +728,125 @@ footer {
     font-weight: 500;
 }
 
+/* Visual Explorer Styles */
+.explorer-header {
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+.explorer-header h4 {
+    margin: 0 0 6px 0;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+}
+
+.explorer-hint {
+    font-size: 0.6875rem;
+    color: #6b7280;
+    margin: 0 0 10px 0;
+    font-style: italic;
+}
+
+.explorer-controls {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.explorer-controls button {
+    flex: 1;
+}
+
+.generation-info {
+    text-align: center;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--primary-dark);
+    padding: 6px;
+    background: rgba(102, 126, 234, 0.08);
+    border-radius: 4px;
+}
+
+.variants-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    padding: 4px 0;
+}
+
+.variant-item {
+    position: relative;
+    aspect-ratio: 1;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: white;
+}
+
+.variant-item:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    border-color: #667eea;
+    z-index: 10;
+}
+
+.variant-item.selected {
+    border: 3px solid #667eea;
+    box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2),
+                0 4px 16px rgba(102, 126, 234, 0.4);
+    transform: scale(1.02);
+}
+
+.variant-item.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.variant-item svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.variant-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    color: #9ca3af;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Responsive grid */
+@media (max-width: 768px) {
+    .variants-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+    }
+}
+
 /* Custom scrollbar for tab content */
 .tab-content::-webkit-scrollbar {
     width: 6px;

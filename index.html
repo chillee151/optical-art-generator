@@ -19,6 +19,7 @@
                     <button class="tab-link active" data-tab="tab-pattern">Pattern</button>
                     <button class="tab-link" data-tab="tab-adjust">Adjust</button>
                     <button class="tab-link" data-tab="tab-canvas">Canvas & Color</button>
+                    <button class="tab-link" data-tab="tab-explore">Explore</button>
                     <button class="tab-link" data-tab="tab-morph">Morph</button>
                     <button class="tab-link" data-tab="tab-actions">Actions</button>
                 </div>
@@ -162,6 +163,23 @@
                         <input type="color" id="gradient-color-1" value="#ff00ff">
                         <label for="gradient-color-2">Gradient End:</label>
                         <input type="color" id="gradient-color-2" value="#00ffff">
+                    </div>
+                </div>
+
+                <div id="tab-explore" class="tab-content">
+                    <div class="explorer-header">
+                        <h4>🎨 Visual Explorer</h4>
+                        <p class="explorer-hint">Click your favorite → Evolve toward beauty!</p>
+                        <div class="explorer-controls">
+                            <button id="new-generation-btn" class="secondary-btn">↺ New Generation</button>
+                            <button id="use-variant-btn" class="primary-btn" disabled>✓ Use This</button>
+                        </div>
+                        <div class="generation-info">
+                            <span id="generation-counter">Generation 1 - Random</span>
+                        </div>
+                    </div>
+                    <div class="variants-grid" id="variants-grid">
+                        <!-- Variants will be dynamically generated here -->
                     </div>
                 </div>
 

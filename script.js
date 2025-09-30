@@ -96,12 +96,18 @@ class OpticalArtGenerator {
                 'albers_homage': ['#D9D9D9', '#F2B705', '#F29F05', '#F28705', '#F25C05'],
                 'vasarely_zebra': ['#000000', '#FFFFFF']
             };
-            this.isGenerating = false;
-            this.isAnimating = false;
-            this.animationFrameId = null;
-            this.zoomLevel = 1;
-            this.panX = 0;
-            this.panY = 0;
+        this.isGenerating = false;
+        this.isAnimating = false;
+        this.animationFrameId = null;
+        this.zoomLevel = 1;
+        this.panX = 0;
+        this.panY = 0;
+        
+        // Visual Explorer state
+        this.explorerVariants = [];
+        this.selectedVariantIndex = -1;
+        this.explorerGeneration = 1;
+        this.parentVariant = null;
         this.patternInfo = {
             'concentric-circles': 'Hypnotic wavy rings with golden ratio spacing, variable thickness, breathing effects, and alternating fills creating powerful depth illusion',
             'diagonal-stripes': 'Dynamic Op-Art stripes with wave distortion, variable thickness, and alternating fills creating chevron-like patterns with 3D depth',
@@ -1205,6 +1211,15 @@ class OpticalArtGenerator {
 
         document.getElementById('generate-colors-btn').addEventListener('click', () => {
             this.generateColorPalette();
+        });
+
+        // Visual Explorer listeners
+        document.getElementById('new-generation-btn').addEventListener('click', () => {
+            this.generateRandomVariants();
+        });
+
+        document.getElementById('use-variant-btn').addEventListener('click', () => {
+            this.applyVariantToCanvas();
         });
 
         document.getElementById('export-svg-btn').addEventListener('click', () => {
@@ -4394,6 +4409,251 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         this.updatePresetUI();
         this.updateMorphDropdowns();
         this.showSuccess('All presets cleared');
+    }
+
+    // ==================== VISUAL EXPLORER SYSTEM ====================
+
+    generateRandomVariants() {
+        // Generate 12 completely random variants
+        const patternTypes = [
+            'concentric-circles', 'diagonal-stripes', 'cube-illusion', 'square-tunnel',
+            'eye-pattern', 'wave-displacement', 'circular-displacement', 'moire-interference',
+            'spiral-distortion', 'perlin-displacement', 'de-jong-attractor', 'radial-vortex'
+        ];
+        const symmetryOptions = ['none', '2', '4', '6', '8', '12'];
+        
+        this.explorerVariants = [];
+        for (let i = 0; i < 12; i++) {
+            this.explorerVariants.push({
+                patternType: patternTypes[Math.floor(Math.random() * patternTypes.length)],
+                complexity: Math.round(10 + Math.random() * 240),
+                symmetry: symmetryOptions[Math.floor(Math.random() * symmetryOptions.length)],
+                frequency: Math.round(5 + Math.random() * 90),
+                amplitude: Math.round(-800 + Math.random() * 1600),
+                rotation: Math.round(-180 + Math.random() * 360),
+                glow: Math.round(Math.random() * 10),
+                colorMode: 'gradient',
+                lineColor: this.hslToHex(Math.random() * 360, 70 + Math.random() * 30, 50),
+                gradientColor1: this.hslToHex(Math.random() * 360, 70 + Math.random() * 30, 50),
+                gradientColor2: this.hslToHex(Math.random() * 360, 70 + Math.random() * 30, 50),
+                seed: Math.random()
+            });
+        }
+        
+        this.explorerGeneration = 1;
+        this.selectedVariantIndex = -1;
+        this.parentVariant = null;
+        document.getElementById('generation-counter').textContent = 'Generation 1 - Random';
+        document.getElementById('use-variant-btn').disabled = true;
+        
+        this.renderExplorerGrid();
+        this.showSuccess('🎨 New generation created!');
+    }
+
+    generateMutatedVariants(parent) {
+        // Generate 12 mutations based on parent variant
+        const symmetryOptions = ['none', '2', '4', '6', '8', '12'];
+        const currentSymIndex = symmetryOptions.indexOf(parent.symmetry);
+        
+        this.explorerVariants = [];
+        for (let i = 0; i < 12; i++) {
+            // Mutation ranges (smaller than "variation")
+            const complexityMutation = Math.round((Math.random() - 0.5) * 40); // ±20
+            const frequencyMutation = Math.round((Math.random() - 0.5) * 20); // ±10
+            const amplitudeMutation = Math.round((Math.random() - 0.5) * 200); // ±100
+            const rotationMutation = Math.round((Math.random() - 0.5) * 60); // ±30°
+            const glowMutation = Math.round((Math.random() - 0.5) * 4); // ±2
+            
+            // Sometimes shift symmetry by 1 step
+            let newSymmetry = parent.symmetry;
+            if (Math.random() > 0.7 && currentSymIndex >= 0) {
+                const shift = Math.random() > 0.5 ? 1 : -1;
+                const newIndex = Math.max(0, Math.min(symmetryOptions.length - 1, currentSymIndex + shift));
+                newSymmetry = symmetryOptions[newIndex];
+            }
+            
+            // Color mutations (hue shift)
+            const hueShift = (Math.random() - 0.5) * 60; // ±30° hue shift
+            
+            this.explorerVariants.push({
+                patternType: parent.patternType, // Keep same pattern type
+                complexity: Math.max(5, Math.min(300, parent.complexity + complexityMutation)),
+                symmetry: newSymmetry,
+                frequency: Math.max(1, Math.min(100, parent.frequency + frequencyMutation)),
+                amplitude: Math.max(-1000, Math.min(1000, parent.amplitude + amplitudeMutation)),
+                rotation: Math.max(-180, Math.min(180, parent.rotation + rotationMutation)),
+                glow: Math.max(0, Math.min(10, parent.glow + glowMutation)),
+                colorMode: parent.colorMode,
+                lineColor: this.shiftHue(parent.lineColor, hueShift),
+                gradientColor1: this.shiftHue(parent.gradientColor1, hueShift),
+                gradientColor2: this.shiftHue(parent.gradientColor2, hueShift),
+                seed: Math.random()
+            });
+        }
+        
+        this.explorerGeneration++;
+        this.selectedVariantIndex = -1;
+        document.getElementById('generation-counter').textContent = `Generation ${this.explorerGeneration} - Evolving...`;
+        document.getElementById('use-variant-btn').disabled = true;
+        
+        this.renderExplorerGrid();
+        this.showSuccess(`🧬 Generation ${this.explorerGeneration} spawned!`);
+    }
+
+    shiftHue(hexColor, shift) {
+        // Convert hex to HSL, shift hue, convert back
+        const r = parseInt(hexColor.slice(1, 3), 16) / 255;
+        const g = parseInt(hexColor.slice(3, 5), 16) / 255;
+        const b = parseInt(hexColor.slice(5, 7), 16) / 255;
+        
+        const max = Math.max(r, g, b);
+        const min = Math.min(r, g, b);
+        let h = 0, s = 0, l = (max + min) / 2;
+        
+        if (max !== min) {
+            const d = max - min;
+            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+            
+            switch (max) {
+                case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+                case g: h = ((b - r) / d + 2) / 6; break;
+                case b: h = ((r - g) / d + 4) / 6; break;
+            }
+        }
+        
+        h = (h * 360 + shift + 360) % 360; // Shift and wrap
+        s = s * 100;
+        l = l * 100;
+        
+        return this.hslToHex(h, s, l);
+    }
+
+    renderExplorerGrid() {
+        const grid = document.getElementById('variants-grid');
+        grid.innerHTML = '';
+        
+        this.explorerVariants.forEach((variant, index) => {
+            const item = document.createElement('div');
+            item.className = 'variant-item';
+            item.dataset.index = index;
+            
+            // Create thumbnail SVG
+            const svg = this.generateVariantThumbnail(variant, 150);
+            item.appendChild(svg);
+            
+            // Click handler
+            item.addEventListener('click', () => {
+                this.selectVariant(index);
+            });
+            
+            grid.appendChild(item);
+        });
+    }
+
+    generateVariantThumbnail(settings, size) {
+        // Create a small SVG preview of the variant
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('width', size);
+        svg.setAttribute('height', size);
+        svg.setAttribute('viewBox', `0 0 ${size} ${size}`);
+        svg.style.background = 'white';
+        
+        // Temporarily store current settings
+        const currentSettings = this.getCurrentSettings();
+        
+        // Apply variant settings temporarily
+        this.actualWidth = size;
+        this.actualHeight = size;
+        
+        // Create layer group
+        const layerGroup = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        
+        // Generate pattern based on type (simplified for thumbnail)
+        try {
+            switch(settings.patternType) {
+                case 'concentric-circles':
+                    this.generateMiniConcentricCircles(svg, settings.seed, Math.min(settings.complexity / 10, 20), this.getAutoLineWidth());
+                    break;
+                case 'spiral-distortion':
+                    this.generateMiniSpiralDistortion(svg, settings.seed, Math.min(settings.complexity / 10, 20), this.getAutoLineWidth());
+                    break;
+                case 'diagonal-stripes':
+                    this.generateMiniDiagonalStripes(svg, settings.seed, Math.min(settings.complexity / 10, 20), this.getAutoLineWidth());
+                    break;
+                case 'wave-displacement':
+                    this.generateMiniWaveDisplacement(svg, settings.seed, Math.min(settings.complexity / 10, 20), this.getAutoLineWidth());
+                    break;
+                default:
+                    // Fallback to simple spiral
+                    this.generateMiniSpiralDistortion(svg, settings.seed, Math.min(settings.complexity / 10, 20), this.getAutoLineWidth());
+            }
+            
+            // Apply color
+            if (settings.colorMode === 'gradient') {
+                const elements = svg.querySelectorAll('path, circle, line, rect');
+                elements.forEach((el, i) => {
+                    const ratio = i / Math.max(1, elements.length - 1);
+                    el.setAttribute('stroke', this.interpolateColor(settings.gradientColor1, settings.gradientColor2, ratio));
+                });
+            }
+        } catch (error) {
+            console.error('Error generating thumbnail:', error);
+        }
+        
+        // Restore actual dimensions
+        this.actualWidth = parseInt(document.getElementById('size').value);
+        this.actualHeight = this.actualWidth;
+        
+        return svg;
+    }
+
+    interpolateColor(color1, color2, ratio) {
+        const r1 = parseInt(color1.slice(1, 3), 16);
+        const g1 = parseInt(color1.slice(3, 5), 16);
+        const b1 = parseInt(color1.slice(5, 7), 16);
+        
+        const r2 = parseInt(color2.slice(1, 3), 16);
+        const g2 = parseInt(color2.slice(3, 5), 16);
+        const b2 = parseInt(color2.slice(5, 7), 16);
+        
+        const r = Math.round(r1 + (r2 - r1) * ratio);
+        const g = Math.round(g1 + (g2 - g1) * ratio);
+        const b = Math.round(b1 + (b2 - b1) * ratio);
+        
+        return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+    }
+
+    selectVariant(index) {
+        this.selectedVariantIndex = index;
+        this.parentVariant = this.explorerVariants[index];
+        
+        // Update UI
+        document.querySelectorAll('.variant-item').forEach((item, i) => {
+            item.classList.toggle('selected', i === index);
+        });
+        
+        document.getElementById('use-variant-btn').disabled = false;
+        
+        // Generate new mutated generation based on selection
+        this.generateMutatedVariants(this.parentVariant);
+    }
+
+    applyVariantToCanvas() {
+        if (this.selectedVariantIndex < 0 || !this.parentVariant) {
+            this.showError('No variant selected');
+            return;
+        }
+        
+        // Apply the parent variant to main canvas
+        this.applySettings(this.parentVariant);
+        
+        // Switch to Pattern tab to show result
+        document.querySelectorAll('.tab-link').forEach(link => link.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        document.querySelector('[data-tab="tab-pattern"]').classList.add('active');
+        document.getElementById('tab-pattern').classList.add('active');
+        
+        this.showSuccess('✓ Variant applied to canvas!');
     }
 
     setupPresetListeners() {
