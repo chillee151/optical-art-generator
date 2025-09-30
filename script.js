@@ -1337,8 +1337,8 @@ class OpticalArtGenerator {
             this.recordVideoWebM();
         });
         
-        document.getElementById('record-mp4-btn').addEventListener('click', () => {
-            this.recordVideoMP4();
+        document.getElementById('record-gif-btn').addEventListener('click', () => {
+            this.recordGIF();
         });
 
         document.getElementById('zoom-in-btn').addEventListener('click', () => this.zoomIn());
@@ -1404,11 +1404,11 @@ class OpticalArtGenerator {
         if (this.isAnimating) {
             this.startAnimation();
             document.getElementById('record-video-btn').disabled = false;
-            document.getElementById('record-mp4-btn').disabled = false;
+            document.getElementById('record-gif-btn').disabled = false;
         } else {
             this.stopAnimation();
             document.getElementById('record-video-btn').disabled = true;
-            document.getElementById('record-mp4-btn').disabled = true;
+            document.getElementById('record-gif-btn').disabled = true;
         }
     }
 
@@ -1667,27 +1667,24 @@ class OpticalArtGenerator {
         }
     }
 
-    async recordVideoMP4() {
+    async recordGIF() {
         const duration = parseInt(document.getElementById('video-duration').value);
-        const fps = 30;
+        const fps = 10; // Lower FPS for GIF (keeps file size reasonable)
         
         try {
-            this.showSuccess('🎬 Loading FFmpeg... (first time may take 30 seconds)');
-            
-            // Load FFmpeg.wasm if not already loaded
-            if (!this.ffmpeg) {
-                const { FFmpeg } = FFmpegWASM;
-                this.ffmpeg = new FFmpeg();
-                await this.ffmpeg.load({
-                    coreURL: 'https://unpkg.com/@ffmpeg/core@0.12.4/dist/umd/ffmpeg-core.js'
-                });
-                console.log('✅ FFmpeg loaded!');
-            }
-            
             // Show recording status
             document.getElementById('recording-status').classList.remove('hidden');
             const timerElement = document.getElementById('record-timer');
-            timerElement.textContent = 'Capturing frames...';
+            timerElement.textContent = 'Initializing...';
+            
+            // Create GIF encoder
+            const gif = new GIF({
+                workers: 2,
+                quality: 10,
+                width: this.actualWidth,
+                height: this.actualHeight,
+                workerScript: 'https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.worker.js'
+            });
             
             // Create canvas for frame capture
             const canvas = document.createElement('canvas');
@@ -1697,7 +1694,7 @@ class OpticalArtGenerator {
             
             // Capture all frames
             const totalFrames = duration * fps;
-            const frames = [];
+            const frameDelay = 1000 / fps;
             
             for (let frameNum = 0; frameNum < totalFrames; frameNum++) {
                 // Update timer
@@ -1715,7 +1712,7 @@ class OpticalArtGenerator {
                 const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
                 const url = URL.createObjectURL(svgBlob);
                 
-                // Wait for image to load
+                // Wait for image to load and add to GIF
                 await new Promise((resolve, reject) => {
                     img.onload = () => {
                         ctx.fillStyle = 'white';
@@ -1723,70 +1720,44 @@ class OpticalArtGenerator {
                         ctx.drawImage(img, 0, 0);
                         URL.revokeObjectURL(url);
                         
-                        // Convert canvas to PNG blob
-                        canvas.toBlob((blob) => {
-                            frames.push(blob);
-                            resolve();
-                        }, 'image/png');
+                        // Add frame to GIF
+                        gif.addFrame(canvas, {copy: true, delay: frameDelay});
+                        resolve();
                     };
                     img.onerror = reject;
                     img.src = url;
                 });
                 
                 // Wait for next frame time
-                await new Promise(resolve => setTimeout(resolve, 1000 / fps));
+                await new Promise(resolve => setTimeout(resolve, frameDelay));
             }
             
-            timerElement.textContent = 'Encoding to MP4... (may take a minute)';
+            timerElement.textContent = 'Encoding GIF...';
             
-            // Write frames to FFmpeg
-            for (let i = 0; i < frames.length; i++) {
-                const frameData = new Uint8Array(await frames[i].arrayBuffer());
-                const paddedNum = String(i + 1).padStart(5, '0');
-                await this.ffmpeg.writeFile(`frame${paddedNum}.png`, frameData);
+            // Render the GIF
+            gif.on('finished', (blob) => {
+                // Download the GIF
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `optical-art-${Date.now()}.gif`;
+                a.click();
+                URL.revokeObjectURL(url);
                 
-                if (i % 30 === 0) {
-                    timerElement.textContent = `Encoding: ${Math.round((i / frames.length) * 100)}%`;
-                }
-            }
+                document.getElementById('recording-status').classList.add('hidden');
+                this.showSuccess('🎬 GIF exported! Works on Safari/iPhone! ✅');
+            });
             
-            // Encode to MP4 with H.264
-            await this.ffmpeg.exec([
-                '-framerate', String(fps),
-                '-i', 'frame%05d.png',
-                '-c:v', 'libx264',
-                '-preset', 'fast',
-                '-pix_fmt', 'yuv420p',
-                '-movflags', '+faststart',
-                'output.mp4'
-            ]);
+            gif.on('progress', (progress) => {
+                timerElement.textContent = `Encoding: ${Math.round(progress * 100)}%`;
+            });
             
-            // Read the output file
-            const data = await this.ffmpeg.readFile('output.mp4');
-            
-            // Download the MP4
-            const blob = new Blob([data.buffer], { type: 'video/mp4' });
-            const downloadUrl = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = downloadUrl;
-            a.download = `optical-art-${Date.now()}.mp4`;
-            a.click();
-            URL.revokeObjectURL(downloadUrl);
-            
-            // Cleanup
-            for (let i = 0; i < frames.length; i++) {
-                const paddedNum = String(i + 1).padStart(5, '0');
-                await this.ffmpeg.deleteFile(`frame${paddedNum}.png`);
-            }
-            await this.ffmpeg.deleteFile('output.mp4');
-            
-            document.getElementById('recording-status').classList.add('hidden');
-            this.showSuccess('🎬 MP4 video exported! Works on iPhone/Safari! ✅');
+            gif.render();
             
         } catch (error) {
-            console.error('MP4 recording error:', error);
+            console.error('GIF recording error:', error);
             document.getElementById('recording-status').classList.add('hidden');
-            this.showError(`Failed to create MP4: ${error.message}. Try WebM instead.`);
+            this.showError(`Failed to create GIF: ${error.message}`);
         }
     }
 
