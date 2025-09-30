@@ -846,6 +846,25 @@ footer {
     }
 }
 
+/* Animation Checkbox Styles */
+.animate-checkbox {
+    width: auto;
+    margin-left: 8px;
+    cursor: pointer;
+}
+
+.animate-label {
+    display: inline;
+    margin-left: 4px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.animate-checkbox:checked + .animate-label {
+    filter: brightness(1.2);
+}
+
 /* Video Recording Styles */
 .animate-controls {
     margin-top: 8px;

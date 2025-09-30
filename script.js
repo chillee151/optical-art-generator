@@ -1304,16 +1304,23 @@ class OpticalArtGenerator {
             this.generatePattern(true);
         });
 
-        document.getElementById('animate-pattern').addEventListener('change', (e) => {
-            this.isAnimating = e.target.checked;
-            if (this.isAnimating) {
-                this.startAnimation();
-                document.getElementById('record-video-btn').disabled = false;
-            } else {
-                this.stopAnimation();
-                document.getElementById('record-video-btn').disabled = true;
-            }
+        // Individual animation checkboxes
+        const animationCheckboxes = [
+            'animate-complexity',
+            'animate-frequency', 
+            'animate-amplitude',
+            'animate-rotation',
+            'animate-glow'
+        ];
+        
+        animationCheckboxes.forEach(id => {
+            document.getElementById(id).addEventListener('change', () => {
+                this.updateAnimationState();
+            });
         });
+        
+        // Initial animation state
+        this.updateAnimationState();
 
         // Animation speed slider
         document.getElementById('animation-speed').addEventListener('input', (e) => {
@@ -1380,18 +1387,91 @@ class OpticalArtGenerator {
         });
     }
 
+    updateAnimationState() {
+        const anyAnimationActive = 
+            document.getElementById('animate-complexity').checked ||
+            document.getElementById('animate-frequency').checked ||
+            document.getElementById('animate-amplitude').checked ||
+            document.getElementById('animate-rotation').checked ||
+            document.getElementById('animate-glow').checked;
+        
+        this.isAnimating = anyAnimationActive;
+        
+        if (this.isAnimating) {
+            this.startAnimation();
+            document.getElementById('record-video-btn').disabled = false;
+        } else {
+            this.stopAnimation();
+            document.getElementById('record-video-btn').disabled = true;
+        }
+    }
+
     startAnimation() {
         if (this.animationFrameId) {
             cancelAnimationFrame(this.animationFrameId);
         }
+        
+        // Store original values
+        if (!this.originalValues) {
+            this.originalValues = {
+                complexity: parseInt(document.getElementById('complexity').value),
+                frequency: parseInt(document.getElementById('frequency').value),
+                amplitude: parseInt(document.getElementById('amplitude').value),
+                rotation: parseInt(document.getElementById('rotation').value),
+                glow: parseInt(document.getElementById('glow').value)
+            };
+        }
+        
         let startTime = null;
         const animate = (currentTime) => {
             if (!startTime) startTime = currentTime;
-            const elapsedTime = currentTime - startTime; // elapsedTime is in milliseconds
+            const elapsedTime = currentTime - startTime; // elapsedTime in milliseconds
             const speedMultiplier = parseFloat(document.getElementById('animation-speed').value);
-            this.slowAnimationTime = (elapsedTime / 10000) * speedMultiplier; // Apply speed multiplier
+            this.slowAnimationTime = (elapsedTime / 10000) * speedMultiplier;
+            
+            // Oscillate using sine wave for smooth animation
+            const oscillation = Math.sin(this.slowAnimationTime * Math.PI * 2); // -1 to 1
+            
+            // Animate each parameter if checkbox is checked
+            if (document.getElementById('animate-complexity').checked) {
+                const range = this.originalValues.complexity * 0.3; // ±30%
+                const newValue = Math.round(this.originalValues.complexity + oscillation * range);
+                document.getElementById('complexity').value = Math.max(5, Math.min(300, newValue));
+                document.getElementById('complexity-value').textContent = newValue;
+            }
+            
+            if (document.getElementById('animate-frequency').checked) {
+                const range = this.originalValues.frequency * 0.4; // ±40%
+                const newValue = Math.round(this.originalValues.frequency + oscillation * range);
+                document.getElementById('frequency').value = Math.max(1, Math.min(100, newValue));
+                document.getElementById('frequency-value').textContent = newValue;
+            }
+            
+            if (document.getElementById('animate-amplitude').checked) {
+                const range = Math.abs(this.originalValues.amplitude) * 0.5; // ±50%
+                const newValue = Math.round(this.originalValues.amplitude + oscillation * range);
+                document.getElementById('amplitude').value = Math.max(-1000, Math.min(1000, newValue));
+                document.getElementById('amplitude-value').textContent = newValue >= 0 ? `+${newValue}` : newValue;
+            }
+            
+            if (document.getElementById('animate-rotation').checked) {
+                // Continuous rotation (not oscillating)
+                const rotationSpeed = 30; // degrees per cycle
+                const newValue = Math.round((this.originalValues.rotation + this.slowAnimationTime * rotationSpeed) % 360);
+                const normalizedValue = newValue > 180 ? newValue - 360 : newValue;
+                document.getElementById('rotation').value = normalizedValue;
+                const sign = normalizedValue > 0 ? '+' : (normalizedValue < 0 ? '' : '');
+                document.getElementById('rotation-value').textContent = `${sign}${normalizedValue}°`;
+            }
+            
+            if (document.getElementById('animate-glow').checked) {
+                const range = 5; // ±5
+                const newValue = Math.round(Math.max(0, this.originalValues.glow + oscillation * range));
+                document.getElementById('glow').value = Math.max(0, Math.min(10, newValue));
+                document.getElementById('glow-value').textContent = newValue;
+            }
 
-            this.generatePattern(true, this.slowAnimationTime); // Pass slowAnimationTime
+            this.generatePattern(true, this.slowAnimationTime);
 
             if (this.isAnimating) {
                 this.animationFrameId = requestAnimationFrame(animate);
@@ -1404,6 +1484,30 @@ class OpticalArtGenerator {
         if (this.animationFrameId) {
             cancelAnimationFrame(this.animationFrameId);
             this.animationFrameId = null;
+        }
+        
+        // Reset to original values
+        if (this.originalValues) {
+            document.getElementById('complexity').value = this.originalValues.complexity;
+            document.getElementById('complexity-value').textContent = this.originalValues.complexity;
+            
+            document.getElementById('frequency').value = this.originalValues.frequency;
+            document.getElementById('frequency-value').textContent = this.originalValues.frequency;
+            
+            document.getElementById('amplitude').value = this.originalValues.amplitude;
+            const amp = this.originalValues.amplitude;
+            document.getElementById('amplitude-value').textContent = amp >= 0 ? `+${amp}` : amp;
+            
+            document.getElementById('rotation').value = this.originalValues.rotation;
+            const rot = this.originalValues.rotation;
+            const sign = rot > 0 ? '+' : (rot < 0 ? '' : '');
+            document.getElementById('rotation-value').textContent = `${sign}${rot}°`;
+            
+            document.getElementById('glow').value = this.originalValues.glow;
+            document.getElementById('glow-value').textContent = this.originalValues.glow;
+            
+            this.originalValues = null;
+            this.generatePattern(true);
         }
     }
 
