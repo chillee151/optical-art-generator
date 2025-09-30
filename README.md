@@ -4,7 +4,20 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 
 ## 🚀 Recent Updates
 
-### v5.0.0 (Latest - MAJOR UPDATE)
+### v5.1.0 (Latest - VIDEO EXPORT!)
+
+**🎬 VIDEO RECORDING & ANIMATION IMPROVEMENTS:**
+- **Record Video Button**: Export animations as WebM video files!
+  - Configurable duration: 3-30 seconds
+  - 30 FPS, high quality (5 Mbps bitrate)
+  - Real-time recording progress display
+  - Only enabled when animation is active
+  - One-click download when complete
+- **Enhanced Animation**: Smoother frame rendering for video capture
+- **Professional Export**: Perfect for social media, presentations, portfolios
+- **Browser-Native**: No external dependencies, works offline
+
+### v5.0.0 (MAJOR UPDATE)
 
 **🎨 SYMMETRY & GLOW (GAME-CHANGER!):**
 - **Symmetry Dropdown**: None/2-Fold/4-Fold/6-Fold/8-Fold/Radial(12)
@@ -96,6 +109,8 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 - **🎲 Randomize All** - Total randomization: pattern + settings + colors
 - **⚡ Preset Snapshots** - 9 quick-save slots with keyboard shortcuts
 - **🔄 A/B Morphing** - Smooth interpolation between two saved presets
+- **🎬 Video Recording** - Export animations as WebM video (3-30 sec, 30 FPS)
+- **🎥 Animate Pattern** - Live animation with configurable parameters
 - **Bidirectional Controls** - Amplitude and rotation sliders support negative values for inverted/mirrored effects
 - **Mouse Wheel Zoom** - Scroll to zoom in/out on canvas for detailed exploration
 - **Animation Feature** - Enable subtle, evolving animations with global rotation and parameter variation
@@ -178,6 +193,7 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 - **SVG Export** - Vector format with millimeter units for LightBurn
 - **PNG Export** - High-resolution (8x scale) lossless images
 - **JPG Export** - Compressed format (95% quality)
+- **WebM Video** - Animated patterns (3-30 sec, 30 FPS, 5 Mbps quality)
 - **Smart Filenames** - Auto-naming with pattern type, settings, timestamp
 
 ### 🛡️ Enhanced User Experience

@@ -97,6 +97,19 @@
                         <input type="checkbox" id="animate-pattern">
                         <label for="animate-pattern" style="display: inline; margin-left: 10px;">Animate Pattern</label>
                     </div>
+                    <div class="control-group animate-controls">
+                        <label for="video-duration">Video Duration (sec):</label>
+                        <input type="range" id="video-duration" min="3" max="30" value="10">
+                        <span id="video-duration-value">10s</span>
+                    </div>
+                    <div class="control-group animate-controls">
+                        <button id="record-video-btn" class="primary-btn" disabled>
+                            <span class="record-icon">⏺</span> Record Video
+                        </button>
+                        <div id="recording-status" class="recording-status hidden">
+                            Recording: <span id="record-timer">0s</span>
+                        </div>
+                    </div>
                     <div class="control-group">
                         <label>Zoom & Pan:</label>
                         <div class="button-group-inline">

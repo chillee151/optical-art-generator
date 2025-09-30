@@ -1308,9 +1308,21 @@ class OpticalArtGenerator {
             this.isAnimating = e.target.checked;
             if (this.isAnimating) {
                 this.startAnimation();
+                document.getElementById('record-video-btn').disabled = false;
             } else {
                 this.stopAnimation();
+                document.getElementById('record-video-btn').disabled = true;
             }
+        });
+
+        // Video duration slider
+        document.getElementById('video-duration').addEventListener('input', (e) => {
+            document.getElementById('video-duration-value').textContent = `${e.target.value}s`;
+        });
+
+        // Record video button
+        document.getElementById('record-video-btn').addEventListener('click', () => {
+            this.recordVideo();
         });
 
         document.getElementById('zoom-in-btn').addEventListener('click', () => this.zoomIn());
@@ -1386,6 +1398,96 @@ class OpticalArtGenerator {
         if (this.animationFrameId) {
             cancelAnimationFrame(this.animationFrameId);
             this.animationFrameId = null;
+        }
+    }
+
+    async recordVideo() {
+        const duration = parseInt(document.getElementById('video-duration').value) * 1000; // Convert to ms
+        const fps = 30; // 30 frames per second
+        const frameInterval = 1000 / fps;
+        
+        try {
+            // Create an offscreen canvas to render SVG to
+            const canvas = document.createElement('canvas');
+            canvas.width = this.actualWidth;
+            canvas.height = this.actualHeight;
+            const ctx = canvas.getContext('2d');
+            
+            // Create MediaRecorder stream
+            const stream = canvas.captureStream(fps);
+            const mediaRecorder = new MediaRecorder(stream, {
+                mimeType: 'video/webm;codecs=vp9',
+                videoBitsPerSecond: 5000000 // 5 Mbps for good quality
+            });
+            
+            const chunks = [];
+            mediaRecorder.ondataavailable = (e) => {
+                if (e.data.size > 0) {
+                    chunks.push(e.data);
+                }
+            };
+            
+            mediaRecorder.onstop = () => {
+                const blob = new Blob(chunks, { type: 'video/webm' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `optical-art-${Date.now()}.webm`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                // Hide recording status
+                document.getElementById('recording-status').classList.add('hidden');
+                this.showSuccess('🎬 Video exported successfully!');
+            };
+            
+            // Show recording status
+            document.getElementById('recording-status').classList.remove('hidden');
+            const timerElement = document.getElementById('record-timer');
+            
+            // Start recording
+            mediaRecorder.start();
+            const startTime = Date.now();
+            let frameCount = 0;
+            
+            // Render frames
+            const renderFrame = () => {
+                const elapsed = Date.now() - startTime;
+                
+                if (elapsed >= duration) {
+                    mediaRecorder.stop();
+                    return;
+                }
+                
+                // Update timer display
+                timerElement.textContent = `${Math.floor(elapsed / 1000)}s / ${Math.floor(duration / 1000)}s`;
+                
+                // Convert SVG to canvas
+                const svgElement = this.canvas.querySelector('svg');
+                const svgData = new XMLSerializer().serializeToString(svgElement);
+                const img = new Image();
+                const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+                const url = URL.createObjectURL(svgBlob);
+                
+                img.onload = () => {
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0);
+                    URL.revokeObjectURL(url);
+                    
+                    frameCount++;
+                    setTimeout(renderFrame, frameInterval);
+                };
+                
+                img.src = url;
+            };
+            
+            renderFrame();
+            
+        } catch (error) {
+            console.error('Video recording error:', error);
+            this.showError('Failed to record video. Your browser may not support this feature.');
+            document.getElementById('recording-status').classList.add('hidden');
         }
     }
 

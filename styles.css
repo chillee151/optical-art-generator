@@ -846,6 +846,52 @@ footer {
     }
 }
 
+/* Video Recording Styles */
+.animate-controls {
+    margin-top: 8px;
+}
+
+.recording-status {
+    display: inline-block;
+    margin-left: 12px;
+    padding: 6px 12px;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.75rem;
+    animation: pulse-record 1.5s ease-in-out infinite;
+}
+
+.recording-status.hidden {
+    display: none;
+}
+
+@keyframes pulse-record {
+    0%, 100% { 
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% { 
+        opacity: 0.8;
+        transform: scale(1.05);
+    }
+}
+
+.record-icon {
+    font-size: 1.1em;
+    color: #ef4444;
+}
+
+#record-video-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#record-video-btn:not(:disabled):hover .record-icon {
+    animation: pulse-record 0.5s ease-in-out;
+}
+
 /* Custom scrollbar for tab content */
 .tab-content::-webkit-scrollbar {
     width: 6px;
