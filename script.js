@@ -1674,14 +1674,14 @@ class OpticalArtGenerator {
         
         try {
             // Make sure there's a pattern to record
-            const svgCheck = document.querySelector('#art-canvas svg');
-            if (!svgCheck) {
+            const svgElement = document.getElementById('art-canvas');
+            if (!svgElement || svgElement.children.length === 0) {
                 this.showError('Please generate a pattern first! Click "Generate New" button.');
-                console.log('No SVG found in canvas');
+                console.log('No pattern in canvas');
                 return;
             }
             
-            console.log('✅ SVG found, starting GIF recording...');
+            console.log('✅ Pattern found, starting GIF recording...');
             
             // Show recording status
             document.getElementById('recording-status').classList.remove('hidden');
@@ -1713,8 +1713,8 @@ class OpticalArtGenerator {
                 timerElement.textContent = `Capturing: ${elapsed.toFixed(1)}s / ${duration}s`;
                 
                 // Convert SVG to canvas
-                const svgElement = document.querySelector('#art-canvas svg');
-                if (!svgElement) {
+                const svgElement = document.getElementById('art-canvas');
+                if (!svgElement || svgElement.children.length === 0) {
                     throw new Error('Pattern disappeared during recording. Please try again.');
                 }
                 
