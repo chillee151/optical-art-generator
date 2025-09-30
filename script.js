@@ -1195,6 +1195,14 @@ class OpticalArtGenerator {
             this.generatePattern(false);
         });
 
+        document.getElementById('randomize-all-btn').addEventListener('click', () => {
+            this.randomizeAll();
+        });
+
+        document.getElementById('generate-colors-btn').addEventListener('click', () => {
+            this.generateColorPalette();
+        });
+
         document.getElementById('export-svg-btn').addEventListener('click', () => {
             this.exportSVG();
         });
@@ -4230,6 +4238,88 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         
         this.applySettings(newSettings);
         this.showSuccess('🎨 Generated new pattern!');
+    }
+
+    randomizeAll() {
+        // Generate new pattern settings
+        this.generateNew();
+        
+        // Also generate new colors
+        this.generateColorPalette(true); // true = silent mode (no separate success message)
+        
+        this.showSuccess('🎲 Randomized EVERYTHING! Pattern + Colors + Settings');
+    }
+
+    generateColorPalette(silent = false) {
+        // Color harmony types
+        const harmonies = [
+            { name: 'Complementary', angles: [0, 180] },
+            { name: 'Triadic', angles: [0, 120, 240] },
+            { name: 'Analogous', angles: [0, 30, 60] },
+            { name: 'Split-Complementary', angles: [0, 150, 210] },
+            { name: 'Tetradic', angles: [0, 90, 180, 270] },
+            { name: 'Monochrome + Accent', angles: [0, 0, 180] }
+        ];
+        
+        // Randomly choose harmony
+        const harmony = harmonies[Math.floor(Math.random() * harmonies.length)];
+        
+        // Random base hue (0-360)
+        const baseHue = Math.floor(Math.random() * 360);
+        
+        // Generate colors based on harmony
+        const colors = harmony.angles.map(angle => {
+            const hue = (baseHue + angle) % 360;
+            const saturation = 70 + Math.random() * 30; // 70-100% for vibrant optical art
+            const lightness = 45 + Math.random() * 15; // 45-60% for good contrast
+            return this.hslToHex(hue, saturation, lightness);
+        });
+        
+        // Apply to current color mode
+        const colorMode = document.getElementById('color-mode').value;
+        
+        switch(colorMode) {
+            case 'single':
+                document.getElementById('line-color').value = colors[0];
+                break;
+            case 'gradient':
+            case 'custom-gradient':
+                document.getElementById('gradient-color-1').value = colors[0];
+                document.getElementById('gradient-color-2').value = colors[1] || colors[0];
+                break;
+            case 'rainbow':
+                // For rainbow, we don't change anything as it's auto-generated
+                // But we could shift the hue range
+                break;
+            case 'artistic':
+                // For artistic palettes, we don't override
+                break;
+            default:
+                // For black mode, switch to gradient to show off colors
+                document.getElementById('color-mode').value = 'gradient';
+                document.getElementById('gradient-color-1').value = colors[0];
+                document.getElementById('gradient-color-2').value = colors[1] || colors[0];
+                this.toggleColorControls();
+        }
+        
+        // Regenerate pattern to show new colors
+        this.generatePattern(true);
+        
+        if (!silent) {
+            this.showSuccess(`🎨 ${harmony.name} Harmony Generated!`);
+        }
+    }
+
+    // Helper to convert HSL to Hex
+    hslToHex(h, s, l) {
+        l /= 100;
+        const a = s * Math.min(l, 1 - l) / 100;
+        const f = n => {
+            const k = (n + h / 30) % 12;
+            const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+            return Math.round(255 * color).toString(16).padStart(2, '0');
+        };
+        return `#${f(0)}${f(8)}${f(4)}`;
     }
 
     generateVariation() {
