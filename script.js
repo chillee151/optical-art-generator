@@ -96,12 +96,12 @@ class OpticalArtGenerator {
                 'albers_homage': ['#D9D9D9', '#F2B705', '#F29F05', '#F28705', '#F25C05'],
                 'vasarely_zebra': ['#000000', '#FFFFFF']
             };
-        this.isGenerating = false;
-        this.isAnimating = false;
-        this.animationFrameId = null;
-        this.zoomLevel = 1;
-        this.panX = 0;
-        this.panY = 0;
+            this.isGenerating = false;
+            this.isAnimating = false;
+            this.animationFrameId = null;
+            this.zoomLevel = 1;
+            this.panX = 0;
+            this.panY = 0;
         
         // Visual Explorer state
         this.explorerVariants = [];
@@ -989,7 +989,7 @@ class OpticalArtGenerator {
                 if (i === 0) {
                     pathData = `M ${x} ${y}`;
                 } else {
-                    pathData += ` L ${x} ${y}`;
+                pathData += ` L ${x} ${y}`;
                 }
             }
 
@@ -1526,51 +1526,41 @@ class OpticalArtGenerator {
             // Create MediaRecorder stream
             const stream = canvas.captureStream(fps);
             
-            // Try H.264/MP4 first (best compatibility, works on iPhone!)
-            // Fall back to VP9/WebM if not supported
+            // Browser MediaRecorder only supports WebM container
+            // But we can use H.264 codec inside WebM for better compatibility
             let options;
-            let fileExtension;
-            let mimeType;
+            let codecName;
             
-            if (MediaRecorder.isTypeSupported('video/mp4;codecs=h264')) {
-                options = {
-                    mimeType: 'video/mp4;codecs=h264',
-                    videoBitsPerSecond: 5000000
-                };
-                fileExtension = 'mp4';
-                mimeType = 'video/mp4';
-                console.log('Using H.264/MP4 (iPhone compatible!)');
-            } else if (MediaRecorder.isTypeSupported('video/webm;codecs=h264')) {
+            if (MediaRecorder.isTypeSupported('video/webm;codecs=h264')) {
                 options = {
                     mimeType: 'video/webm;codecs=h264',
                     videoBitsPerSecond: 5000000
                 };
-                fileExtension = 'webm';
-                mimeType = 'video/webm';
-                console.log('Using H.264/WebM');
+                codecName = 'H.264';
+                console.log('✅ Using H.264 codec (best compatibility!)');
             } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
                 options = {
                     mimeType: 'video/webm;codecs=vp9',
                     videoBitsPerSecond: 5000000
                 };
-                fileExtension = 'webm';
-                mimeType = 'video/webm';
-                console.log('Using VP9/WebM (fallback)');
+                codecName = 'VP9';
+                console.log('Using VP9 codec');
             } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
                 options = {
                     mimeType: 'video/webm;codecs=vp8',
                     videoBitsPerSecond: 5000000
                 };
-                fileExtension = 'webm';
-                mimeType = 'video/webm';
-                console.log('Using VP8/WebM (fallback)');
+                codecName = 'VP8';
+                console.log('Using VP8 codec');
             } else {
                 // Last resort - let browser choose
                 options = { videoBitsPerSecond: 5000000 };
-                fileExtension = 'webm';
-                mimeType = 'video/webm';
+                codecName = 'default';
                 console.log('Using browser default codec');
             }
+            
+            // Show codec info to user
+            this.showSuccess(`🎬 Recording with ${codecName} codec...`);
             
             const mediaRecorder = new MediaRecorder(stream, options);
             
@@ -1582,17 +1572,23 @@ class OpticalArtGenerator {
             };
             
             mediaRecorder.onstop = () => {
-                const blob = new Blob(chunks, { type: mimeType });
+                const blob = new Blob(chunks, { type: 'video/webm' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `optical-art-${Date.now()}.${fileExtension}`;
+                a.download = `optical-art-${Date.now()}.webm`;
                 a.click();
                 URL.revokeObjectURL(url);
                 
                 // Hide recording status
                 document.getElementById('recording-status').classList.add('hidden');
-                this.showSuccess(`🎬 Video exported as ${fileExtension.toUpperCase()}!`);
+                
+                // Show appropriate message based on codec
+                if (codecName === 'H.264') {
+                    this.showSuccess(`🎬 Video exported! (H.264 codec - convert to MP4 for iPhone using CloudConvert)`);
+                } else {
+                    this.showSuccess(`🎬 Video exported with ${codecName} codec!`);
+                }
             };
             
             // Show recording status
@@ -3717,11 +3713,11 @@ class OpticalArtGenerator {
                 if (i === 0) {
                     pathData = `M ${x} ${y}`;
                 } else {
-                    pathData += ` L ${x} ${y}`;
-                }
+                pathData += ` L ${x} ${y}`;
+            }
             }
             pathData += ' Z';
-            
+
             path.setAttribute('d', pathData);
             
             const color = this.getLineColor(ringIdx, numRings);
@@ -3736,7 +3732,7 @@ class OpticalArtGenerator {
                 path.setAttribute('stroke-width', lineWidth * 0.3);
             } else {
                 // Outline rings
-                path.setAttribute('fill', 'none');
+            path.setAttribute('fill', 'none');
                 path.setAttribute('stroke', color);
                 path.setAttribute('stroke-width', lineWidth * (0.5 + progress * 0.5));
             }
