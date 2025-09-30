@@ -3815,12 +3815,13 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         return {
             patternType: document.getElementById('pattern-type').value,
             complexity: parseInt(document.getElementById('complexity').value),
+            symmetry: document.getElementById('symmetry').value,
             formatPreset: document.getElementById('format-preset').value,
             size: parseInt(document.getElementById('size').value),
-            lineWidth: parseInt(document.getElementById('line-width').value),
             frequency: parseInt(document.getElementById('frequency').value),
             amplitude: parseInt(document.getElementById('amplitude').value),
             rotation: parseInt(document.getElementById('rotation').value),
+            glow: parseInt(document.getElementById('glow').value),
             colorMode: document.getElementById('color-mode').value,
             lineColor: document.getElementById('line-color').value,
             seed: this.currentSeed,
@@ -3832,12 +3833,13 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         try {
             document.getElementById('pattern-type').value = patternData.patternType || 'wave-displacement';
             document.getElementById('complexity').value = patternData.complexity || 50;
+            document.getElementById('symmetry').value = patternData.symmetry || 'none';
             document.getElementById('format-preset').value = patternData.formatPreset || '1:1';
             document.getElementById('size').value = patternData.size || 350;
-            document.getElementById('line-width').value = patternData.lineWidth || 2;
             document.getElementById('frequency').value = patternData.frequency || 4;
             document.getElementById('amplitude').value = patternData.amplitude || 20;
             document.getElementById('rotation').value = patternData.rotation || 0;
+            document.getElementById('glow').value = patternData.glow || 0;
             document.getElementById('color-mode').value = patternData.colorMode || 'black';
             document.getElementById('line-color').value = patternData.lineColor || '#ff0000';
 
