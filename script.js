@@ -1514,22 +1514,42 @@ class OpticalArtGenerator {
                 
                 // Convert SVG to canvas
                 const svgElement = this.canvas.querySelector('svg');
-                const svgData = new XMLSerializer().serializeToString(svgElement);
-                const img = new Image();
-                const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
-                const url = URL.createObjectURL(svgBlob);
                 
-                img.onload = () => {
-                    ctx.fillStyle = 'white';
-                    ctx.fillRect(0, 0, canvas.width, canvas.height);
-                    ctx.drawImage(img, 0, 0);
-                    URL.revokeObjectURL(url);
+                if (!svgElement) {
+                    console.error('No SVG element found!');
+                    mediaRecorder.stop();
+                    document.getElementById('recording-status').classList.add('hidden');
+                    this.showError('Failed to find pattern SVG. Try regenerating the pattern first.');
+                    return;
+                }
+                
+                try {
+                    const svgData = new XMLSerializer().serializeToString(svgElement);
+                    const img = new Image();
+                    const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+                    const url = URL.createObjectURL(svgBlob);
                     
-                    frameCount++;
+                    img.onload = () => {
+                        ctx.fillStyle = 'white';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(img, 0, 0);
+                        URL.revokeObjectURL(url);
+                        
+                        frameCount++;
+                        setTimeout(renderFrame, frameInterval);
+                    };
+                    
+                    img.onerror = (err) => {
+                        console.error('Image load error:', err);
+                        URL.revokeObjectURL(url);
+                        setTimeout(renderFrame, frameInterval);
+                    };
+                    
+                    img.src = url;
+                } catch (error) {
+                    console.error('Frame rendering error:', error);
                     setTimeout(renderFrame, frameInterval);
-                };
-                
-                img.src = url;
+                }
             };
             
             renderFrame();
