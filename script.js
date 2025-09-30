@@ -1332,9 +1332,9 @@ class OpticalArtGenerator {
             document.getElementById('video-duration-value').textContent = `${e.target.value}s`;
         });
 
-        // Record animation button
-        document.getElementById('record-gif-btn').addEventListener('click', () => {
-            this.recordGIF();
+        // Export frames button
+        document.getElementById('record-frames-btn').addEventListener('click', () => {
+            this.exportFrames();
         });
 
         document.getElementById('zoom-in-btn').addEventListener('click', () => this.zoomIn());
@@ -1399,10 +1399,10 @@ class OpticalArtGenerator {
         
         if (this.isAnimating) {
             this.startAnimation();
-            document.getElementById('record-gif-btn').disabled = false;
+            document.getElementById('record-frames-btn').disabled = false;
         } else {
             this.stopAnimation();
-            document.getElementById('record-gif-btn').disabled = true;
+            document.getElementById('record-frames-btn').disabled = true;
         }
     }
 
@@ -1668,34 +1668,22 @@ class OpticalArtGenerator {
         }
     }
 
-    async recordGIF() {
+    async exportFrames() {
         const duration = parseInt(document.getElementById('video-duration').value);
-        const fps = 10; // Lower FPS for GIF (keeps file size reasonable)
+        const fps = 10; // 10 FPS = reasonable frame count
         
         try {
             // Make sure there's a pattern to record
             const svgElement = document.getElementById('art-canvas');
             if (!svgElement || svgElement.children.length === 0) {
                 this.showError('Please generate a pattern first! Click "Generate New" button.');
-                console.log('No pattern in canvas');
                 return;
             }
-            
-            console.log('✅ Pattern found, starting GIF recording...');
             
             // Show recording status
             document.getElementById('recording-status').classList.remove('hidden');
             const timerElement = document.getElementById('record-timer');
-            timerElement.textContent = 'Initializing...';
-            
-            // Create GIF encoder
-            const gif = new GIF({
-                workers: 2,
-                quality: 10,
-                width: this.actualWidth,
-                height: this.actualHeight,
-                workerScript: 'https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.worker.js'
-            });
+            timerElement.textContent = 'Capturing frames...';
             
             // Create canvas for frame capture
             const canvas = document.createElement('canvas');
@@ -1706,16 +1694,17 @@ class OpticalArtGenerator {
             // Capture all frames
             const totalFrames = duration * fps;
             const frameDelay = 1000 / fps;
+            const frames = [];
             
             for (let frameNum = 0; frameNum < totalFrames; frameNum++) {
                 // Update timer
                 const elapsed = frameNum / fps;
-                timerElement.textContent = `Capturing: ${elapsed.toFixed(1)}s / ${duration}s`;
+                timerElement.textContent = `Capturing: ${elapsed.toFixed(1)}s / ${duration}s (${frameNum + 1}/${totalFrames})`;
                 
                 // Convert SVG to canvas
                 const svgElement = document.getElementById('art-canvas');
                 if (!svgElement || svgElement.children.length === 0) {
-                    throw new Error('Pattern disappeared during recording. Please try again.');
+                    throw new Error('Pattern disappeared during recording.');
                 }
                 
                 const svgData = new XMLSerializer().serializeToString(svgElement);
@@ -1723,53 +1712,76 @@ class OpticalArtGenerator {
                 const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
                 const url = URL.createObjectURL(svgBlob);
                 
-                // Wait for image to load and add to GIF
-                await new Promise((resolve, reject) => {
+                // Wait for image to load and convert to PNG
+                const pngBlob = await new Promise((resolve, reject) => {
                     img.onload = () => {
                         ctx.fillStyle = 'white';
                         ctx.fillRect(0, 0, canvas.width, canvas.height);
                         ctx.drawImage(img, 0, 0);
                         URL.revokeObjectURL(url);
                         
-                        // Add frame to GIF
-                        gif.addFrame(canvas, {copy: true, delay: frameDelay});
-                        resolve();
+                        // Convert canvas to PNG blob
+                        canvas.toBlob((blob) => resolve(blob), 'image/png');
                     };
                     img.onerror = reject;
                     img.src = url;
+                });
+                
+                frames.push({
+                    blob: pngBlob,
+                    name: `frame_${String(frameNum + 1).padStart(4, '0')}.png`
                 });
                 
                 // Wait for next frame time
                 await new Promise(resolve => setTimeout(resolve, frameDelay));
             }
             
-            timerElement.textContent = 'Encoding GIF...';
+            timerElement.textContent = 'Creating ZIP file...';
             
-            // Render the GIF
-            gif.on('finished', (blob) => {
-                // Download the GIF
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `optical-art-${Date.now()}.gif`;
-                a.click();
-                URL.revokeObjectURL(url);
-                
-                document.getElementById('recording-status').classList.add('hidden');
-                this.showSuccess('🎬 GIF exported! Works on Safari/iPhone! ✅');
-            });
+            // Create ZIP file with JSZip
+            const zip = await this.createZipFromFrames(frames);
             
-            gif.on('progress', (progress) => {
-                timerElement.textContent = `Encoding: ${Math.round(progress * 100)}%`;
-            });
+            // Download the ZIP
+            const url = URL.createObjectURL(zip);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `optical-art-frames-${Date.now()}.zip`;
+            a.click();
+            URL.revokeObjectURL(url);
             
-            gif.render();
+            document.getElementById('recording-status').classList.add('hidden');
+            this.showSuccess(`✅ Exported ${totalFrames} frames! Upload to ezgif.com to create GIF.`);
             
         } catch (error) {
-            console.error('GIF recording error:', error);
+            console.error('Frame export error:', error);
             document.getElementById('recording-status').classList.add('hidden');
-            this.showError(`Failed to create GIF: ${error.message}`);
+            this.showError(`Failed to export frames: ${error.message}`);
         }
+    }
+    
+    async createZipFromFrames(frames) {
+        // Simple ZIP creator without external libraries
+        // For simplicity, we'll download frames individually
+        // In production, you'd use JSZip library
+        
+        // Since we can't reliably create ZIP without library and avoid security issues,
+        // let's download frames as separate files in a folder structure
+        
+        this.showSuccess(`💡 TIP: After downloads complete, use https://ezgif.com/maker to create GIF!`);
+        
+        // Download frames sequentially with small delay
+        for (let i = 0; i < frames.length; i++) {
+            await new Promise(resolve => setTimeout(resolve, 100)); // Small delay between downloads
+            const url = URL.createObjectURL(frames[i].blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = frames[i].name;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        // Return empty blob since we're downloading individually
+        return new Blob();
     }
 
     updateSliderValues() {

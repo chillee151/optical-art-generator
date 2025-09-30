@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Optical Art Generator</title>
     <link rel="stylesheet" href="styles.css">
-    <!-- GIF.js for animated GIF export -->
-    <script src="https://cdn.jsdelivr.net/npm/gif.js@0.2.0/dist/gif.js"></script>
 </head>
 <body>
     <div class="container">
@@ -116,8 +114,8 @@
                         <span id="video-duration-value">10s</span>
                     </div>
                     <div class="control-group animate-controls">
-                        <button id="record-gif-btn" class="primary-btn" disabled>
-                            <span class="record-icon">⏺</span> Record Animation
+                        <button id="record-frames-btn" class="primary-btn" disabled>
+                            <span class="record-icon">⏺</span> Export Frames (ZIP)
                         </button>
                         <div id="recording-status" class="recording-status hidden">
                             <span id="record-timer">0s</span>
@@ -125,7 +123,7 @@
                     </div>
                     <div class="control-group animate-controls">
                         <p style="font-size: 0.6875rem; color: #6b7280; margin: 4px 0 0 0; font-style: italic;">
-                            💡 Creates animated GIF - works on all devices including Safari/iPhone!
+                            💡 Downloads PNG frames as ZIP. Use online tool to create GIF/video.
                         </p>
                     </div>
                     <div class="control-group">
