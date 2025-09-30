@@ -1,10 +1,50 @@
 # Optical Art Generator
 
-A sophisticated web application for generating mesmerizing geometric patterns optimized for laser engraving and digital art creation. Create stunning optical illusions with advanced customization controls, pattern library management, and professional export capabilities.
+A sophisticated web application for generating mesmerizing geometric patterns optimized for laser engraving and digital art creation. Create stunning optical illusions with advanced customization controls, symmetry transformation, color harmony generation, preset management, and professional export capabilities.
 
 ## 🚀 Recent Updates
 
-### v4.0.0 (Latest - 2025 Edition)
+### v5.0.0 (Latest - MAJOR UPDATE)
+
+**🎨 SYMMETRY & GLOW (GAME-CHANGER!):**
+- **Symmetry Dropdown**: None/2-Fold/4-Fold/6-Fold/8-Fold/Radial(12)
+  - Transforms ANY pattern into mandalas, kaleidoscopes, and flowers
+  - Rotates pattern copies around center point
+  - Example: Spiral + 6-Fold = Flower mandala! 🌸
+- **Glow Effect Slider (0-10)**: SVG Gaussian blur for psychedelic halos
+  - Creates neon sign aesthetics, dreamlike depth
+  - Perfect for optical illusions with soft edges
+- **Auto Line Width**: Intelligently scales with complexity (thick at low, thin at high)
+- **Removed Manual Line Width**: Replaced with smarter auto-calculation
+
+**🎨 COLOR HARMONY GENERATOR:**
+- **Generate Colors Button**: Professional color theory in one click!
+  - 6 Harmony Types: Complementary, Triadic, Analogous, Split-Complementary, Tetradic, Monochrome+Accent
+  - Shows harmony name (e.g., "🎨 Triadic Harmony Generated!")
+  - High saturation (70-100%) optimized for optical art
+  - Educational + beautiful results
+
+**🎲 RANDOMIZE ALL:**
+- One-click total randomization: pattern + settings + colors
+- Perfect for instant inspiration and happy accidents
+- Shows: "🎲 Randomized EVERYTHING! Pattern + Colors + Settings"
+
+**⚡ PRESET SNAPSHOTS & A/B MORPH:**
+- **9 Quick Presets**: Save/load pattern configurations instantly
+- **Keyboard Shortcuts**: Ctrl+1-9 to save, 1-9 to load (mobile: tap 💾 button)
+- **Visual Preset Slots**: Filled slots show pattern type
+- **A/B Morphing**: Interpolate between two presets with slider
+- **Mutate Settings**: ±20% variation for exploration
+- **Dedicated Morph Tab**: Professional preset management interface
+
+**🔧 MAJOR IMPROVEMENTS:**
+- **Generate New**: Now randomizes ALL settings (complexity 10-250, full ranges)
+- **Generate Variation**: Subtle ±30 complexity, ±10 frequency variations
+- **Complexity Range**: Optimized from 5-300 (was 5-2000, preventing black-outs)
+- **Mobile-Friendly Presets**: Tap visual save buttons (💾) on each slot
+- **Better Random Generation**: Uses absolute ranges, not relative scaling
+
+### v4.0.0
 
 **🎨 Professional UI Redesign:**
 - **Modern 2025 Interface**: Complete redesign with glassmorphism, backdrop blur, and optical art aesthetics
@@ -18,7 +58,6 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 - **Rotation**: Now -180° to +180° (bidirectional control)
 - **Visual Indicators**: Red (negative) ← Black center → Blue (positive)
 - **Creative Freedom**: Explore inverted waves, reversed patterns, mirrored effects
-- **Display**: Shows +/- signs (e.g., `+20`, `-500`, `0°`)
 
 **🖱️ Mouse/Trackpad Zoom:**
 - Scroll wheel or trackpad gestures to zoom in/out on canvas
@@ -41,12 +80,6 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 - Automatic thumbnail generation on save
 - Fallback to generic previews for legacy patterns
 
-**🐛 Bug Fixes:**
-- Fixed variation button (now creates noticeable 30-70% seed changes)
-- Fixed concentric circles redundant center dot
-- Improved tab readability (no more black-on-black text)
-- Better color contrast throughout UI
-
 ### v3.0.0
 **Major Pattern Enhancements:**
 - **Radial Vortex Pattern**: New mesmerizing 3D tunnel effect with alternating bands radiating from center
@@ -57,6 +90,12 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 ## ✨ Features
 
 ### 🎨 Creative Features
+- **🌟 Symmetry Transformation** - Convert any pattern into mandalas/kaleidoscopes (2/4/6/8/12-fold)
+- **✨ Glow Effects** - Psychedelic halos and neon aesthetics (0-10 intensity)
+- **🎨 Color Harmony Generator** - Professional color theory (6 harmony types)
+- **🎲 Randomize All** - Total randomization: pattern + settings + colors
+- **⚡ Preset Snapshots** - 9 quick-save slots with keyboard shortcuts
+- **🔄 A/B Morphing** - Smooth interpolation between two saved presets
 - **Bidirectional Controls** - Amplitude and rotation sliders support negative values for inverted/mirrored effects
 - **Mouse Wheel Zoom** - Scroll to zoom in/out on canvas for detailed exploration
 - **Animation Feature** - Enable subtle, evolving animations with global rotation and parameter variation
@@ -95,7 +134,17 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 - **Photo ratios (2:3, 3:2)** - Standard photo formats
 - **Custom** - Any size from 50-1000mm base
 
-### 🌈 Color Modes
+### 🌈 Color Features
+
+**Color Harmony Generator:**
+- Complementary (opposite on color wheel)
+- Triadic (3 colors, 120° apart)
+- Analogous (adjacent harmonious colors)
+- Split-Complementary (sophisticated contrast)
+- Tetradic (4 colors, balanced square)
+- Monochrome + Accent (minimalist with pop)
+
+**Color Modes:**
 - **Black Lines** - LightBurn compatible (laser engraving)
 - **Artistic Palettes** - Curated schemes (Stanczak, Riley, Albers, Vasarely)
 - **Custom Gradient** - Two-color linear gradients
@@ -104,7 +153,21 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 - **Rainbow Lines** - Golden angle distributed rainbow
 - **Hue Shift** - Seed-based color variations
 
-### 💾 Pattern Library Management
+### 💾 Pattern Library & Presets
+
+**Quick Presets (NEW!):**
+- 9 instant-save slots (keyboard: Ctrl+1-9 to save, 1-9 to load)
+- Visual filled/empty indicators
+- Mobile-friendly tap buttons (💾)
+- Saves: pattern, all settings, colors, seed
+
+**A/B Morphing (NEW!):**
+- Select two presets (A & B)
+- Morph slider (0-100%)
+- Smooth parameter interpolation
+- Discover in-between variations
+
+**Pattern Library:**
 - **Save Pattern** - Store configurations with custom names and thumbnails
 - **Load Pattern** - Randomly load saved patterns for inspiration
 - **Manage Saved** - Visual library with actual artwork previews
@@ -120,6 +183,7 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 ### 🛡️ Enhanced User Experience
 - **Professional 2025 UI** - Glassmorphism, smooth animations, modern aesthetics
 - **Compact Layout** - 40% more usable space, minimal scrolling
+- **5-Tab Interface** - Pattern, Adjust, Canvas/Color, Morph, Actions
 - **Interactive Previews** - Click thumbnails to instantly switch patterns
 - **Real-time Updates** - Live preview as you adjust parameters
 - **Error Handling** - Comprehensive validation and feedback
@@ -133,17 +197,17 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 1. Open `index.html` in any modern web browser
 2. Select a pattern type from dropdown or click preview thumbnails
 3. Adjust parameters using compact sidebar controls:
-   - **Complexity**: Density/detail level
-   - **Line Width**: Stroke thickness
-   - **Frequency**: Pattern frequency/cycles
-   - **Amplitude**: Effect intensity (-1000 to +1000, try negatives!)
-   - **Rotation**: Angle (-180° to +180°)
-4. Use mouse wheel to zoom in/out on canvas
-5. Click **"Generate New"** for completely new pattern
-6. Click **"Generate Variation"** for related designs
-7. Click **"Layer Pattern"** to overlay multiple patterns
-8. Save favorites to library (with thumbnails!)
-9. Export as SVG (laser), PNG, or JPG
+   - **Complexity (5-300)**: Density/detail level
+   - **Symmetry**: None/2/4/6/8/12-fold transformation
+   - **Frequency (1-100)**: Pattern frequency/cycles
+   - **Amplitude (-1000 to +1000)**: Effect intensity (try negatives!)
+   - **Rotation (-180° to +180°)**: Angle
+   - **Glow (0-10)**: Blur intensity for psychedelic effects
+4. Click **🎨 Generate Colors** for harmonious color palettes
+5. Click **🎲 Randomize All** for total inspiration
+6. Use mouse wheel to zoom in/out on canvas
+7. Save to presets (Ctrl+1-9) for quick recall
+8. Export as SVG (laser), PNG, or JPG
 
 ### Local Development
 ```bash
@@ -156,6 +220,52 @@ http://localhost:8000
 ```
 
 ## 📖 Usage Guide
+
+### Symmetry Transformations
+
+**Create Instant Mandalas:**
+1. Choose any pattern (e.g., Spiral)
+2. Set Symmetry to **6-Fold**
+3. Adjust Glow to **5**
+4. Result: Flower mandala! 🌸
+
+**Symmetry Options:**
+- **None**: Original pattern (1 copy)
+- **2-Fold Mirror**: Mirrored across center
+- **4-Fold**: Rotated 4 times (90° apart) = Mandala
+- **6-Fold**: Rotated 6 times (60° apart) = Flower
+- **8-Fold**: Rotated 8 times (45° apart) = Star
+- **Radial (12-Fold)**: Full kaleidoscope effect
+
+### Color Harmony Workflow
+
+**Find Perfect Colors:**
+1. Set up your pattern
+2. Click **🎨 Generate Colors** 5-10 times
+3. Each click generates new harmony type
+4. Watch for harmony name in success message
+5. Save favorite combos to presets
+
+**Example Harmonies:**
+- Complementary: Blue + Orange (high contrast)
+- Triadic: Red + Yellow + Blue (balanced)
+- Analogous: Purple → Magenta → Pink (smooth)
+
+### Preset Snapshots
+
+**Quick Workflow:**
+1. Create a pattern you love
+2. Press **Ctrl+1** (or tap 💾 on slot 1)
+3. Tweak settings dramatically
+4. Press **1** to instantly restore
+
+**A/B Morphing:**
+1. Save "Calm" preset → Ctrl+1
+2. Save "Chaos" preset → Ctrl+2
+3. Go to Morph tab
+4. Select A=1, B=2
+5. Move morph slider (0-100%)
+6. Discover in-between patterns!
 
 ### Creative Exploration with Bidirectional Sliders
 
@@ -192,9 +302,11 @@ http://localhost:8000
 - **Recommended Patterns**: Any pattern works, test line density
 
 ### For Digital Wallpapers
-- **Color Modes**: Artistic, Rainbow, Gradient for visual impact
+- **Color Modes**: Use Generate Colors, Artistic, Rainbow, Gradient
+- **Symmetry**: Try 4-Fold or 6-Fold for mandalas
+- **Glow**: Add 3-7 for dreamlike quality
 - **Export Format**: PNG for best quality
-- **Recommended**: Try enhanced patterns (Radial Vortex, Cube Illusion)
+- **Recommended**: Radial Vortex + 6-Fold Symmetry + Glow 5
 
 ## 🔬 Technical Details
 
@@ -212,8 +324,39 @@ http://localhost:8000
 - **Golden Ratio** - Natural spacing (φ = 1.618...) in spirals and circles
 - **Interference Patterns** - Multi-wave superposition and standing waves
 - **Vector Fields** - Magnetic field simulation, attraction/repulsion
+- **Symmetry Groups** - N-fold rotational symmetry transformations
+- **Color Theory** - HSL-based harmony generation (complementary, triadic, etc.)
+- **SVG Filters** - Gaussian blur for glow effects
 
 ### Pattern Algorithm Details
+
+#### **Symmetry System** (NEW!)
+- Clones pattern N times based on symmetry value
+- Rotates each copy by (360/N)° around center
+- Applied AFTER pattern generation, BEFORE glow
+- Examples:
+  - 4-Fold: 4 copies at 0°, 90°, 180°, 270°
+  - 6-Fold: 6 copies at 0°, 60°, 120°, 180°, 240°, 300°
+
+#### **Glow System** (NEW!)
+- SVG `<filter>` with `<feGaussianBlur>`
+- `stdDeviation = glowIntensity` (0-10)
+- Applied to entire layer group
+- Merged with original using `<feMerge>`
+
+#### **Color Harmony Generator** (NEW!)
+- Base hue: Random 0-360°
+- Harmony angles applied to base
+- HSL to Hex conversion for web colors
+- High saturation (70-100%) for optical art
+- Good contrast lightness (45-60%)
+
+#### **Auto Line Width** (NEW!)
+```javascript
+if (complexity < 50) return 3-2px      // Thick for low detail
+else if (complexity < 150) return 2-1px // Medium
+else return 1-0.5px                     // Thin for high detail
+```
 
 #### **Radial Vortex** (Advanced)
 - Polar coordinate system with petal modulation
@@ -236,39 +379,19 @@ http://localhost:8000
 - Variable thickness (thins toward tips)
 - Leaves/flowers at branch endpoints
 
-#### **Hypnotic Rings** (Enhanced Concentric Circles)
-- Wave modulation: `r = base_r × (1 + sin(θ × waves) × intensity)`
-- Golden ratio spacing option (φ-based)
-- Variable thickness (thinner toward center)
-- Optical art style (mostly outlines)
-- Progressive rotation with depth
-
-#### **3D Vortex Tunnel** (Enhanced Square Tunnel)
-- Exponential perspective scaling
-- Spiral twist: `rotation = depth × twist_factor`
-- Alternating fill/outline for depth
-- Wave-based size modulation
-- True vanishing point effect
-
-#### **Golden Ratio Spirals** (Enhanced Spiral Distortion)
-- Double counter-rotating arms
-- φ-based angle increments
-- 3D ribbon bands with varying thickness
-- Organic wave modulation
-- Depth-based coloring
-
 ### Architecture
 - **Frontend**: Vanilla JavaScript ES6+ with SVG rendering
 - **UI Framework**: Custom responsive design with CSS Grid/Flexbox
 - **Layering**: Each pattern rendered into distinct `<g>` groups
 - **Storage**: Browser localStorage with JSON serialization
 - **Thumbnails**: Canvas API for PNG generation (200x200px)
-- **Color System**: Universal RGB converter supporting hex, rgb(), hsl()
+- **Color System**: Universal RGB converter + HSL harmony generator
 - **Responsive**: Mobile-first with breakpoints at 768px, 1024px, 1400px
+- **Presets**: localStorage with separate 'opticalArtPresets' key
 
 ### Browser Compatibility
 - Modern browsers with ES6+ support
-- SVG 1.1 rendering
+- SVG 1.1 rendering + SVG filters
 - Canvas API for thumbnails
 - localStorage for persistence
 - Backdrop-filter for glassmorphism (fallback graceful)
@@ -291,6 +414,11 @@ http://localhost:8000
 
 ## 📋 Keyboard Shortcuts
 
+**Presets:**
+- **Ctrl+1 to Ctrl+9** (Cmd on Mac): Save to preset slot
+- **1 to 9**: Load from preset slot
+
+**Navigation:**
 - **Mouse Wheel**: Zoom in/out on canvas
 - **Tab**: Navigate through controls
 - **Enter**: Activate focused button
@@ -298,12 +426,31 @@ http://localhost:8000
 
 ## 🎯 Tips & Tricks
 
+### Symmetry Magic
+1. **Instant Mandalas**: Any pattern + 4-Fold or 6-Fold symmetry
+2. **Psychedelic Flowers**: Eye Pattern + 6-Fold + Glow 7
+3. **Kaleidoscopes**: Wave Field + Radial (12-Fold) + High Complexity
+4. **Sacred Geometry**: L-System + 6-Fold + Golden Ratio spacing
+
+### Color Harmony Mastery
+1. **Click Generate Colors 10+ times** until you find perfect combo
+2. **Complementary** works best with high glow (dramatic contrast)
+3. **Analogous** creates smooth, professional gradients
+4. **Triadic** excellent for rainbow-like balanced compositions
+
+### Workflow Optimization
+1. **Use Randomize All** for instant creative starts (click 5-10 times)
+2. **Save to Presets** when you find something good (Ctrl+1-9)
+3. **A/B Morph** between presets to find in-between sweet spots
+4. **Mutate Settings** to explore variations of current aesthetic
+
+### Advanced Techniques
 1. **Explore Negative Amplitudes**: Try `-500` to `-1000` for completely inverted effects
 2. **Layer Wisely**: Start with low-opacity base layers, add detailed top layers
 3. **Golden Ratio Magic**: Use frequency > 50 on Concentric Circles for φ spacing
-4. **L-System Symmetry**: High complexity (70+) creates stunning mandalas
+4. **L-System Symmetry**: High complexity (70+) + 6-Fold creates stunning mandalas
 5. **Mouse Zoom**: Scroll while exploring to find the perfect detail level
-6. **Color Combinations**: Artistic palettes + low line width = professional results
+6. **Glow + Symmetry Combo**: Radial symmetry + Glow 8 = Hypnotic halos
 7. **Variation Button**: Click 3-5 times to explore related aesthetic families
 8. **Save Often**: Thumbnails help you remember which patterns you loved
 
@@ -324,10 +471,11 @@ Mathematical foundations from:
 - L-Systems (Aristid Lindenmayer)
 - Strange attractors (Peter de Jong)
 - Cellular automata (Stephen Wolfram)
+- Color harmony theory (Johannes Itten, Josef Albers)
 
 ---
 
 **Built with ❤️ for laser engravers, digital artists, and optical art enthusiasts**
 
-**Version**: 4.0.0 (2025 Edition)  
+**Version**: 5.0.0 (2025 Edition - MAJOR UPDATE)  
 **Last Updated**: September 2025
