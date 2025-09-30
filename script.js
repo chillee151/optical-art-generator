@@ -1199,6 +1199,10 @@ class OpticalArtGenerator {
             this.randomizeAll();
         });
 
+        document.getElementById('reset-all-btn').addEventListener('click', () => {
+            this.resetAll();
+        });
+
         document.getElementById('generate-colors-btn').addEventListener('click', () => {
             this.generateColorPalette();
         });
@@ -4248,6 +4252,27 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         this.generateColorPalette(true); // true = silent mode (no separate success message)
         
         this.showSuccess('🎲 Randomized EVERYTHING! Pattern + Colors + Settings');
+    }
+
+    resetAll() {
+        // Reset all controls to default values
+        const defaultSettings = {
+            patternType: 'concentric-circles',
+            complexity: 50,
+            symmetry: 'none',
+            frequency: 4,
+            amplitude: 20,
+            rotation: 0,
+            glow: 0,
+            colorMode: 'black',
+            lineColor: '#ff0000',
+            gradientColor1: '#ff00ff',
+            gradientColor2: '#00ffff',
+            seed: Math.random()
+        };
+        
+        this.applySettings(defaultSettings);
+        this.showSuccess('↺ Reset to defaults! All settings restored');
     }
 
     generateColorPalette(silent = false) {
