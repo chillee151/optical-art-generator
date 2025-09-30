@@ -4421,25 +4421,32 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
     // ==================== VISUAL EXPLORER SYSTEM ====================
 
     generateRandomVariants() {
-        // Use current settings as starting point and generate mutations
+        // Use current settings as starting point but create VERY different variations
         const currentSettings = this.getCurrentSettings();
+        const symmetryOptions = ['none', '2', '4', '6', '8', '12'];
         
         this.explorerVariants = [];
         for (let i = 0; i < 12; i++) {
-            // Create variations of current pattern
-            const complexityVar = Math.round((Math.random() - 0.5) * 80); // ±40
-            const frequencyVar = Math.round((Math.random() - 0.5) * 40); // ±20
-            const amplitudeVar = Math.round((Math.random() - 0.5) * 400); // ±200
-            const rotationVar = Math.round((Math.random() - 0.5) * 120); // ±60°
-            const glowVar = Math.round((Math.random() - 0.5) * 6); // ±3
+            // MUCH larger variations for visual diversity
+            const complexityVar = Math.round((Math.random() - 0.5) * 200); // ±100 (was ±40)
+            const frequencyVar = Math.round((Math.random() - 0.5) * 80); // ±40 (was ±20)
+            const amplitudeVar = Math.round((Math.random() - 0.5) * 1200); // ±600 (was ±200)
+            const rotationVar = Math.round((Math.random() - 0.5) * 240); // ±120° (was ±60°)
+            const glowVar = Math.round((Math.random() - 0.5) * 12); // ±6 (was ±3)
             
-            // Color variations
-            const hueShift = (Math.random() - 0.5) * 120; // ±60° hue shift
+            // Randomly shift symmetry sometimes (50% chance)
+            let newSymmetry = currentSettings.symmetry;
+            if (Math.random() > 0.5) {
+                newSymmetry = symmetryOptions[Math.floor(Math.random() * symmetryOptions.length)];
+            }
+            
+            // Dramatic color variations (full spectrum)
+            const hueShift = (Math.random() - 0.5) * 240; // ±120° hue shift (was ±60°)
             
             this.explorerVariants.push({
                 patternType: currentSettings.patternType,
                 complexity: Math.max(5, Math.min(300, currentSettings.complexity + complexityVar)),
-                symmetry: currentSettings.symmetry,
+                symmetry: newSymmetry,
                 frequency: Math.max(1, Math.min(100, currentSettings.frequency + frequencyVar)),
                 amplitude: Math.max(-1000, Math.min(1000, currentSettings.amplitude + amplitudeVar)),
                 rotation: Math.max(-180, Math.min(180, currentSettings.rotation + rotationVar)),
@@ -4455,11 +4462,11 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         this.explorerGeneration = 1;
         this.selectedVariantIndex = -1;
         this.parentVariant = null;
-        document.getElementById('generation-counter').textContent = 'Generation 1 - Based on Current';
+        document.getElementById('generation-counter').textContent = 'Generation 1 - Exploring Variations';
         document.getElementById('use-variant-btn').disabled = true;
         
         this.renderExplorerGrid();
-        this.showSuccess('🎨 12 variations of current pattern!');
+        this.showSuccess('🎨 12 diverse variations created!');
     }
 
     generateMutatedVariants(parent) {
