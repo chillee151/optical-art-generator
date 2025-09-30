@@ -173,6 +173,11 @@ class OpticalArtGenerator {
 
                 e.target.classList.add('active');
                 document.getElementById(tabId).classList.add('active');
+
+                // Initialize Visual Explorer when tab is opened
+                if (tabId === 'tab-explore' && this.explorerVariants.length === 0) {
+                    setTimeout(() => this.generateRandomVariants(), 100);
+                }
             }
         });
     }
