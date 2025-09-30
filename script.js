@@ -1518,6 +1518,13 @@ class OpticalArtGenerator {
     }
 
     async recordVideoWebM() {
+        // Make sure there's a pattern to record
+        const svgCheck = this.canvas.querySelector('svg');
+        if (!svgCheck) {
+            this.showError('Please generate a pattern first! Click "Generate New" button.');
+            return;
+        }
+        
         const duration = parseInt(document.getElementById('video-duration').value) * 1000; // Convert to ms
         const fps = 30; // 30 frames per second
         const frameInterval = 1000 / fps;
@@ -1672,6 +1679,13 @@ class OpticalArtGenerator {
         const fps = 10; // Lower FPS for GIF (keeps file size reasonable)
         
         try {
+            // Make sure there's a pattern to record
+            const svgCheck = this.canvas.querySelector('svg');
+            if (!svgCheck) {
+                this.showError('Please generate a pattern first! Click "Generate New" button.');
+                return;
+            }
+            
             // Show recording status
             document.getElementById('recording-status').classList.remove('hidden');
             const timerElement = document.getElementById('record-timer');
@@ -1704,7 +1718,7 @@ class OpticalArtGenerator {
                 // Convert SVG to canvas
                 const svgElement = this.canvas.querySelector('svg');
                 if (!svgElement) {
-                    throw new Error('No SVG element found');
+                    throw new Error('Pattern disappeared during recording. Please try again.');
                 }
                 
                 const svgData = new XMLSerializer().serializeToString(svgElement);
