@@ -1332,11 +1332,7 @@ class OpticalArtGenerator {
             document.getElementById('video-duration-value').textContent = `${e.target.value}s`;
         });
 
-        // Record video buttons
-        document.getElementById('record-video-btn').addEventListener('click', () => {
-            this.recordVideoWebM();
-        });
-        
+        // Record animation button
         document.getElementById('record-gif-btn').addEventListener('click', () => {
             this.recordGIF();
         });
@@ -1403,11 +1399,9 @@ class OpticalArtGenerator {
         
         if (this.isAnimating) {
             this.startAnimation();
-            document.getElementById('record-video-btn').disabled = false;
             document.getElementById('record-gif-btn').disabled = false;
         } else {
             this.stopAnimation();
-            document.getElementById('record-video-btn').disabled = true;
             document.getElementById('record-gif-btn').disabled = true;
         }
     }
