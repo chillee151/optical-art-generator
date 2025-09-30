@@ -771,9 +771,9 @@ footer {
 
 .variants-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    padding: 4px 0;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    padding: 8px 0;
 }
 
 .variant-item {
@@ -840,10 +840,9 @@ footer {
 }
 
 /* Responsive grid */
-@media (max-width: 768px) {
+@media (min-width: 1024px) {
     .variants-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 6px;
+        grid-template-columns: repeat(3, 1fr);
     }
 }
 

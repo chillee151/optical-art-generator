@@ -4421,28 +4421,33 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
     // ==================== VISUAL EXPLORER SYSTEM ====================
 
     generateRandomVariants() {
-        // Generate 12 completely random variants
-        const patternTypes = [
-            'concentric-circles', 'diagonal-stripes', 'cube-illusion', 'square-tunnel',
-            'eye-pattern', 'wave-displacement', 'circular-displacement', 'moire-interference',
-            'spiral-distortion', 'perlin-displacement', 'de-jong-attractor', 'radial-vortex'
-        ];
-        const symmetryOptions = ['none', '2', '4', '6', '8', '12'];
+        // Use current settings as starting point and generate mutations
+        const currentSettings = this.getCurrentSettings();
         
         this.explorerVariants = [];
         for (let i = 0; i < 12; i++) {
+            // Create variations of current pattern
+            const complexityVar = Math.round((Math.random() - 0.5) * 80); // ±40
+            const frequencyVar = Math.round((Math.random() - 0.5) * 40); // ±20
+            const amplitudeVar = Math.round((Math.random() - 0.5) * 400); // ±200
+            const rotationVar = Math.round((Math.random() - 0.5) * 120); // ±60°
+            const glowVar = Math.round((Math.random() - 0.5) * 6); // ±3
+            
+            // Color variations
+            const hueShift = (Math.random() - 0.5) * 120; // ±60° hue shift
+            
             this.explorerVariants.push({
-                patternType: patternTypes[Math.floor(Math.random() * patternTypes.length)],
-                complexity: Math.round(10 + Math.random() * 240),
-                symmetry: symmetryOptions[Math.floor(Math.random() * symmetryOptions.length)],
-                frequency: Math.round(5 + Math.random() * 90),
-                amplitude: Math.round(-800 + Math.random() * 1600),
-                rotation: Math.round(-180 + Math.random() * 360),
-                glow: Math.round(Math.random() * 10),
-                colorMode: 'gradient',
-                lineColor: this.hslToHex(Math.random() * 360, 70 + Math.random() * 30, 50),
-                gradientColor1: this.hslToHex(Math.random() * 360, 70 + Math.random() * 30, 50),
-                gradientColor2: this.hslToHex(Math.random() * 360, 70 + Math.random() * 30, 50),
+                patternType: currentSettings.patternType,
+                complexity: Math.max(5, Math.min(300, currentSettings.complexity + complexityVar)),
+                symmetry: currentSettings.symmetry,
+                frequency: Math.max(1, Math.min(100, currentSettings.frequency + frequencyVar)),
+                amplitude: Math.max(-1000, Math.min(1000, currentSettings.amplitude + amplitudeVar)),
+                rotation: Math.max(-180, Math.min(180, currentSettings.rotation + rotationVar)),
+                glow: Math.max(0, Math.min(10, currentSettings.glow + glowVar)),
+                colorMode: currentSettings.colorMode,
+                lineColor: this.shiftHue(currentSettings.lineColor, hueShift),
+                gradientColor1: this.shiftHue(currentSettings.gradientColor1, hueShift),
+                gradientColor2: this.shiftHue(currentSettings.gradientColor2, hueShift),
                 seed: Math.random()
             });
         }
@@ -4450,11 +4455,11 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         this.explorerGeneration = 1;
         this.selectedVariantIndex = -1;
         this.parentVariant = null;
-        document.getElementById('generation-counter').textContent = 'Generation 1 - Random';
+        document.getElementById('generation-counter').textContent = 'Generation 1 - Based on Current';
         document.getElementById('use-variant-btn').disabled = true;
         
         this.renderExplorerGrid();
-        this.showSuccess('🎨 New generation created!');
+        this.showSuccess('🎨 12 variations of current pattern!');
     }
 
     generateMutatedVariants(parent) {
@@ -4544,8 +4549,8 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
             item.className = 'variant-item';
             item.dataset.index = index;
             
-            // Create thumbnail SVG
-            const svg = this.generateVariantThumbnail(variant, 150);
+            // Create thumbnail SVG (larger size for bigger thumbnails)
+            const svg = this.generateVariantThumbnail(variant, 200);
             item.appendChild(svg);
             
             // Click handler
@@ -4590,17 +4595,28 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
                 case 'wave-displacement':
                     this.generateMiniWaveDisplacement(svg, settings.seed, Math.min(settings.complexity / 10, 20), this.getAutoLineWidth());
                     break;
+                case 'cube-illusion':
+                    this.generateMiniCubeIllusion(svg, settings.seed, Math.min(settings.complexity / 10, 15), this.getAutoLineWidth());
+                    break;
+                case 'radial-vortex':
+                    this.generateMiniRadialVortex(svg, settings.seed, Math.min(settings.complexity / 10, 20), this.getAutoLineWidth());
+                    break;
                 default:
                     // Fallback to simple spiral
                     this.generateMiniSpiralDistortion(svg, settings.seed, Math.min(settings.complexity / 10, 20), this.getAutoLineWidth());
             }
             
             // Apply color
-            if (settings.colorMode === 'gradient') {
+            if (settings.colorMode === 'gradient' || settings.colorMode === 'custom-gradient') {
                 const elements = svg.querySelectorAll('path, circle, line, rect');
                 elements.forEach((el, i) => {
                     const ratio = i / Math.max(1, elements.length - 1);
                     el.setAttribute('stroke', this.interpolateColor(settings.gradientColor1, settings.gradientColor2, ratio));
+                });
+            } else if (settings.colorMode === 'single') {
+                const elements = svg.querySelectorAll('path, circle, line, rect');
+                elements.forEach(el => {
+                    el.setAttribute('stroke', settings.lineColor);
                 });
             }
         } catch (error) {
@@ -4651,16 +4667,18 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
             return;
         }
         
+        console.log('Applying variant:', this.parentVariant);
+        
         // Apply the parent variant to main canvas
         this.applySettings(this.parentVariant);
         
-        // Switch to Pattern tab to show result
+        // Switch to Adjust tab to show settings
         document.querySelectorAll('.tab-link').forEach(link => link.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-        document.querySelector('[data-tab="tab-pattern"]').classList.add('active');
-        document.getElementById('tab-pattern').classList.add('active');
+        document.querySelector('[data-tab="tab-adjust"]').classList.add('active');
+        document.getElementById('tab-adjust').classList.add('active');
         
-        this.showSuccess('✓ Variant applied to canvas!');
+        this.showSuccess('✓ Variant applied to canvas! Check Adjust tab.');
     }
 
     setupPresetListeners() {
