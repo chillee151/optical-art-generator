@@ -4,7 +4,25 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 
 ## 🚀 Recent Updates
 
-### v5.1.0 (Latest - VIDEO EXPORT!)
+### v5.2.0 (Latest - COLOR & RANDOMIZATION REFINEMENTS!)
+
+**🎨 IMPROVED COLOR GENERATION:**
+- **Generate Colors Button** - Now generates truly random gradient colors every time!
+  - Always switches to "Custom Gradient" mode for consistency
+  - Completely random hue selection (0-360°)
+  - Smart contrast: 50% complementary (180° apart), 50% random offset (90-270°)
+  - High saturation (75-100%) for vibrant optical art
+  - Shows hex color values in success message
+  - No more repetitive color combinations!
+
+**🎲 SMARTER RANDOMIZE ALL:**
+- **Black & White Option** - 30% chance to generate black patterns (perfect for laser engraving!)
+- **Reduced Layering** - Only 15% chance to add layers (prevents overwhelming patterns)
+- **Better Balance** - 70% colorful gradients, 30% classic black lines
+- **Clear Feedback** - Shows "(Black & White)" when black mode is selected
+- **Subtle Layers** - When layering occurs, adds depth without hiding the main pattern
+
+### v5.1.0 (VIDEO EXPORT!)
 
 **🎬 VIDEO RECORDING & ANIMATION IMPROVEMENTS:**
 - **Record Video Button**: Export animations as MP4 or WebM video files!
@@ -33,17 +51,19 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 - **Auto Line Width**: Intelligently scales with complexity (thick at low, thin at high)
 - **Removed Manual Line Width**: Replaced with smarter auto-calculation
 
-**🎨 COLOR HARMONY GENERATOR:**
-- **Generate Colors Button**: Professional color theory in one click!
-  - 6 Harmony Types: Complementary, Triadic, Analogous, Split-Complementary, Tetradic, Monochrome+Accent
-  - Shows harmony name (e.g., "🎨 Triadic Harmony Generated!")
-  - High saturation (70-100%) optimized for optical art
-  - Educational + beautiful results
+**🎨 COLOR GENERATION (Updated in v5.2.0):**
+- **Generate Colors Button**: Random gradient colors in one click!
+  - Truly random color generation - never repeats the same combination
+  - Smart contrast algorithms for visually striking gradients
+  - Automatically switches to Custom Gradient mode
+  - Perfect for exploring new color palettes
 
-**🎲 RANDOMIZE ALL:**
-- One-click total randomization: pattern + settings + colors
+**🎲 RANDOMIZE ALL (Enhanced in v5.2.0):**
+- One-click total randomization: pattern + settings + colors/black
+- 30% chance for black patterns (laser engraving ready)
+- 70% chance for vibrant gradient colors
+- Only 15% chance to add subtle layers (prevents clutter)
 - Perfect for instant inspiration and happy accidents
-- Shows: "🎲 Randomized EVERYTHING! Pattern + Colors + Settings"
 
 **⚡ PRESET SNAPSHOTS & A/B MORPH:**
 - **9 Quick Presets**: Save/load pattern configurations instantly
@@ -108,8 +128,8 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 ### 🎨 Creative Features
 - **🌟 Symmetry Transformation** - Convert any pattern into mandalas/kaleidoscopes (2/4/6/8/12-fold)
 - **✨ Glow Effects** - Psychedelic halos and neon aesthetics (0-10 intensity)
-- **🎨 Color Harmony Generator** - Professional color theory (6 harmony types)
-- **🎲 Randomize All** - Total randomization: pattern + settings + colors
+- **🎨 Random Gradient Generator** - Truly random gradient colors every click (v5.2.0)
+- **🎲 Randomize All** - Smart randomization with 30% black, 15% layering (v5.2.0)
 - **⚡ Preset Snapshots** - 9 quick-save slots with keyboard shortcuts
 - **🔄 A/B Morphing** - Smooth interpolation between two saved presets
 - **🎬 Video Recording** - Export animations as MP4/WebM video (3-30 sec, 30 FPS, iPhone compatible!)
@@ -154,13 +174,13 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 
 ### 🌈 Color Features
 
-**Color Harmony Generator:**
-- Complementary (opposite on color wheel)
-- Triadic (3 colors, 120° apart)
-- Analogous (adjacent harmonious colors)
-- Split-Complementary (sophisticated contrast)
-- Tetradic (4 colors, balanced square)
-- Monochrome + Accent (minimalist with pop)
+**Random Gradient Generator (v5.2.0):**
+- Click "🎨 Generate Colors" for instant random gradients
+- Truly random hue selection (0-360°) - never repeats
+- Smart contrast: Complementary or random offset (90-270°)
+- High saturation (75-100%) for vibrant optical art
+- Automatically uses Custom Gradient mode
+- Displays hex color values in success message
 
 **Color Modes:**
 - **Black Lines** - LightBurn compatible (laser engraving)
@@ -256,19 +276,31 @@ http://localhost:8000
 - **8-Fold**: Rotated 8 times (45° apart) = Star
 - **Radial (12-Fold)**: Full kaleidoscope effect
 
-### Color Harmony Workflow
+### Random Gradient Generator (v5.2.0)
 
-**Find Perfect Colors:**
+**Explore Infinite Color Combinations:**
 1. Set up your pattern
-2. Click **🎨 Generate Colors** 5-10 times
-3. Each click generates new harmony type
-4. Watch for harmony name in success message
-5. Save favorite combos to presets
+2. Click **🎨 Generate Colors** repeatedly
+3. Each click generates completely different gradient colors
+4. Success message shows the hex color codes
+5. Save favorite combos to presets (Ctrl+1-9)
+6. Never see the same color pair twice!
 
-**Example Harmonies:**
-- Complementary: Blue + Orange (high contrast)
-- Triadic: Red + Yellow + Blue (balanced)
-- Analogous: Purple → Magenta → Pink (smooth)
+**How It Works:**
+- First color: Random hue (0-360°)
+- Second color: Either complementary (180° opposite) or random contrast (90-270° offset)
+- Both colors: High saturation (75-100%) for vibrant optical art
+- Automatically switches to Custom Gradient mode
+
+### Randomize All - Smart Exploration (v5.2.0)
+
+**Discover New Patterns:**
+- Click **🎲 Randomize All** for instant inspiration
+- **70% of the time**: Vibrant gradient colors
+- **30% of the time**: Classic black patterns (laser engraving ready)
+- **15% of the time**: Adds a subtle second layer for depth
+- Creates truly unique combinations every click
+- Perfect for breaking creative blocks!
 
 ### Preset Snapshots
 
@@ -451,17 +483,21 @@ else return 1-0.5px                     // Thin for high detail
 3. **Kaleidoscopes**: Wave Field + Radial (12-Fold) + High Complexity
 4. **Sacred Geometry**: L-System + 6-Fold + Golden Ratio spacing
 
-### Color Harmony Mastery
-1. **Click Generate Colors 10+ times** until you find perfect combo
-2. **Complementary** works best with high glow (dramatic contrast)
-3. **Analogous** creates smooth, professional gradients
-4. **Triadic** excellent for rainbow-like balanced compositions
+### Color Generation Mastery (v5.2.0)
+1. **Click Generate Colors 10+ times** - every click is completely unique!
+2. **Complementary gradients** (50% of the time) create dramatic contrast
+3. **Random contrast gradients** (50% of the time) offer surprising combinations
+4. **High saturation** (75-100%) ensures vibrant optical art results
+5. **Save favorites to presets** when you find stunning color combos
 
-### Workflow Optimization
+### Workflow Optimization (Updated v5.2.0)
 1. **Use Randomize All** for instant creative starts (click 5-10 times)
+   - Expect ~3 black patterns and ~7 colorful ones per 10 clicks
+   - Watch for occasional layered patterns (~1-2 per 10 clicks)
 2. **Save to Presets** when you find something good (Ctrl+1-9)
 3. **A/B Morph** between presets to find in-between sweet spots
 4. **Mutate Settings** to explore variations of current aesthetic
+5. **Mix black and color** - use Randomize All to explore both styles
 
 ### Advanced Techniques
 1. **Explore Negative Amplitudes**: Try `-500` to `-1000` for completely inverted effects
@@ -496,5 +532,5 @@ Mathematical foundations from:
 
 **Built with ❤️ for laser engravers, digital artists, and optical art enthusiasts**
 
-**Version**: 5.0.0 (2025 Edition - MAJOR UPDATE)  
-**Last Updated**: September 2025
+**Version**: 5.2.0 (2025 Edition - Color & Randomization Refinements)  
+**Last Updated**: October 2025

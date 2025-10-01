@@ -4381,10 +4381,30 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         // Generate new pattern settings
         this.generateNew();
         
-        // Also generate new colors
-        this.generateColorPalette(true); // true = silent mode (no separate success message)
+        // 30% chance to use black, 70% chance for colorful gradients
+        const useBlack = Math.random() < 0.3;
         
-        this.showSuccess('🎲 Randomized EVERYTHING! Pattern + Colors + Settings');
+        if (useBlack) {
+            // Set to black mode for laser engraving
+            document.getElementById('color-mode').value = 'black';
+            this.toggleColorControls();
+            this.generatePattern(true);
+            this.showSuccess('🎲 Randomized EVERYTHING! (Black & White)');
+        } else {
+            // Generate colorful gradients
+            this.generateColorPalette(true); // true = silent mode (no separate success message)
+            this.showSuccess('🎲 Randomized EVERYTHING! Pattern + Colors + Settings');
+        }
+        
+        // 15% chance to add a subtle layer for extra complexity
+        // This creates interesting overlapping effects without overwhelming the pattern
+        if (Math.random() < 0.15) {
+            setTimeout(() => {
+                this.currentSeed = Math.random();
+                this.generatePattern(false); // false = don't clear canvas (creates layer)
+                this.showSuccess('✨ Added a subtle layer for extra depth!');
+            }, 100); // Small delay to let the first pattern render
+        }
     }
 
     resetAll() {
@@ -4409,62 +4429,39 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
     }
 
     generateColorPalette(silent = false) {
-        // Color harmony types
-        const harmonies = [
-            { name: 'Complementary', angles: [0, 180] },
-            { name: 'Triadic', angles: [0, 120, 240] },
-            { name: 'Analogous', angles: [0, 30, 60] },
-            { name: 'Split-Complementary', angles: [0, 150, 210] },
-            { name: 'Tetradic', angles: [0, 90, 180, 270] },
-            { name: 'Monochrome + Accent', angles: [0, 0, 180] }
-        ];
+        // Generate two completely random colors for a gradient
+        // Use full hue range (0-360) with high saturation for vibrant optical art
         
-        // Randomly choose harmony
-        const harmony = harmonies[Math.floor(Math.random() * harmonies.length)];
+        // First color: completely random hue
+        const hue1 = Math.floor(Math.random() * 360);
+        const saturation1 = 75 + Math.random() * 25; // 75-100% for vibrant colors
+        const lightness1 = 45 + Math.random() * 15; // 45-60% for good contrast
+        const color1 = this.hslToHex(hue1, saturation1, lightness1);
         
-        // Random base hue (0-360)
-        const baseHue = Math.floor(Math.random() * 360);
+        // Second color: random but ensure good contrast
+        // Either complementary (180° apart) or a random offset (90-270°)
+        const useComplementary = Math.random() > 0.5;
+        const hueOffset = useComplementary 
+            ? 180 
+            : 90 + Math.floor(Math.random() * 180); // 90-270° offset
         
-        // Generate colors based on harmony
-        const colors = harmony.angles.map(angle => {
-            const hue = (baseHue + angle) % 360;
-            const saturation = 70 + Math.random() * 30; // 70-100% for vibrant optical art
-            const lightness = 45 + Math.random() * 15; // 45-60% for good contrast
-            return this.hslToHex(hue, saturation, lightness);
-        });
+        const hue2 = (hue1 + hueOffset) % 360;
+        const saturation2 = 75 + Math.random() * 25;
+        const lightness2 = 45 + Math.random() * 15;
+        const color2 = this.hslToHex(hue2, saturation2, lightness2);
         
-        // Apply to current color mode
-        const colorMode = document.getElementById('color-mode').value;
-        
-        switch(colorMode) {
-            case 'single':
-                document.getElementById('line-color').value = colors[0];
-                break;
-            case 'gradient':
-            case 'custom-gradient':
-                document.getElementById('gradient-color-1').value = colors[0];
-                document.getElementById('gradient-color-2').value = colors[1] || colors[0];
-                break;
-            case 'rainbow':
-                // For rainbow, we don't change anything as it's auto-generated
-                // But we could shift the hue range
-                break;
-            case 'artistic':
-                // For artistic palettes, we don't override
-                break;
-            default:
-                // For black mode, switch to gradient to show off colors
-                document.getElementById('color-mode').value = 'gradient';
-                document.getElementById('gradient-color-1').value = colors[0];
-                document.getElementById('gradient-color-2').value = colors[1] || colors[0];
-                this.toggleColorControls();
-        }
+        // Always switch to custom-gradient mode to show the generated colors
+        document.getElementById('color-mode').value = 'custom-gradient';
+        document.getElementById('gradient-color-1').value = color1;
+        document.getElementById('gradient-color-2').value = color2;
+        this.toggleColorControls();
         
         // Regenerate pattern to show new colors
         this.generatePattern(true);
         
         if (!silent) {
-            this.showSuccess(`🎨 ${harmony.name} Harmony Generated!`);
+            const gradientType = useComplementary ? 'Complementary' : 'Contrast';
+            this.showSuccess(`🎨 ${gradientType} Gradient Generated! (${color1} → ${color2})`);
         }
     }
 
