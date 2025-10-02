@@ -203,7 +203,7 @@ class OpticalArtGenerator {
                 e.target.classList.add('active');
                 
                 // Update the hidden canvas format selector
-                document.getElementById('canvas-format').value = ratio;
+                document.getElementById('format-preset').value = ratio;
                 this.updateCanvasSize();
                 this.updateToolbarInfo();
             });
@@ -276,6 +276,38 @@ class OpticalArtGenerator {
             }
             
             await this.startVideoRecording(duration);
+        });
+
+        // Sync toolbar buttons when hidden controls change
+        document.getElementById('format-preset')?.addEventListener('change', (e) => {
+            const ratio = e.target.value;
+            document.querySelectorAll('.canvas-ratio-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.ratio === ratio);
+            });
+            this.updateToolbarInfo();
+        });
+
+        document.getElementById('video-duration')?.addEventListener('change', (e) => {
+            const duration = e.target.value;
+            document.querySelectorAll('.video-duration-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.duration === duration);
+            });
+            this.updateToolbarInfo();
+        });
+
+        document.getElementById('video-fps')?.addEventListener('change', (e) => {
+            const fps = e.target.value;
+            document.querySelectorAll('.video-fps-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.fps === fps);
+            });
+            this.updateToolbarInfo();
+        });
+
+        document.getElementById('animation-mode')?.addEventListener('change', (e) => {
+            const mode = e.target.value;
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.mode === mode);
+            });
         });
 
         // Initial update
