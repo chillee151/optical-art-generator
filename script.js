@@ -273,6 +273,9 @@ class OpticalArtGenerator {
                 this.canvas.appendChild(bgRect);
             }
         }
+        
+        // Regenerate pattern to update line colors (black->white or white->black)
+        this.generatePattern(false);
     }
 
     generatePatternPreviews() {
@@ -1594,10 +1597,12 @@ class OpticalArtGenerator {
 
     getLineColor(index = 0, total = 1) {
         const colorMode = document.getElementById('color-mode').value;
+        const isDarkMode = localStorage.getItem('darkMode') === 'true';
 
         switch(colorMode) {
             case 'black':
-                return '#000';
+                // Switch to white lines in dark mode for visibility
+                return isDarkMode ? '#fff' : '#000';
             case 'single':
                 return document.getElementById('line-color').value;
             case 'custom-gradient':
