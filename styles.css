@@ -96,23 +96,6 @@ body.dark-mode::before {
     z-index: 1;
 }
 
-/* Compact professional header */
-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
-    padding: 12px 20px;
-    background: var(--glass-bg);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius-sm);
-    box-shadow: var(--shadow-sm);
-    position: relative;
-    overflow: hidden;
-}
-
 /* =================================================================
    INTERACTIVE TOOLBAR
    ================================================================= */
@@ -130,6 +113,34 @@ header {
     top: 12px;
     z-index: 100;
     transition: var(--transition-smooth);
+}
+
+/* Toolbar Header Row */
+.toolbar-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 2px solid rgba(102, 126, 234, 0.15);
+}
+
+.toolbar-logo h1 {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin: 0;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.02em;
+}
+
+.toolbar-logo p {
+    font-size: 0.8125rem;
+    color: #6b7280;
+    margin: 4px 0 0 0;
+    font-weight: 500;
 }
 
 .toolbar-row {
@@ -295,6 +306,19 @@ header {
         padding: 14px 16px;
     }
     
+    .toolbar-header-row {
+        margin-bottom: 12px;
+        padding-bottom: 10px;
+    }
+    
+    .toolbar-logo h1 {
+        font-size: 1.25rem;
+    }
+    
+    .toolbar-logo p {
+        font-size: 0.75rem;
+    }
+    
     .toolbar-label {
         min-width: 60px;
         font-size: 0.8125rem;
@@ -306,6 +330,18 @@ header {
     }
 }
 
+@media (max-width: 768px) {
+    .toolbar-logo h1 {
+        font-size: 1.1rem;
+    }
+    
+    .toolbar-logo p {
+        font-size: 0.7rem;
+    }
+}
+
+/* Old header styles - now integrated into toolbar */
+/* 
 header::before {
     content: '';
     position: absolute;
@@ -330,6 +366,7 @@ header p {
     font-weight: 500;
     margin: 0;
 }
+*/
 
 /* Mobile-first main layout */
 .main-content {
