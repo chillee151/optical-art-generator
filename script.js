@@ -1758,11 +1758,15 @@ class OpticalArtGenerator {
         const animate = (currentTime) => {
             if (!startTime) startTime = currentTime;
             const elapsedTime = currentTime - startTime; // elapsedTime in milliseconds
-            const speedMultiplier = parseFloat(document.getElementById('animation-speed').value);
-            this.slowAnimationTime = (elapsedTime / 10000) * speedMultiplier;
+            
+            // Time flows normally (NOT affected by speed multiplier)
+            this.slowAnimationTime = (elapsedTime / 10000);
             
             // Check animation mode
             const animationMode = document.getElementById('animation-mode')?.value || 'bounce';
+            
+            // Get FPS for frame quantization
+            const fps = parseInt(document.getElementById('video-fps')?.value || 24);
             
             // Calculate oscillation/progression based on mode
             let oscillation;
@@ -1774,67 +1778,83 @@ class OpticalArtGenerator {
                 oscillation = Math.sin(this.slowAnimationTime * Math.PI * 2);
             }
             
+            // Get speed multiplier (affects RANGE, not time)
+            const speedMultiplier = parseFloat(document.getElementById('animation-speed').value);
+            
+            // Frame quantization: snap oscillation to frame boundaries
+            const frameQuantizedOscillation = Math.floor(oscillation * fps) / fps;
+            
             // Animate each parameter if checkbox is checked (using user-defined ranges)
+            // Speed multiplier EXPANDS range for complexity, frequency, amplitude, glow
             if (document.getElementById('animate-complexity').checked) {
                 const startVal = parseFloat(document.getElementById('complexity-start').value);
                 const endVal = parseFloat(document.getElementById('complexity-end').value);
+                const baseRange = endVal - startVal;
+                const expandedRange = baseRange * speedMultiplier; // Expand by speed
                 const newValue = animationMode === 'linear' 
-                    ? Math.round(startVal + oscillation * (endVal - startVal))
-                    : Math.round(this.originalValues.complexity + oscillation * (endVal - startVal) / 2);
+                    ? startVal + frameQuantizedOscillation * expandedRange
+                    : this.originalValues.complexity + frameQuantizedOscillation * expandedRange / 2;
                 document.getElementById('complexity').value = Math.max(5, Math.min(300, newValue));
-                document.getElementById('complexity-value').textContent = newValue;
+                document.getElementById('complexity-value').textContent = Math.round(newValue);
             }
             
             if (document.getElementById('animate-frequency').checked) {
                 const startVal = parseFloat(document.getElementById('frequency-start').value);
                 const endVal = parseFloat(document.getElementById('frequency-end').value);
+                const baseRange = endVal - startVal;
+                const expandedRange = baseRange * speedMultiplier;
                 const newValue = animationMode === 'linear'
-                    ? Math.round(startVal + oscillation * (endVal - startVal))
-                    : Math.round(this.originalValues.frequency + oscillation * (endVal - startVal) / 2);
+                    ? startVal + frameQuantizedOscillation * expandedRange
+                    : this.originalValues.frequency + frameQuantizedOscillation * expandedRange / 2;
                 document.getElementById('frequency').value = Math.max(1, Math.min(100, newValue));
-                document.getElementById('frequency-value').textContent = newValue;
+                document.getElementById('frequency-value').textContent = Math.round(newValue);
             }
             
             if (document.getElementById('animate-amplitude').checked) {
                 const startVal = parseFloat(document.getElementById('amplitude-start').value);
                 const endVal = parseFloat(document.getElementById('amplitude-end').value);
+                const baseRange = endVal - startVal;
+                const expandedRange = baseRange * speedMultiplier;
                 const newValue = animationMode === 'linear'
-                    ? Math.round(startVal + oscillation * (endVal - startVal))
-                    : Math.round(this.originalValues.amplitude + oscillation * (endVal - startVal) / 2);
+                    ? startVal + frameQuantizedOscillation * expandedRange
+                    : this.originalValues.amplitude + frameQuantizedOscillation * expandedRange / 2;
                 document.getElementById('amplitude').value = Math.max(-1000, Math.min(1000, newValue));
-                document.getElementById('amplitude-value').textContent = newValue >= 0 ? `+${newValue}` : newValue;
-            }
-            
-            if (document.getElementById('animate-rotation').checked) {
-                const startVal = parseFloat(document.getElementById('rotation-start').value);
-                const endVal = parseFloat(document.getElementById('rotation-end').value);
-                const newValue = animationMode === 'linear'
-                    ? Math.round(startVal + oscillation * (endVal - startVal))
-                    : Math.round(this.originalValues.rotation + this.slowAnimationTime * 30) % 360;
-                const normalizedValue = newValue > 180 ? newValue - 360 : newValue;
-                document.getElementById('rotation').value = normalizedValue;
-                const sign = normalizedValue > 0 ? '+' : (normalizedValue < 0 ? '' : '');
-                document.getElementById('rotation-value').textContent = `${sign}${normalizedValue}°`;
+                const rounded = Math.round(newValue);
+                document.getElementById('amplitude-value').textContent = rounded >= 0 ? `+${rounded}` : rounded;
             }
             
             if (document.getElementById('animate-glow').checked) {
                 const startVal = parseFloat(document.getElementById('glow-start').value);
                 const endVal = parseFloat(document.getElementById('glow-end').value);
+                const baseRange = endVal - startVal;
+                const expandedRange = baseRange * speedMultiplier;
                 const newValue = animationMode === 'linear'
-                    ? Math.round(startVal + oscillation * (endVal - startVal))
-                    : Math.round(this.originalValues.glow + oscillation * (endVal - startVal) / 2);
+                    ? startVal + frameQuantizedOscillation * expandedRange
+                    : this.originalValues.glow + frameQuantizedOscillation * expandedRange / 2;
                 document.getElementById('glow').value = Math.max(0, Math.min(10, newValue));
-                document.getElementById('glow-value').textContent = newValue;
+                document.getElementById('glow-value').textContent = Math.round(newValue);
+            }
+            
+            // ROTATION & ZOOM: Independent - NO speed multiplier, smooth (not quantized)
+            if (document.getElementById('animate-rotation').checked) {
+                const startVal = parseFloat(document.getElementById('rotation-start').value);
+                const endVal = parseFloat(document.getElementById('rotation-end').value);
+                const newValue = animationMode === 'linear'
+                    ? startVal + oscillation * (endVal - startVal)  // Smooth, no speed multiplier
+                    : (this.originalValues.rotation + this.slowAnimationTime * 30) % 360;
+                const normalizedValue = newValue > 180 ? newValue - 360 : newValue;
+                document.getElementById('rotation').value = normalizedValue;
+                const sign = normalizedValue > 0 ? '+' : (normalizedValue < 0 ? '' : '');
+                document.getElementById('rotation-value').textContent = `${sign}${Math.round(normalizedValue)}°`;
             }
             
             if (document.getElementById('animate-zoom').checked) {
                 const startZoom = parseFloat(document.getElementById('zoom-start').value);
                 const endZoom = parseFloat(document.getElementById('zoom-end').value);
                 const newZoomLevel = animationMode === 'linear'
-                    ? startZoom + oscillation * (endZoom - startZoom)
+                    ? startZoom + oscillation * (endZoom - startZoom)  // Smooth, no speed multiplier
                     : this.originalValues.zoomLevel + oscillation * (endZoom - startZoom) / 2;
                 
-                // Clamp zoom level to reasonable bounds
                 this.zoomLevel = Math.max(0.1, Math.min(10, newZoomLevel));
                 this.updateViewBox();
             }
