@@ -3738,18 +3738,20 @@ class OpticalArtGenerator {
                 const baseColor = this.getLineColor(pixelIndex, (this.actualWidth / cellSize) * (this.actualHeight / cellSize));
                 const rgb = this.colorToRgb(baseColor); // Handles hex, rgb, and hsl formats
 
-                // In dark mode with white base color, invert the shading (darker = more light, lighter = less light)
+                // Apply shading differently for dark mode
                 const isDarkMode = localStorage.getItem('darkMode') === 'true';
                 const colorMode = document.getElementById('color-mode').value;
                 let finalR, finalG, finalB;
                 
                 if (isDarkMode && colorMode === 'black') {
-                    // Invert shading: bright areas stay bright, dark areas go dark
-                    finalR = Math.floor(rgb[0] * shadeIntensity);
-                    finalG = Math.floor(rgb[1] * shadeIntensity);
-                    finalB = Math.floor(rgb[2] * shadeIntensity);
+                    // In dark mode: invert the shading so bright areas are white, dim areas are gray (not black)
+                    // This keeps the pattern visible on black background
+                    const invertedIntensity = 0.3 + (shadeIntensity * 0.7); // Range from 30% to 100%
+                    finalR = Math.floor(rgb[0] * invertedIntensity);
+                    finalG = Math.floor(rgb[1] * invertedIntensity);
+                    finalB = Math.floor(rgb[2] * invertedIntensity);
                 } else {
-                    // Normal shading
+                    // Normal shading: dark to bright based on lighting
                     finalR = Math.floor(rgb[0] * shadeIntensity);
                     finalG = Math.floor(rgb[1] * shadeIntensity);
                     finalB = Math.floor(rgb[2] * shadeIntensity);
@@ -3779,6 +3781,7 @@ class OpticalArtGenerator {
         const lineWidth = this.getAutoLineWidth();
         const centerX = this.actualWidth / 2;
         const centerY = this.actualHeight / 2;
+        const isDarkMode = localStorage.getItem('darkMode') === 'true';
 
         // Use frequency to control number of petals (lobes)
         const numPetals = Math.max(3, Math.floor(frequency / 10));
@@ -3849,10 +3852,12 @@ class OpticalArtGenerator {
                 path.setAttribute('fill', color);
                 path.setAttribute('fill-opacity', '1');
             } else {
-                // For odd bands, use complementary effect or white
+                // For odd bands, use complementary effect or white/black
                 const colorMode = document.getElementById('color-mode').value;
                 if (colorMode === 'black') {
-                    path.setAttribute('fill', '#fff');
+                    // In dark mode: use black for contrast with white lines
+                    const alternateFill = isDarkMode ? '#000' : '#fff';
+                    path.setAttribute('fill', alternateFill);
                 } else {
                     path.setAttribute('fill', color);
                     path.setAttribute('fill-opacity', '0.5');
