@@ -5223,8 +5223,9 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
                     return;
                 }
                 
-                // White background
-                ctx.fillStyle = '#ffffff';
+                // Check dark mode for background color
+                const isDarkMode = localStorage.getItem('darkMode') === 'true';
+                ctx.fillStyle = isDarkMode ? '#000000' : '#ffffff';
                 ctx.fillRect(0, 0, width, height);
                 
                 // Convert SVG to image
