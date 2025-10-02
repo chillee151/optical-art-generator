@@ -14,6 +14,14 @@ A sophisticated web application for generating mesmerizing geometric patterns op
   - No more CPU-intensive surprises!
   - Perfect for planning glow/complexity animations
 
+- **Frame-Accurate Preview** - Think in video frames, not just time!
+  - **FPS Selector**: Choose 24fps, 30fps, or 60fps
+  - **Frame Counter**: Shows "Frame 120/240" as you scrub
+  - Frame-accurate timing: currentFrame / fps
+  - Calculate exact per-frame changes
+  - Example: 10s @ 24fps = 240 frames
+  - Preview snaps to actual frame boundaries
+
 - **Linear Animation Mode (Default)** - Smooth, cinematic progressions!
   - ➡️ No more repetitive pulsing/bouncing
   - Parameters progress smoothly from Start → End
@@ -484,12 +492,32 @@ http://localhost:8000
 
 **Step 3: Preview Your Animation**
 1. Go to **ACTIONS** tab → **🎬 Video Export**
-2. **Drag the Preview Timeline slider** (0% to 100%)
-3. Watch the pattern change in real-time
-4. Adjust Start/End values until it looks perfect
-5. Set **Animation Mode** to **Linear** (smooth progression)
+2. Choose **Frame Rate** (24fps, 30fps, or 60fps)
+   - 24fps = cinematic (default)
+   - 30fps = smooth web video
+   - 60fps = ultra smooth
+3. **Drag the Preview Timeline slider** (0% to 100%)
+4. Watch **Frame Counter** (e.g., "Frame 120/240")
+5. Watch the pattern change in real-time
+6. Adjust Start/End values until it looks perfect
+7. Set **Animation Mode** to **Linear** (smooth progression)
 
-**Step 4: Export Your Video**
+**Step 4: Calculate Your Animation** (Frame Math)
+```
+Total Frames = Duration × FPS
+10s @ 24fps = 240 frames
+10s @ 30fps = 300 frames
+10s @ 60fps = 600 frames
+
+Per-Frame Change = (End - Start) / Total Frames
+Example: Complexity 50→200 over 240 frames
+(200 - 50) / 240 = 0.625 per frame
+
+Check halfway: Frame 120 should show ≈ 125
+Scrub to frame 120 to verify!
+```
+
+**Step 5: Export Your Video**
 1. Choose **Duration** (5s, 10s, or 15s)
 2. Choose **Quality** (1080p, 1440p, or 4K)
    - Width auto-adjusts to your canvas aspect ratio!
@@ -498,20 +526,27 @@ http://localhost:8000
 5. Download your perfect H.264 MP4!
 
 **Pro Tips:**
+- **Think in frames**: "I want glow to fade in over 120 frames" (more precise than "5 seconds")
 - **Linear Mode** = Smooth start-to-finish (no repetition)
 - **Bounce Mode** = Oscillating/pulsing (good for loops)
-- **Preview scrubber** = See EXACTLY what frame 3.5s will look like
+- **Frame counter** = See exact frame number as you scrub
+- **Preview scrubber** = Frame-accurate preview snaps to real frames
 - **Dark Mode** videos = Black background in export
 - **Multiple animations** = Combine Complexity + Glow + Rotation for complex effects
+- **Verify halfway**: Check frame count at 50% matches your math
 
 **Example Workflows:**
 
 **Fade-In Glow:**
 ```
 Glow: Start 0 → End 10
-Duration: 10s
+Duration: 10s @ 24fps = 240 frames
 Mode: Linear
-Result: Smooth glow fade-in over 10 seconds
+Per-frame change: (10 - 0) / 240 = 0.042 glow per frame
+Frame 60: Should show glow ≈ 2.5
+Frame 120: Should show glow ≈ 5.0
+Frame 180: Should show glow ≈ 7.5
+Result: Smooth glow fade-in over 240 frames
 ```
 
 **Complexity Reveal:**
