@@ -2934,6 +2934,7 @@ class OpticalArtGenerator {
         const frequency = parseInt(document.getElementById('frequency').value);
         const centerX = this.actualWidth / 2;
         const centerY = this.actualHeight / 2;
+        const isDarkMode = localStorage.getItem('darkMode') === 'true';
 
         // Use complexity for number of squares (rings)
         const numSquares = Math.max(20, complexity);
@@ -2997,7 +2998,9 @@ class OpticalArtGenerator {
                 path.setAttribute('stroke', 'none');
             } else {
                 if (colorMode === 'black') {
-                    path.setAttribute('fill', '#fff');
+                    // In dark mode, color is already white, so alternate with black
+                    const alternateFill = isDarkMode ? '#000' : '#fff';
+                    path.setAttribute('fill', alternateFill);
                     path.setAttribute('fill-opacity', '1');
                     path.setAttribute('stroke', 'none');
                 } else {
@@ -3732,9 +3735,22 @@ class OpticalArtGenerator {
                 const baseColor = this.getLineColor(pixelIndex, (this.actualWidth / cellSize) * (this.actualHeight / cellSize));
                 const rgb = this.colorToRgb(baseColor); // Handles hex, rgb, and hsl formats
 
-                const finalR = Math.floor(rgb[0] * shadeIntensity);
-                const finalG = Math.floor(rgb[1] * shadeIntensity);
-                const finalB = Math.floor(rgb[2] * shadeIntensity);
+                // In dark mode with white base color, invert the shading (darker = more light, lighter = less light)
+                const isDarkMode = localStorage.getItem('darkMode') === 'true';
+                const colorMode = document.getElementById('color-mode').value;
+                let finalR, finalG, finalB;
+                
+                if (isDarkMode && colorMode === 'black') {
+                    // Invert shading: bright areas stay bright, dark areas go dark
+                    finalR = Math.floor(rgb[0] * shadeIntensity);
+                    finalG = Math.floor(rgb[1] * shadeIntensity);
+                    finalB = Math.floor(rgb[2] * shadeIntensity);
+                } else {
+                    // Normal shading
+                    finalR = Math.floor(rgb[0] * shadeIntensity);
+                    finalG = Math.floor(rgb[1] * shadeIntensity);
+                    finalB = Math.floor(rgb[2] * shadeIntensity);
+                }
 
                 const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
                 rect.setAttribute('x', x);
