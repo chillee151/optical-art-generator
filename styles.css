@@ -65,6 +65,29 @@ body::before {
     100% { transform: translate(50px, 50px) rotate(360deg); }
 }
 
+/* Dark mode for body background */
+body.dark-mode {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+}
+
+body.dark-mode::before {
+    background: 
+        repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 10px,
+            rgba(255, 255, 255, 0.02) 10px,
+            rgba(255, 255, 255, 0.02) 20px
+        ),
+        repeating-linear-gradient(
+            -45deg,
+            transparent,
+            transparent 10px,
+            rgba(102, 126, 234, 0.05) 10px,
+            rgba(102, 126, 234, 0.05) 20px
+        );
+}
+
 .container {
     max-width: 1600px;
     margin: 0 auto;
