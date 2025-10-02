@@ -300,6 +300,15 @@ body.dark-mode::before {
     transform: translateY(0);
 }
 
+/* Canvas wrapper to contain canvas + timeline */
+.canvas-wrapper {
+    order: 1; /* Mobile: canvas first */
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+}
+
 /* =================================================================
    TIMELINE PREVIEW (Below Canvas)
    ================================================================= */
@@ -311,7 +320,6 @@ body.dark-mode::before {
     border: 1px solid rgba(102, 126, 234, 0.15);
     border-radius: 12px;
     padding: 16px 20px;
-    margin-top: 16px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
@@ -476,9 +484,8 @@ header p {
     gap: clamp(16px, 3vw, 24px);
 }
 
-/* Canvas first on mobile, full bleed */
+/* Canvas container styling */
 .canvas-container {
-    order: 1;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -1607,7 +1614,7 @@ footer {
         gap: 16px;
     }
 
-    .canvas-container {
+    .canvas-wrapper {
         order: 2;
     }
 
