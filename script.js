@@ -5352,13 +5352,21 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         return new Promise((resolve) => {
             try {
                 const tempCanvas = document.createElement('canvas');
-                // High quality resolutions
-                const resolutions = {
-                    '1080': { width: 1920, height: 1080 },
-                    '1440': { width: 2560, height: 1440 },
-                    '2160': { width: 3840, height: 2160 }  // 4K
+                
+                // Calculate canvas aspect ratio
+                const canvasAspectRatio = this.actualWidth / this.actualHeight;
+                
+                // Define target heights for each quality level
+                const targetHeights = {
+                    '1080': 1080,
+                    '1440': 1440,
+                    '2160': 2160  // 4K
                 };
-                const { width, height } = resolutions[quality] || resolutions['2160'];
+                
+                // Calculate width based on canvas aspect ratio
+                const height = targetHeights[quality] || targetHeights['2160'];
+                const width = Math.round(height * canvasAspectRatio);
+                
                 tempCanvas.width = width;
                 tempCanvas.height = height;
                 const ctx = tempCanvas.getContext('2d');
