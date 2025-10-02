@@ -1307,15 +1307,34 @@ class OpticalArtGenerator {
         // Animation preview scrubber
         document.getElementById('animation-preview').addEventListener('input', (e) => {
             const duration = parseInt(document.getElementById('video-duration').value);
-            const progress = parseFloat(e.target.value) / 100; // 0 to 1
-            const timeInSeconds = progress * duration;
+            const fps = parseInt(document.getElementById('video-fps')?.value || 24);
+            const totalFrames = duration * fps;
             
-            // Update time display
-            document.getElementById('preview-time').textContent = `${timeInSeconds.toFixed(1)}s`;
+            const progress = parseFloat(e.target.value) / 100; // 0 to 1
+            const currentFrame = Math.round(progress * totalFrames);
+            const timeInSeconds = currentFrame / fps;
+            
+            // Update time and frame display
+            document.getElementById('preview-time').textContent = `${timeInSeconds.toFixed(2)}s`;
+            document.getElementById('preview-frame').textContent = `Frame ${currentFrame}/${totalFrames}`;
             
             // Preview the animation at this point in time
             this.previewAnimationAtTime(timeInSeconds, duration);
         });
+        
+        // Update frame count when duration or FPS changes
+        const updateFrameCount = () => {
+            const duration = parseInt(document.getElementById('video-duration').value);
+            const fps = parseInt(document.getElementById('video-fps')?.value || 24);
+            const totalFrames = duration * fps;
+            const preview = document.getElementById('animation-preview');
+            const progress = parseFloat(preview.value) / 100;
+            const currentFrame = Math.round(progress * totalFrames);
+            document.getElementById('preview-frame').textContent = `Frame ${currentFrame}/${totalFrames}`;
+        };
+        
+        document.getElementById('video-duration').addEventListener('change', updateFrameCount);
+        document.getElementById('video-fps').addEventListener('change', updateFrameCount);
 
         // Dark mode toggle
         document.getElementById('dark-mode-toggle').addEventListener('change', (e) => {
@@ -5421,7 +5440,7 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
             window.isRecording = true;
             window.recordedFrames = [];
             
-            const fps = 24; // 24fps is smoother and cinematic
+            const fps = parseInt(document.getElementById('video-fps')?.value || 24);
             const totalFrames = duration * fps;
             const frameInterval = 1000 / fps;
             

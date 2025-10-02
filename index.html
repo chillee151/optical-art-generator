@@ -409,11 +409,22 @@
                                 <option value="bounce">🔄 Bounce (oscillate)</option>
                             </select>
                         </div>
+                        <div class="video-controls">
+                            <label for="video-fps">Frame Rate:</label>
+                            <select id="video-fps">
+                                <option value="24" selected>24 fps (cinematic)</option>
+                                <option value="30">30 fps (smooth)</option>
+                                <option value="60">60 fps (ultra smooth)</option>
+                            </select>
+                        </div>
                         <div class="video-preview-group">
                             <label for="animation-preview">Preview Timeline:</label>
                             <input type="range" id="animation-preview" min="0" max="100" value="0" step="1">
-                            <span id="preview-time">0.0s</span>
-                            <p class="video-hint" style="font-size: 0.85em; margin-top: 4px;">👆 Scrub to preview animation at different times</p>
+                            <div class="preview-info">
+                                <span id="preview-time">0.0s</span>
+                                <span id="preview-frame" style="margin-left: 10px; color: #667eea; font-weight: 600;">Frame 0/240</span>
+                            </div>
+                            <p class="video-hint" style="font-size: 0.85em; margin-top: 4px;">🎬 Frame-accurate preview • Scrub to see exact video frames</p>
                         </div>
                         <button id="record-video-btn" class="export-btn">🎥 Record Video (10s)</button>
                         <div id="video-progress" class="video-progress" style="display: none;">

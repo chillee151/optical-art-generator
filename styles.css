@@ -1446,12 +1446,18 @@ footer {
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
+.video-preview-group .preview-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 6px;
+}
+
 .video-preview-group span {
     display: inline-block;
     font-weight: 600;
     color: white;
-    margin-left: 8px;
-    min-width: 40px;
+    font-size: 0.95rem;
 }
 
 .video-note {
