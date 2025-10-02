@@ -154,6 +154,15 @@ header p {
     box-shadow: var(--shadow-lg);
 }
 
+/* Dark mode for canvas */
+.canvas-container.dark-mode {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+}
+
+.canvas-container.dark-mode #art-canvas {
+    background: #000000;
+}
+
 /* Modern controls panel with bottom sheet feel on mobile */
 .controls-panel {
     order: 2;

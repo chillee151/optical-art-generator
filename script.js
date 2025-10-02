@@ -144,6 +144,12 @@ class OpticalArtGenerator {
         this.updatePatternInfo();
         this.generatePatternPreviews();
         this.generatePattern();
+        
+        // Restore dark mode preference
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.getElementById('dark-mode-toggle').checked = true;
+            document.querySelector('.canvas-container').classList.add('dark-mode');
+        }
     }
 
     _fbm(x, y, z, octaves, persistence) {
@@ -1254,6 +1260,18 @@ class OpticalArtGenerator {
         document.getElementById('video-duration').addEventListener('change', (e) => {
             const btn = document.getElementById('record-video-btn');
             btn.textContent = `🎥 Record Video (${e.target.value}s)`;
+        });
+
+        // Dark mode toggle
+        document.getElementById('dark-mode-toggle').addEventListener('change', (e) => {
+            const canvasContainer = document.querySelector('.canvas-container');
+            if (e.target.checked) {
+                canvasContainer.classList.add('dark-mode');
+                localStorage.setItem('darkMode', 'true');
+            } else {
+                canvasContainer.classList.remove('dark-mode');
+                localStorage.setItem('darkMode', 'false');
+            }
         });
 
         document.getElementById('pattern-type').addEventListener('change', () => {
