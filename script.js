@@ -5731,11 +5731,21 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
                 const frameBlob = await this.captureFrame(quality);
                 if (frameBlob) {
                     window.recordedFrames.push(frameBlob);
+                } else {
+                    console.error(`❌ Frame ${i} capture failed - received null blob`);
+                    throw new Error(`Frame capture failed at frame ${i}`);
+                }
+                
+                // Log progress every 30 frames
+                if (i % 30 === 0 || i === totalFrames - 1) {
+                    console.log(`📸 Captured ${i + 1}/${totalFrames} frames (${((i + 1) / totalFrames * 100).toFixed(1)}%)`);
                 }
                 
                 // Smooth timing between frames
                 await new Promise(resolve => setTimeout(resolve, Math.max(10, frameInterval / 2)));
             }
+            
+            console.log(`✅ Frame capture complete: ${window.recordedFrames.length} frames captured`);
             
             // Restore original values after recording
             document.getElementById('complexity').value = originalValues.complexity;
@@ -5784,13 +5794,26 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
             this.showSuccess(`✅ Video recorded! (${qualityName} H.264 MP4)`);
             
         } catch (error) {
-            console.error('Error recording video:', error);
-            this.showError(`Failed to record video: ${error.message}`);
+            console.error('❌ ERROR recording video:', error);
+            console.error('Error stack:', error.stack);
+            
+            // Provide detailed error message
+            let errorMessage = `Failed to record video: ${error.message}`;
+            if (error.message.includes('Frame capture failed')) {
+                errorMessage += '\n\nTip: This usually means the canvas couldn\'t be captured. Try:\n• Using a simpler pattern\n• Reducing complexity/glow\n• Waiting for the pattern to fully render';
+            } else if (error.message.includes('FFmpeg')) {
+                errorMessage += '\n\nTip: FFmpeg encoding failed. Try:\n• Refreshing the page\n• Using a shorter duration\n• Checking browser console for details';
+            } else if (error.message.includes('frames')) {
+                errorMessage += '\n\nTip: Check that animations are enabled and working correctly.';
+            }
+            
+            this.showError(errorMessage);
             
             const recordBtn = document.getElementById('record-video-btn');
             const progressDiv = document.getElementById('video-progress');
             if (recordBtn) {
-                recordBtn.textContent = '🎥 Record Video (10s)';
+                const duration = document.getElementById('video-duration')?.value || '10';
+                recordBtn.textContent = `🎥 Record Video (${duration}s)`;
                 recordBtn.disabled = false;
             }
             if (progressDiv) {
@@ -5798,14 +5821,19 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
             }
         } finally {
             window.isRecording = false;
+            console.log(`🧹 Cleanup: Clearing ${window.recordedFrames?.length || 0} frames from memory`);
             window.recordedFrames = [];
         }
     }
 
     async encodeVideo(frames, fps, progressBar, statusText) {
         try {
+            console.log(`🎬 Starting video encoding: ${frames.length} frames @ ${fps}fps`);
+            
             if (statusText) statusText.textContent = '📦 Loading FFmpeg encoder...';
             const ffmpegInstance = await window.loadFFmpeg();
+            
+            console.log('✅ FFmpeg loaded, starting encoding process...');
             
             // Add progress tracking for FFmpeg
             ffmpegInstance.on('progress', ({ progress, time }) => {
@@ -5819,46 +5847,70 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
                 }
             });
             
+            // Validate frames
+            if (!frames || frames.length === 0) {
+                throw new Error('No frames to encode! Please check frame capture.');
+            }
+            
+            console.log(`📝 Validated ${frames.length} frames, writing to virtual filesystem...`);
+            
             // Write frames to virtual filesystem
             if (statusText) statusText.textContent = '💾 Writing frames to memory...';
             for (let i = 0; i < frames.length; i++) {
-                const arrayBuffer = await frames[i].arrayBuffer();
-                const uint8Array = new Uint8Array(arrayBuffer);
-                const paddedIndex = String(i).padStart(5, '0');
-                await ffmpegInstance.writeFile(`frame${paddedIndex}.png`, uint8Array);
-                
-                // Update progress for writing frames
-                const writeProgress = ((i + 1) / frames.length) * 50; // 0-50%
-                if (progressBar) {
-                    progressBar.style.width = `${writeProgress}%`;
-                    progressBar.textContent = `${Math.round(writeProgress)}%`;
-                }
-                if (statusText && i % 10 === 0) {
-                    statusText.textContent = `💾 Writing frame ${i + 1}/${frames.length}...`;
+                try {
+                    const arrayBuffer = await frames[i].arrayBuffer();
+                    const uint8Array = new Uint8Array(arrayBuffer);
+                    const paddedIndex = String(i).padStart(5, '0');
+                    await ffmpegInstance.writeFile(`frame${paddedIndex}.png`, uint8Array);
+                    
+                    // Update progress for writing frames
+                    const writeProgress = ((i + 1) / frames.length) * 50; // 0-50%
+                    if (progressBar) {
+                        progressBar.style.width = `${writeProgress}%`;
+                        progressBar.textContent = `${Math.round(writeProgress)}%`;
+                    }
+                    if (statusText && i % 10 === 0) {
+                        statusText.textContent = `💾 Writing frame ${i + 1}/${frames.length}...`;
+                    }
+                } catch (frameError) {
+                    console.error(`❌ Error writing frame ${i}:`, frameError);
+                    throw new Error(`Failed to write frame ${i}: ${frameError.message}`);
                 }
             }
             
+            console.log(`✅ All ${frames.length} frames written successfully`);
+            
             if (statusText) statusText.textContent = '🎬 Starting H.264 encoding...';
             
+            console.log(`🎥 Executing FFmpeg with parameters: ${fps}fps, ${frames.length} frames`);
+            
             // Encode to H.264 MP4 optimized for quality, speed, and compatibility
-            await ffmpegInstance.exec([
-                '-framerate', String(fps),
-                '-i', 'frame%05d.png',
-                '-c:v', 'libx264',
-                '-profile:v', 'high', // High profile for better compression
-                '-level', '4.2', // HD support up to 4K
-                '-pix_fmt', 'yuv420p', // Universal compatibility
-                '-crf', '18', // Visually lossless quality
-                '-preset', 'fast', // Balanced speed/quality (faster than medium, better than veryfast)
-                '-tune', 'film', // Optimized for high-quality video content
-                '-movflags', '+faststart', // Web/QuickTime optimization (metadata at start)
-                '-bf', '2', // 2 B-frames for better compression
-                '-g', String(fps * 2), // GOP size = 2 seconds for seeking
-                'output.mp4'
-            ]);
+            try {
+                await ffmpegInstance.exec([
+                    '-framerate', String(fps),
+                    '-i', 'frame%05d.png',
+                    '-c:v', 'libx264',
+                    '-profile:v', 'high', // High profile for better compression
+                    '-level', '4.2', // HD support up to 4K
+                    '-pix_fmt', 'yuv420p', // Universal compatibility
+                    '-crf', '18', // Visually lossless quality
+                    '-preset', 'fast', // Balanced speed/quality (faster than medium, better than veryfast)
+                    '-tune', 'film', // Optimized for high-quality video content
+                    '-movflags', '+faststart', // Web/QuickTime optimization (metadata at start)
+                    '-bf', '2', // 2 B-frames for better compression
+                    '-g', String(fps * 2), // GOP size = 2 seconds for seeking
+                    'output.mp4'
+                ]);
+                console.log('✅ FFmpeg encoding completed successfully');
+            } catch (execError) {
+                console.error('❌ FFmpeg exec failed:', execError);
+                throw new Error(`FFmpeg encoding failed: ${execError.message}`);
+            }
             
             // Read the output file
+            console.log('📖 Reading output.mp4 from virtual filesystem...');
             const data = await ffmpegInstance.readFile('output.mp4');
+            console.log(`✅ Read ${data.byteLength} bytes from output.mp4`);
             
             // Clean up virtual filesystem
             for (let i = 0; i < frames.length; i++) {
@@ -5880,14 +5932,19 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = `optical-art-${Date.now()}.mp4`;
+            const filename = `optical-art-${Date.now()}.mp4`;
+            link.download = filename;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
             
+            console.log(`✅ Video encoding complete! Downloaded as ${filename}`);
+            console.log(`📊 Final stats: ${frames.length} frames @ ${fps}fps = ${(frames.length / fps).toFixed(1)}s video`);
+            
         } catch (error) {
-            console.error('Error encoding video:', error);
+            console.error('❌ Error in encodeVideo:', error);
+            console.error('Error details:', error.stack);
             throw error;
         }
     }
