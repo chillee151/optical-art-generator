@@ -5789,6 +5789,19 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
                 zoomLevel: this.zoomLevel
             };
             
+            // CRITICAL: Generate initial frame (frame 0) BEFORE starting capture loop
+            console.log('🎬 Initializing first frame (progress 0)...');
+            this.applyAnimationForFrame(0, animationMode);
+            
+            // Wait for initial pattern to fully render
+            await new Promise(resolve => requestAnimationFrame(resolve));
+            await new Promise(resolve => requestAnimationFrame(resolve));
+            await new Promise(resolve => requestAnimationFrame(resolve));
+            await new Promise(resolve => requestAnimationFrame(resolve));
+            await new Promise(resolve => setTimeout(resolve, 100)); // Extra time for first frame
+            
+            console.log('✅ Initial frame rendered, starting capture...');
+            
             // Capture frames with frame-accurate timing
             for (let i = 0; i < totalFrames; i++) {
                 if (!window.isRecording) break;
