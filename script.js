@@ -149,6 +149,7 @@ class OpticalArtGenerator {
         if (localStorage.getItem('darkMode') === 'true') {
             document.getElementById('dark-mode-toggle').checked = true;
             document.querySelector('.canvas-container').classList.add('dark-mode');
+            this.applyDarkMode(true);
         }
     }
 
@@ -246,6 +247,32 @@ class OpticalArtGenerator {
                 successDiv.parentNode.removeChild(successDiv);
             }
         }, 3000);
+    }
+
+    applyDarkMode(isDark) {
+        // Remove existing background rect if any
+        const existingBg = document.getElementById('dark-mode-bg');
+        if (existingBg) {
+            existingBg.remove();
+        }
+
+        if (isDark) {
+            // Add a black background rectangle as the first element
+            const bgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            bgRect.setAttribute('id', 'dark-mode-bg');
+            bgRect.setAttribute('x', '0');
+            bgRect.setAttribute('y', '0');
+            bgRect.setAttribute('width', '100%');
+            bgRect.setAttribute('height', '100%');
+            bgRect.setAttribute('fill', '#000000');
+            
+            // Insert as first child so it's behind everything
+            if (this.canvas.firstChild) {
+                this.canvas.insertBefore(bgRect, this.canvas.firstChild);
+            } else {
+                this.canvas.appendChild(bgRect);
+            }
+        }
     }
 
     generatePatternPreviews() {
@@ -1268,9 +1295,11 @@ class OpticalArtGenerator {
             if (e.target.checked) {
                 canvasContainer.classList.add('dark-mode');
                 localStorage.setItem('darkMode', 'true');
+                this.applyDarkMode(true);
             } else {
                 canvasContainer.classList.remove('dark-mode');
                 localStorage.setItem('darkMode', 'false');
+                this.applyDarkMode(false);
             }
         });
 
