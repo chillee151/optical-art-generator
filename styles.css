@@ -214,6 +214,12 @@ header p {
     will-change: transform;
 }
 
+/* GPU optimization for glow effects */
+#art-canvas g[filter] {
+    will-change: filter;
+    transform: translateZ(0);
+}
+
 /* Dark mode for canvas */
 .canvas-container.dark-mode {
     background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);

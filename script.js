@@ -1883,32 +1883,67 @@ class OpticalArtGenerator {
             oldFilter.remove();
         }
 
+        // OPTIMIZED: Calculate filter region based on glow intensity
+        // Smaller region = faster rendering
+        const filterPadding = Math.min(100, glowIntensity * 15);
+        
+        // OPTIMIZED: Count elements to decide quality vs speed
+        const elementCount = layerGroup.querySelectorAll('*').length;
+        const isComplex = elementCount > 1000;
+
         // Create new glow filter
         const filter = document.createElementNS('http://www.w3.org/2000/svg', 'filter');
         filter.setAttribute('id', 'glow-filter');
-        filter.setAttribute('x', '-50%');
-        filter.setAttribute('y', '-50%');
-        filter.setAttribute('width', '200%');
-        filter.setAttribute('height', '200%');
+        filter.setAttribute('x', `-${filterPadding}%`);
+        filter.setAttribute('y', `-${filterPadding}%`);
+        filter.setAttribute('width', `${100 + filterPadding * 2}%`);
+        filter.setAttribute('height', `${100 + filterPadding * 2}%`);
+        
+        // OPTIMIZED: Use sRGB for better GPU acceleration
+        filter.setAttribute('color-interpolation-filters', 'sRGB');
 
         const blur = document.createElementNS('http://www.w3.org/2000/svg', 'feGaussianBlur');
+        blur.setAttribute('in', 'SourceGraphic');
         blur.setAttribute('stdDeviation', glowIntensity);
+        
+        // OPTIMIZED: Reduce quality for complex patterns (faster but still beautiful)
+        if (isComplex && glowIntensity > 3) {
+            blur.setAttribute('edgeMode', 'none'); // Faster edge handling
+        }
+        
         blur.setAttribute('result', 'coloredBlur');
+
+        // OPTIMIZED: Add brightness boost for more vibrant glow
+        const colorMatrix = document.createElementNS('http://www.w3.org/2000/svg', 'feColorMatrix');
+        colorMatrix.setAttribute('in', 'coloredBlur');
+        colorMatrix.setAttribute('type', 'matrix');
+        // Boost brightness for more dramatic glow effect
+        const boost = 1.2;
+        colorMatrix.setAttribute('values', 
+            `${boost} 0 0 0 0
+             0 ${boost} 0 0 0
+             0 0 ${boost} 0 0
+             0 0 0 1 0`);
+        colorMatrix.setAttribute('result', 'brightGlow');
 
         const merge = document.createElementNS('http://www.w3.org/2000/svg', 'feMerge');
         const mergeNode1 = document.createElementNS('http://www.w3.org/2000/svg', 'feMergeNode');
-        mergeNode1.setAttribute('in', 'coloredBlur');
+        mergeNode1.setAttribute('in', 'brightGlow');
         const mergeNode2 = document.createElementNS('http://www.w3.org/2000/svg', 'feMergeNode');
         mergeNode2.setAttribute('in', 'SourceGraphic');
 
         merge.appendChild(mergeNode1);
         merge.appendChild(mergeNode2);
         filter.appendChild(blur);
+        filter.appendChild(colorMatrix);
         filter.appendChild(merge);
         defs.appendChild(filter);
 
         // Apply filter to layer group
         layerGroup.setAttribute('filter', 'url(#glow-filter)');
+        
+        // OPTIMIZED: GPU hint for filtered elements
+        layerGroup.style.willChange = 'filter';
     }
 
     generateLSystem(layerGroup, currentRotation, slowAnimationTime) {
