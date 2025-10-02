@@ -5184,16 +5184,20 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
             
             if (statusText) statusText.textContent = '🎬 Starting H.264 encoding...';
             
-            // Encode to H.264 MP4 optimized for speed with high quality
+            // Encode to H.264 MP4 optimized for quality, speed, and compatibility
             await ffmpegInstance.exec([
                 '-framerate', String(fps),
                 '-i', 'frame%05d.png',
                 '-c:v', 'libx264',
-                '-pix_fmt', 'yuv420p',
-                '-crf', '18', // High quality (18 is visually lossless)
-                '-preset', 'veryfast', // Much faster encoding
-                '-tune', 'fastdecode', // Optimize for fast playback
-                '-movflags', '+faststart', // Web/QuickTime optimization
+                '-profile:v', 'high', // High profile for better compression
+                '-level', '4.2', // HD support up to 4K
+                '-pix_fmt', 'yuv420p', // Universal compatibility
+                '-crf', '18', // Visually lossless quality
+                '-preset', 'fast', // Balanced speed/quality (faster than medium, better than veryfast)
+                '-tune', 'film', // Optimized for high-quality video content
+                '-movflags', '+faststart', // Web/QuickTime optimization (metadata at start)
+                '-bf', '2', // 2 B-frames for better compression
+                '-g', String(fps * 2), // GOP size = 2 seconds for seeking
                 'output.mp4'
             ]);
             
