@@ -73,6 +73,19 @@
                         <input type="checkbox" id="animate-complexity" class="animate-checkbox">
                         <label for="animate-complexity" class="animate-label">🎬</label>
                     </div>
+                    <div class="animation-range-group" id="complexity-range" style="display: none;">
+                        <label>Animation Range:</label>
+                        <div class="range-inputs">
+                            <div class="range-input-pair">
+                                <label>Start:</label>
+                                <input type="number" id="complexity-start" min="5" max="300" value="35" class="range-number-input">
+                            </div>
+                            <div class="range-input-pair">
+                                <label>End:</label>
+                                <input type="number" id="complexity-end" min="5" max="300" value="75" class="range-number-input">
+                            </div>
+                        </div>
+                    </div>
                     <div class="control-group">
                         <label for="symmetry">Symmetry:</label>
                         <select id="symmetry">
@@ -91,12 +104,38 @@
                         <input type="checkbox" id="animate-frequency" class="animate-checkbox">
                         <label for="animate-frequency" class="animate-label">🎬</label>
                     </div>
+                    <div class="animation-range-group" id="frequency-range" style="display: none;">
+                        <label>Animation Range:</label>
+                        <div class="range-inputs">
+                            <div class="range-input-pair">
+                                <label>Start:</label>
+                                <input type="number" id="frequency-start" min="1" max="100" value="2" class="range-number-input">
+                            </div>
+                            <div class="range-input-pair">
+                                <label>End:</label>
+                                <input type="number" id="frequency-end" min="1" max="100" value="6" class="range-number-input">
+                            </div>
+                        </div>
+                    </div>
                     <div class="control-group">
                         <label for="amplitude">Pattern Amplitude:</label>
                         <input type="range" id="amplitude" min="-1000" max="1000" value="20">
                         <span id="amplitude-value">+20</span>
                         <input type="checkbox" id="animate-amplitude" class="animate-checkbox">
                         <label for="animate-amplitude" class="animate-label">🎬</label>
+                    </div>
+                    <div class="animation-range-group" id="amplitude-range" style="display: none;">
+                        <label>Animation Range:</label>
+                        <div class="range-inputs">
+                            <div class="range-input-pair">
+                                <label>Start:</label>
+                                <input type="number" id="amplitude-start" min="-1000" max="1000" value="10" class="range-number-input">
+                            </div>
+                            <div class="range-input-pair">
+                                <label>End:</label>
+                                <input type="number" id="amplitude-end" min="-1000" max="1000" value="30" class="range-number-input">
+                            </div>
+                        </div>
                     </div>
                     <div class="control-group">
                         <label for="rotation">Pattern Rotation:</label>
@@ -105,6 +144,19 @@
                         <input type="checkbox" id="animate-rotation" class="animate-checkbox" checked>
                         <label for="animate-rotation" class="animate-label">🎬</label>
                     </div>
+                    <div class="animation-range-group" id="rotation-range" style="display: none;">
+                        <label>Animation Range:</label>
+                        <div class="range-inputs">
+                            <div class="range-input-pair">
+                                <label>Start:</label>
+                                <input type="number" id="rotation-start" min="-180" max="180" value="0" class="range-number-input">
+                            </div>
+                            <div class="range-input-pair">
+                                <label>End:</label>
+                                <input type="number" id="rotation-end" min="-180" max="180" value="360" class="range-number-input">
+                            </div>
+                        </div>
+                    </div>
                     <div class="control-group">
                         <label for="glow">Glow Intensity:</label>
                         <input type="range" id="glow" min="0" max="10" value="0">
@@ -112,12 +164,38 @@
                         <input type="checkbox" id="animate-glow" class="animate-checkbox">
                         <label for="animate-glow" class="animate-label">🎬</label>
                     </div>
+                    <div class="animation-range-group" id="glow-range" style="display: none;">
+                        <label>Animation Range:</label>
+                        <div class="range-inputs">
+                            <div class="range-input-pair">
+                                <label>Start:</label>
+                                <input type="number" id="glow-start" min="0" max="10" value="0" class="range-number-input">
+                            </div>
+                            <div class="range-input-pair">
+                                <label>End:</label>
+                                <input type="number" id="glow-end" min="0" max="10" value="5" class="range-number-input">
+                            </div>
+                        </div>
+                    </div>
                     <div class="control-group">
                         <label for="zoom-amount">Zoom Animation:</label>
                         <input type="range" id="zoom-amount" min="0" max="10" value="3">
                         <span id="zoom-amount-value">3</span>
                         <input type="checkbox" id="animate-zoom" class="animate-checkbox">
                         <label for="animate-zoom" class="animate-label">🎬</label>
+                    </div>
+                    <div class="animation-range-group" id="zoom-range" style="display: none;">
+                        <label>Zoom Level Range:</label>
+                        <div class="range-inputs">
+                            <div class="range-input-pair">
+                                <label>Start:</label>
+                                <input type="number" id="zoom-start" min="0.1" max="10" step="0.1" value="0.5" class="range-number-input">
+                            </div>
+                            <div class="range-input-pair">
+                                <label>End:</label>
+                                <input type="number" id="zoom-end" min="0.1" max="10" step="0.1" value="2.0" class="range-number-input">
+                            </div>
+                        </div>
                     </div>
                     <div class="control-group">
                         <label for="zoom-direction">Zoom Direction:</label>

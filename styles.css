@@ -940,6 +940,66 @@ footer {
     filter: brightness(1.2);
 }
 
+/* Animation Range Controls */
+.animation-range-group {
+    margin: 8px 0 12px 20px;
+    padding: 10px 12px;
+    background: rgba(102, 126, 234, 0.08);
+    border-left: 3px solid #667eea;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.animation-range-group label:first-child {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #667eea;
+    margin-bottom: 8px;
+}
+
+.range-inputs {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.range-input-pair {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+}
+
+.range-input-pair label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #555;
+    min-width: 35px;
+}
+
+.range-number-input {
+    flex: 1;
+    padding: 6px 8px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-align: center;
+    transition: all 0.2s ease;
+    background: white;
+}
+
+.range-number-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.range-number-input:hover {
+    border-color: #667eea;
+}
+
 /* Video Recording Styles */
 .animate-controls {
     margin-top: 8px;
