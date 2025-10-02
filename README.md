@@ -4,7 +4,49 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 
 ## 🚀 Recent Updates
 
-### v5.4.0 (Latest - GPU OPTIMIZATIONS & ANIMATED ZOOM!)
+### v5.5.0 (Latest - ANIMATION REVOLUTION!)
+
+**🎬 ANIMATION PREVIEW & LINEAR PROGRESSION:**
+- **Timeline Preview Scrubber** - See your animation BEFORE rendering!
+  - Drag slider from 0% to 100% to preview any moment
+  - Shows exact time (0.0s - 10.0s)
+  - Real-time pattern updates as you scrub
+  - No more CPU-intensive surprises!
+  - Perfect for planning glow/complexity animations
+
+- **Linear Animation Mode (Default)** - Smooth, cinematic progressions!
+  - ➡️ No more repetitive pulsing/bouncing
+  - Parameters progress smoothly from Start → End
+  - Each frame is unique throughout the video
+  - Perfect for professional video exports
+  - Still have Bounce mode for looping effects
+
+**🎛️ ANIMATION RANGE CONTROLS (GAME CHANGER!):**
+- **User-Defined Start/End Ranges** - Total control over every parameter!
+  - Check 🎬 to reveal collapsible range controls
+  - Set EXACT Start and End values for each parameter
+  - Beautiful purple-accented UI with number inputs
+  - No more auto-reset - sliders keep their values!
+  - Smart defaults initialize based on current value
+
+- **Per-Parameter Control:**
+  - **Complexity**: Start/End from 5-300 (e.g., 20 → 200)
+  - **Frequency**: Start/End from 1-100 (e.g., 2 → 50)
+  - **Amplitude**: Start/End from -1000 to +1000
+  - **Rotation**: Start/End (e.g., 0° → 360° for full rotation)
+  - **Glow**: Start/End from 0-10 (e.g., 0 → 8 for fade-in glow)
+  - **Zoom**: Start/End zoom levels (e.g., 0.5x → 2.0x)
+
+**📐 VIDEO ASPECT RATIO FIX:**
+- **Dynamic Video Dimensions** - Video matches canvas aspect ratio!
+  - Quality setting controls HEIGHT (1080p, 1440p, 2160p)
+  - WIDTH auto-calculated based on canvas ratio
+  - Square (1:1) → 2160×2160 at 4K
+  - Widescreen (16:9) → 3840×2160 at 4K
+  - Portrait (9:16) → 1215×2160 at 4K
+  - Any custom ratio → perfectly calculated!
+
+### v5.4.0 (GPU OPTIMIZATIONS & ANIMATED ZOOM!)
 
 **⚡ GPU HARDWARE ACCELERATION (M4 Pro Optimized!):**
 - **Blazing Fast Rendering** - Hardware acceleration for silky smooth performance
@@ -422,6 +464,75 @@ http://localhost:8000
 6. Save as .icns file
 7. Use for custom app/folder icons!
 
+### Animation Control with Range Presets (v5.5.0)
+
+**Create Perfect Video Animations:**
+
+**Step 1: Set Up Your Pattern**
+1. Go to **ADJUST** tab
+2. Set your starting values (Complexity: 100, Glow: 2, etc.)
+3. Choose your canvas format (16:9 for widescreen, 1:1 for Instagram, etc.)
+
+**Step 2: Define Animation Ranges**
+1. Check 🎬 next to parameters you want to animate
+2. **Range controls appear below** each checked parameter
+3. Set your **Start** and **End** values:
+   - **Complexity**: 20 → 200 (simple to complex)
+   - **Glow**: 0 → 8 (fade-in glow effect)
+   - **Rotation**: 0° → 360° (full rotation)
+   - **Zoom**: 0.5x → 2.0x (zoom in effect)
+
+**Step 3: Preview Your Animation**
+1. Go to **ACTIONS** tab → **🎬 Video Export**
+2. **Drag the Preview Timeline slider** (0% to 100%)
+3. Watch the pattern change in real-time
+4. Adjust Start/End values until it looks perfect
+5. Set **Animation Mode** to **Linear** (smooth progression)
+
+**Step 4: Export Your Video**
+1. Choose **Duration** (5s, 10s, or 15s)
+2. Choose **Quality** (1080p, 1440p, or 4K)
+   - Width auto-adjusts to your canvas aspect ratio!
+3. Click **🎥 Record Video**
+4. Wait for encoding (shows progress)
+5. Download your perfect H.264 MP4!
+
+**Pro Tips:**
+- **Linear Mode** = Smooth start-to-finish (no repetition)
+- **Bounce Mode** = Oscillating/pulsing (good for loops)
+- **Preview scrubber** = See EXACTLY what frame 3.5s will look like
+- **Dark Mode** videos = Black background in export
+- **Multiple animations** = Combine Complexity + Glow + Rotation for complex effects
+
+**Example Workflows:**
+
+**Fade-In Glow:**
+```
+Glow: Start 0 → End 10
+Duration: 10s
+Mode: Linear
+Result: Smooth glow fade-in over 10 seconds
+```
+
+**Complexity Reveal:**
+```
+Complexity: Start 10 → End 250
+Rotation: Start 0° → End 360°
+Duration: 15s
+Mode: Linear
+Result: Pattern evolves and rotates simultaneously
+```
+
+**Zoom Tunnel:**
+```
+Zoom: Start 0.3x → End 3.0x
+Rotation: Start 0° → End 720° (2 full rotations)
+Glow: Start 0 → End 8
+Duration: 10s
+Mode: Linear
+Result: Spiraling zoom tunnel with glow
+```
+
 ### Animated Zoom Effects (v5.4.0)
 
 **Create Hypnotic Zoom Animations:**
@@ -635,5 +746,5 @@ Mathematical foundations from:
 
 **Built with ❤️ for laser engravers, digital artists, and optical art enthusiasts**
 
-**Version**: 5.4.0 (2025 Edition - GPU Optimized & Animated Zoom)  
+**Version**: 5.5.0 (2025 Edition - Animation Revolution)  
 **Last Updated**: October 2025
