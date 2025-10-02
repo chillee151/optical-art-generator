@@ -181,16 +181,12 @@ header p {
     box-shadow: var(--shadow-md);
     transition: var(--transition-smooth);
     /* GPU ACCELERATION - M4 Pro Optimizations */
-    will-change: transform, contents;
+    will-change: transform;
     transform: translate3d(0, 0, 0);
     -webkit-transform: translate3d(0, 0, 0);
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
     shape-rendering: optimizeSpeed;
-    -webkit-font-smoothing: subpixel-antialiased;
-    -moz-osx-font-smoothing: auto;
-    isolation: isolate;
-    contain: strict;
 }
 
 #art-canvas:hover {
