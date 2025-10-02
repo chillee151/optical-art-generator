@@ -6,6 +6,16 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 
 ### v5.5.0 (Latest - ANIMATION REVOLUTION!)
 
+**🎯 VIDEO-SYNCED ANIMATION (THE BIG FIX!):**
+- **Animation Cycles ONCE Over Entire Video** - No more repetition!
+  - **Problem Solved**: Animation no longer repeats multiple times during video
+  - 5-second video = animation goes Start → End over 5 seconds
+  - 10-second video = animation goes Start → End over 10 seconds
+  - 15-second video = animation goes Start → End over 15 seconds
+  - **Predictable & Professional**: One smooth cycle from beginning to end
+  - Linear mode: Frame 0 = Start value, Frame 240 = End value
+  - Works with ANY video duration you choose
+
 **🎬 ANIMATION PREVIEW & LINEAR PROGRESSION:**
 - **Timeline Preview Scrubber** - See your animation BEFORE rendering!
   - Drag slider from 0% to 100% to preview any moment
@@ -526,9 +536,13 @@ Scrub to frame 120 to verify!
 5. Download your perfect H.264 MP4!
 
 **Pro Tips:**
+- **🎯 Animation cycles ONCE**: Set Start/End values and they'll progress over the ENTIRE video duration
+  - 5s video: Glow 0→8 over all 5 seconds (no repeating)
+  - 10s video: Complexity 50→200 over all 10 seconds
+  - 15s video: Rotation 0°→360° over all 15 seconds
 - **Think in frames**: "I want glow to fade in over 120 frames" (more precise than "5 seconds")
-- **Linear Mode** = Smooth start-to-finish (no repetition)
-- **Bounce Mode** = Oscillating/pulsing (good for loops)
+- **Linear Mode** = Smooth start-to-finish progression (RECOMMENDED)
+- **Bounce Mode** = Oscillating/pulsing over entire duration (for loops)
 - **Frame counter** = See exact frame number as you scrub
 - **Preview scrubber** = Frame-accurate preview snaps to real frames
 - **Dark Mode** videos = Black background in export
