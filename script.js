@@ -1910,6 +1910,9 @@ class OpticalArtGenerator {
         // progress is 0 to 1 representing position in the entire video
         // This ensures animation completes exactly once over the video duration
         
+        // Get speed multiplier (expands range but keeps same duration)
+        const speedMultiplier = parseFloat(document.getElementById('animation-speed')?.value || 1);
+        
         // Calculate oscillation based on mode
         let oscillation;
         if (animationMode === 'linear') {
@@ -1922,72 +1925,84 @@ class OpticalArtGenerator {
         
         // Debug first and last frame
         if (progress < 0.01 || progress > 0.99) {
-            console.log(`🎬 Frame progress: ${(progress * 100).toFixed(1)}%, mode: ${animationMode}, oscillation: ${oscillation.toFixed(3)}`);
+            console.log(`🎬 Frame progress: ${(progress * 100).toFixed(1)}%, mode: ${animationMode}, oscillation: ${oscillation.toFixed(3)}, speed: ${speedMultiplier}x`);
         }
         
         // Apply animation to each parameter if checked (using user-defined ranges)
+        // Speed multiplier EXPANDS the range for most properties (not zoom/rotation)
+        
         if (document.getElementById('animate-complexity').checked) {
             const startVal = parseFloat(document.getElementById('complexity-start').value);
             const endVal = parseFloat(document.getElementById('complexity-end').value);
+            const baseRange = endVal - startVal;
+            const expandedRange = baseRange * speedMultiplier; // Expand range by speed
             const newValue = animationMode === 'linear'
-                ? Math.round(startVal + oscillation * (endVal - startVal))
-                : Math.round(startVal + (endVal - startVal) / 2 + oscillation * (endVal - startVal) / 2);
+                ? startVal + oscillation * expandedRange  // Smooth sub-frame precision
+                : startVal + (expandedRange / 2) + oscillation * (expandedRange / 2);
             document.getElementById('complexity').value = Math.max(5, Math.min(300, newValue));
-            document.getElementById('complexity-value').textContent = newValue;
+            document.getElementById('complexity-value').textContent = Math.round(newValue);
             
             // Debug first and last frame
             if (progress < 0.01 || progress > 0.99) {
-                console.log(`  Complexity: ${startVal} → ${endVal}, current: ${newValue}`);
+                console.log(`  Complexity: ${startVal} → ${startVal + expandedRange} (speed ${speedMultiplier}x), current: ${newValue.toFixed(1)}`);
             }
         }
         
         if (document.getElementById('animate-frequency').checked) {
             const startVal = parseFloat(document.getElementById('frequency-start').value);
             const endVal = parseFloat(document.getElementById('frequency-end').value);
+            const baseRange = endVal - startVal;
+            const expandedRange = baseRange * speedMultiplier;
             const newValue = animationMode === 'linear'
-                ? Math.round(startVal + oscillation * (endVal - startVal))
-                : Math.round(startVal + (endVal - startVal) / 2 + oscillation * (endVal - startVal) / 2);
+                ? startVal + oscillation * expandedRange
+                : startVal + (expandedRange / 2) + oscillation * (expandedRange / 2);
             document.getElementById('frequency').value = Math.max(1, Math.min(100, newValue));
-            document.getElementById('frequency-value').textContent = newValue;
+            document.getElementById('frequency-value').textContent = Math.round(newValue);
         }
         
         if (document.getElementById('animate-amplitude').checked) {
             const startVal = parseFloat(document.getElementById('amplitude-start').value);
             const endVal = parseFloat(document.getElementById('amplitude-end').value);
+            const baseRange = endVal - startVal;
+            const expandedRange = baseRange * speedMultiplier;
             const newValue = animationMode === 'linear'
-                ? Math.round(startVal + oscillation * (endVal - startVal))
-                : Math.round(startVal + (endVal - startVal) / 2 + oscillation * (endVal - startVal) / 2);
+                ? startVal + oscillation * expandedRange
+                : startVal + (expandedRange / 2) + oscillation * (expandedRange / 2);
             document.getElementById('amplitude').value = Math.max(-1000, Math.min(1000, newValue));
-            document.getElementById('amplitude-value').textContent = newValue >= 0 ? `+${newValue}` : newValue;
-        }
-        
-        if (document.getElementById('animate-rotation').checked) {
-            const startVal = parseFloat(document.getElementById('rotation-start').value);
-            const endVal = parseFloat(document.getElementById('rotation-end').value);
-            const newValue = animationMode === 'linear'
-                ? Math.round(startVal + oscillation * (endVal - startVal))
-                : Math.round(startVal + (endVal - startVal) / 2 + oscillation * (endVal - startVal) / 2);
-            const normalizedValue = newValue > 180 ? newValue - 360 : newValue;
-            document.getElementById('rotation').value = normalizedValue;
-            const sign = normalizedValue > 0 ? '+' : (normalizedValue < 0 ? '' : '');
-            document.getElementById('rotation-value').textContent = `${sign}${normalizedValue}°`;
+            const rounded = Math.round(newValue);
+            document.getElementById('amplitude-value').textContent = rounded >= 0 ? `+${rounded}` : rounded;
         }
         
         if (document.getElementById('animate-glow').checked) {
             const startVal = parseFloat(document.getElementById('glow-start').value);
             const endVal = parseFloat(document.getElementById('glow-end').value);
+            const baseRange = endVal - startVal;
+            const expandedRange = baseRange * speedMultiplier;
             const newValue = animationMode === 'linear'
-                ? Math.round(startVal + oscillation * (endVal - startVal))
-                : Math.round(startVal + (endVal - startVal) / 2 + oscillation * (endVal - startVal) / 2);
+                ? startVal + oscillation * expandedRange
+                : startVal + (expandedRange / 2) + oscillation * (expandedRange / 2);
             document.getElementById('glow').value = Math.max(0, Math.min(10, newValue));
-            document.getElementById('glow-value').textContent = newValue;
+            document.getElementById('glow-value').textContent = Math.round(newValue);
+        }
+        
+        // ROTATION & ZOOM: Keep independent (not affected by speed multiplier)
+        if (document.getElementById('animate-rotation').checked) {
+            const startVal = parseFloat(document.getElementById('rotation-start').value);
+            const endVal = parseFloat(document.getElementById('rotation-end').value);
+            const newValue = animationMode === 'linear'
+                ? startVal + oscillation * (endVal - startVal)  // No speed multiplier
+                : startVal + (endVal - startVal) / 2 + oscillation * (endVal - startVal) / 2;
+            const normalizedValue = newValue > 180 ? newValue - 360 : newValue;
+            document.getElementById('rotation').value = normalizedValue;
+            const sign = normalizedValue > 0 ? '+' : (normalizedValue < 0 ? '' : '');
+            document.getElementById('rotation-value').textContent = `${sign}${Math.round(normalizedValue)}°`;
         }
         
         if (document.getElementById('animate-zoom').checked) {
             const startZoom = parseFloat(document.getElementById('zoom-start').value);
             const endZoom = parseFloat(document.getElementById('zoom-end').value);
             const newZoomLevel = animationMode === 'linear'
-                ? startZoom + oscillation * (endZoom - startZoom)
+                ? startZoom + oscillation * (endZoom - startZoom)  // No speed multiplier - smooth zoom
                 : startZoom + (endZoom - startZoom) / 2 + oscillation * (endZoom - startZoom) / 2;
             
             this.zoomLevel = Math.max(0.1, Math.min(10, newZoomLevel));
@@ -5882,25 +5897,40 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
             
             if (statusText) statusText.textContent = '🎬 Starting H.264 encoding...';
             
-            console.log(`🎥 Executing FFmpeg with parameters: ${fps}fps, ${frames.length} frames`);
+            // Check if motion blur is enabled
+            const motionBlurEnabled = document.getElementById('motion-blur-toggle')?.checked || false;
+            console.log(`🎥 Executing FFmpeg with parameters: ${fps}fps, ${frames.length} frames, motion blur: ${motionBlurEnabled}`);
             
-            // Encode to H.264 MP4 optimized for quality, speed, and compatibility
+            // Build FFmpeg command with optional motion blur filter
+            const ffmpegArgs = [
+                '-framerate', String(fps),
+                '-i', 'frame%05d.png'
+            ];
+            
+            // Add motion blur filter if enabled (frame blending for smoother motion)
+            if (motionBlurEnabled) {
+                ffmpegArgs.push('-vf', 'tblend=all_mode=average,framestep=1');
+                console.log('🌊 Motion blur filter enabled: tblend for smoother animation');
+            }
+            
+            // Add encoding parameters
+            ffmpegArgs.push(
+                '-c:v', 'libx264',
+                '-profile:v', 'high', // High profile for better compression
+                '-level', '4.2', // HD support up to 4K
+                '-pix_fmt', 'yuv420p', // Universal compatibility
+                '-crf', '18', // Visually lossless quality
+                '-preset', 'fast', // Balanced speed/quality
+                '-tune', 'film', // Optimized for high-quality video content
+                '-movflags', '+faststart', // Web/QuickTime optimization
+                '-bf', '2', // 2 B-frames for better compression
+                '-g', String(fps * 2), // GOP size = 2 seconds for seeking
+                'output.mp4'
+            );
+            
+            // Encode to H.264 MP4
             try {
-                await ffmpegInstance.exec([
-                    '-framerate', String(fps),
-                    '-i', 'frame%05d.png',
-                    '-c:v', 'libx264',
-                    '-profile:v', 'high', // High profile for better compression
-                    '-level', '4.2', // HD support up to 4K
-                    '-pix_fmt', 'yuv420p', // Universal compatibility
-                    '-crf', '18', // Visually lossless quality
-                    '-preset', 'fast', // Balanced speed/quality (faster than medium, better than veryfast)
-                    '-tune', 'film', // Optimized for high-quality video content
-                    '-movflags', '+faststart', // Web/QuickTime optimization (metadata at start)
-                    '-bf', '2', // 2 B-frames for better compression
-                    '-g', String(fps * 2), // GOP size = 2 seconds for seeking
-                    'output.mp4'
-                ]);
+                await ffmpegInstance.exec(ffmpegArgs);
                 console.log('✅ FFmpeg encoding completed successfully');
             } catch (execError) {
                 console.error('❌ FFmpeg exec failed:', execError);
