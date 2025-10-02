@@ -1279,6 +1279,14 @@ class OpticalArtGenerator {
             this.exportImage('jpeg');
         });
 
+        document.getElementById('export-transparent-png-btn').addEventListener('click', () => {
+            this.exportTransparentPNG();
+        });
+
+        document.getElementById('export-icon-png-btn').addEventListener('click', () => {
+            this.exportIconPNG();
+        });
+
         // Video export listeners
         document.getElementById('record-video-btn').addEventListener('click', async () => {
             const duration = parseInt(document.getElementById('video-duration').value);
@@ -4094,6 +4102,159 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         } catch (error) {
             console.error('Error exporting image:', error);
             this.showError(`Failed to export ${format?.toUpperCase() || 'image'}: ${error.message}`);
+        }
+    }
+
+    exportTransparentPNG() {
+        try {
+            if (!this.canvas || !this.canvas.children.length) {
+                throw new Error('No pattern to export. Please generate a pattern first.');
+            }
+
+            // Create a high-resolution canvas for export
+            const exportCanvas = document.createElement('canvas');
+            const ctx = exportCanvas.getContext('2d');
+
+            if (!ctx) {
+                throw new Error('Could not get canvas context');
+            }
+
+            // Set high resolution for wallpaper quality
+            const scaleFactor = 2;
+            const exportWidth = this.actualWidth * scaleFactor * 4;
+            const exportHeight = this.actualHeight * scaleFactor * 4;
+
+            exportCanvas.width = exportWidth;
+            exportCanvas.height = exportHeight;
+
+            // NO WHITE BACKGROUND - transparent!
+
+            // Convert SVG to image
+            const svgData = new XMLSerializer().serializeToString(this.canvas);
+            const img = new Image();
+            const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(svgBlob);
+
+            img.onload = () => {
+                try {
+                    // Draw the SVG onto the canvas
+                    ctx.drawImage(img, 0, 0, exportWidth, exportHeight);
+
+                    // Export the canvas as PNG with transparency
+                    exportCanvas.toBlob((blob) => {
+                        if (!blob) {
+                            this.showError('Failed to create image blob');
+                            return;
+                        }
+
+                        const downloadUrl = URL.createObjectURL(blob);
+                        const patternType = document.getElementById('pattern-type').value;
+                        const colorMode = document.getElementById('color-mode').value;
+                        const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+                        const filename = `optical-art-${patternType}-${colorMode}-${this.actualWidth}x${this.actualHeight}mm-transparent-${timestamp}.png`;
+
+                        const downloadLink = document.createElement('a');
+                        downloadLink.href = downloadUrl;
+                        downloadLink.download = filename;
+                        document.body.appendChild(downloadLink);
+                        downloadLink.click();
+                        document.body.removeChild(downloadLink);
+                        URL.revokeObjectURL(downloadUrl);
+
+                        this.showSuccess('Transparent PNG exported successfully!');
+                    }, 'image/png');
+
+                    URL.revokeObjectURL(url);
+                } catch (error) {
+                    console.error('Error in transparent PNG export:', error);
+                    this.showError(`Failed to export transparent PNG: ${error.message}`);
+                    URL.revokeObjectURL(url);
+                }
+            };
+
+            img.onerror = () => {
+                this.showError('Failed to load SVG for transparent PNG export');
+                URL.revokeObjectURL(url);
+            };
+
+            img.src = url;
+        } catch (error) {
+            console.error('Error exporting transparent PNG:', error);
+            this.showError(`Failed to export transparent PNG: ${error.message}`);
+        }
+    }
+
+    exportIconPNG() {
+        try {
+            if (!this.canvas || !this.canvas.children.length) {
+                throw new Error('No pattern to export. Please generate a pattern first.');
+            }
+
+            // Create a 1024x1024 canvas for macOS icon
+            const iconSize = 1024;
+            const exportCanvas = document.createElement('canvas');
+            const ctx = exportCanvas.getContext('2d');
+
+            if (!ctx) {
+                throw new Error('Could not get canvas context');
+            }
+
+            exportCanvas.width = iconSize;
+            exportCanvas.height = iconSize;
+
+            // NO WHITE BACKGROUND - transparent for icons!
+
+            // Convert SVG to image
+            const svgData = new XMLSerializer().serializeToString(this.canvas);
+            const img = new Image();
+            const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(svgBlob);
+
+            img.onload = () => {
+                try {
+                    // Draw the SVG centered on the canvas
+                    ctx.drawImage(img, 0, 0, iconSize, iconSize);
+
+                    // Export the canvas as PNG
+                    exportCanvas.toBlob((blob) => {
+                        if (!blob) {
+                            this.showError('Failed to create image blob');
+                            return;
+                        }
+
+                        const downloadUrl = URL.createObjectURL(blob);
+                        const patternType = document.getElementById('pattern-type').value;
+                        const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+                        const filename = `optical-art-icon-${patternType}-1024x1024-${timestamp}.png`;
+
+                        const downloadLink = document.createElement('a');
+                        downloadLink.href = downloadUrl;
+                        downloadLink.download = filename;
+                        document.body.appendChild(downloadLink);
+                        downloadLink.click();
+                        document.body.removeChild(downloadLink);
+                        URL.revokeObjectURL(downloadUrl);
+
+                        this.showSuccess('Icon PNG (1024x1024) exported! Open in Preview.app → Export as ICNS for macOS icons.');
+                    }, 'image/png');
+
+                    URL.revokeObjectURL(url);
+                } catch (error) {
+                    console.error('Error in icon PNG export:', error);
+                    this.showError(`Failed to export icon PNG: ${error.message}`);
+                    URL.revokeObjectURL(url);
+                }
+            };
+
+            img.onerror = () => {
+                this.showError('Failed to load SVG for icon PNG export');
+                URL.revokeObjectURL(url);
+            };
+
+            img.src = url;
+        } catch (error) {
+            console.error('Error exporting icon PNG:', error);
+            this.showError(`Failed to export icon PNG: ${error.message}`);
         }
     }
 
