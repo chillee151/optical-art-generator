@@ -22,6 +22,85 @@
             <p>Generate mesmerizing geometric patterns for laser engraving</p>
         </header>
 
+        <!-- Interactive Toolbar -->
+        <div class="toolbar" id="main-toolbar">
+            <!-- Row 1: Canvas Settings -->
+            <div class="toolbar-row">
+                <span class="toolbar-label">📐 Canvas:</span>
+                <div class="toolbar-button-group">
+                    <button class="toolbar-btn canvas-ratio-btn" data-ratio="1:1">1:1</button>
+                    <button class="toolbar-btn canvas-ratio-btn active" data-ratio="16:9">16:9</button>
+                    <button class="toolbar-btn canvas-ratio-btn" data-ratio="9:16">9:16</button>
+                    <button class="toolbar-btn canvas-ratio-btn" data-ratio="4:3">4:3</button>
+                </div>
+                <span class="toolbar-info" id="toolbar-canvas-info">800×800mm (3024×3024px)</span>
+            </div>
+
+            <!-- Row 2: Video Settings -->
+            <div class="toolbar-row">
+                <span class="toolbar-label">🎬 Video:</span>
+                <div class="toolbar-button-group">
+                    <button class="toolbar-btn video-duration-btn" data-duration="5">5s</button>
+                    <button class="toolbar-btn video-duration-btn active" data-duration="10">10s</button>
+                    <button class="toolbar-btn video-duration-btn" data-duration="15">15s</button>
+                    <button class="toolbar-btn video-duration-btn" data-duration="20">20s</button>
+                    <button class="toolbar-btn video-duration-btn" data-duration="30">30s</button>
+                </div>
+                <span class="toolbar-separator">@</span>
+                <div class="toolbar-button-group">
+                    <button class="toolbar-btn video-fps-btn active" data-fps="24">24fps</button>
+                    <button class="toolbar-btn video-fps-btn" data-fps="30">30fps</button>
+                    <button class="toolbar-btn video-fps-btn" data-fps="60">60fps</button>
+                </div>
+                <span class="toolbar-info" id="toolbar-video-info">= 240 frames • Export: 3840×2160</span>
+            </div>
+
+            <!-- Row 3: Animation Toggles -->
+            <div class="toolbar-row">
+                <span class="toolbar-label">⚡ Animate:</span>
+                <div class="toolbar-button-group">
+                    <button class="toolbar-pill" id="pill-complexity" data-param="complexity">
+                        <span class="pill-name">Complexity</span>
+                        <span class="pill-range" style="display: none;">50→200</span>
+                    </button>
+                    <button class="toolbar-pill" id="pill-frequency" data-param="frequency">
+                        <span class="pill-name">Frequency</span>
+                        <span class="pill-range" style="display: none;">1→50</span>
+                    </button>
+                    <button class="toolbar-pill" id="pill-amplitude" data-param="amplitude">
+                        <span class="pill-name">Amplitude</span>
+                        <span class="pill-range" style="display: none;">0→500</span>
+                    </button>
+                    <button class="toolbar-pill" id="pill-rotation" data-param="rotation">
+                        <span class="pill-name">Rotation</span>
+                        <span class="pill-range" style="display: none;">0°→360°</span>
+                    </button>
+                    <button class="toolbar-pill" id="pill-glow" data-param="glow">
+                        <span class="pill-name">Glow</span>
+                        <span class="pill-range" style="display: none;">0→8</span>
+                    </button>
+                    <button class="toolbar-pill" id="pill-zoom" data-param="zoom">
+                        <span class="pill-name">Zoom</span>
+                        <span class="pill-range" style="display: none;">0.5→2.0</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Row 4: Animation Mode & Actions -->
+            <div class="toolbar-row">
+                <span class="toolbar-label">Mode:</span>
+                <div class="toolbar-button-group">
+                    <button class="toolbar-btn mode-btn active" data-mode="linear">➡️ Linear</button>
+                    <button class="toolbar-btn mode-btn" data-mode="bounce">🔄 Bounce</button>
+                </div>
+                <div class="toolbar-spacer"></div>
+                <div class="toolbar-button-group toolbar-actions">
+                    <button class="toolbar-action-btn" id="toolbar-export-png">📷 Export PNG</button>
+                    <button class="toolbar-action-btn" id="toolbar-record-video">🎥 Record Video</button>
+                </div>
+            </div>
+        </div>
+
         <div class="main-content">
             <div class="controls-panel">
                 <div class="tabs-nav">

@@ -113,6 +113,199 @@ header {
     overflow: hidden;
 }
 
+/* =================================================================
+   INTERACTIVE TOOLBAR
+   ================================================================= */
+
+.toolbar {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.08) 50%, rgba(240, 147, 251, 0.08) 100%);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(102, 126, 234, 0.2);
+    border-radius: var(--radius-md);
+    padding: 16px 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-md);
+    position: sticky;
+    top: 12px;
+    z-index: 100;
+    transition: var(--transition-smooth);
+}
+
+.toolbar-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.toolbar-row:last-child {
+    margin-bottom: 0;
+}
+
+.toolbar-label {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #667eea;
+    min-width: 70px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.toolbar-button-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.toolbar-btn {
+    padding: 6px 14px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1.5px solid rgba(102, 126, 234, 0.2);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #4b5563;
+    white-space: nowrap;
+}
+
+.toolbar-btn:hover {
+    background: rgba(102, 126, 234, 0.1);
+    border-color: rgba(102, 126, 234, 0.5);
+    transform: translateY(-1px);
+}
+
+.toolbar-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #667eea;
+    color: white;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.toolbar-btn.active:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* Animation Pills */
+.toolbar-pill {
+    padding: 6px 14px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.7);
+    border: 1.5px solid rgba(156, 163, 175, 0.3);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #6b7280;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.toolbar-pill:hover {
+    background: rgba(102, 126, 234, 0.1);
+    border-color: rgba(102, 126, 234, 0.4);
+    transform: translateY(-1px);
+}
+
+.toolbar-pill.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #667eea;
+    color: white;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.toolbar-pill.active:hover {
+    transform: translateY(-1px) scale(1.02);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.toolbar-pill .pill-name {
+    display: inline;
+}
+
+.toolbar-pill.active .pill-range {
+    display: inline !important;
+    font-weight: 700;
+    opacity: 0.95;
+}
+
+.toolbar-pill.active .pill-range::before {
+    content: "●";
+    margin: 0 4px;
+    font-size: 0.6rem;
+}
+
+/* Toolbar Info Text */
+.toolbar-info {
+    font-size: 0.8125rem;
+    color: #6b7280;
+    font-weight: 600;
+    margin-left: 8px;
+}
+
+.toolbar-separator {
+    font-size: 0.875rem;
+    color: #9ca3af;
+    font-weight: 600;
+    margin: 0 4px;
+}
+
+.toolbar-spacer {
+    flex: 1;
+    min-width: 20px;
+}
+
+/* Action Buttons */
+.toolbar-actions {
+    margin-left: auto;
+}
+
+.toolbar-action-btn {
+    padding: 8px 18px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    color: white;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    white-space: nowrap;
+}
+
+.toolbar-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.toolbar-action-btn:active {
+    transform: translateY(0);
+}
+
+/* Responsive Toolbar */
+@media (max-width: 1200px) {
+    .toolbar {
+        padding: 14px 16px;
+    }
+    
+    .toolbar-label {
+        min-width: 60px;
+        font-size: 0.8125rem;
+    }
+    
+    .toolbar-btn, .toolbar-pill {
+        padding: 5px 12px;
+        font-size: 0.75rem;
+    }
+}
+
 header::before {
     content: '';
     position: absolute;

@@ -138,6 +138,7 @@ class OpticalArtGenerator {
         this.perlin = new PerlinNoise(); // Create a single instance
         this.setupTabs();
         this.setupEventListeners();
+        this.setupToolbar(); // Setup interactive toolbar
         this.setupPresetListeners();
         this.updateSliderValues();
         this.updateCanvasSize();
@@ -189,6 +190,169 @@ class OpticalArtGenerator {
                 if (tabId === 'tab-explore' && this.explorerVariants.length === 0) {
                     setTimeout(() => this.generateRandomVariants(), 100);
                 }
+            }
+        });
+    }
+
+    setupToolbar() {
+        // Canvas ratio buttons
+        document.querySelectorAll('.canvas-ratio-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const ratio = e.target.dataset.ratio;
+                document.querySelectorAll('.canvas-ratio-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                // Update the hidden canvas format selector
+                document.getElementById('canvas-format').value = ratio;
+                this.updateCanvasSize();
+                this.updateToolbarInfo();
+            });
+        });
+
+        // Video duration buttons
+        document.querySelectorAll('.video-duration-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const duration = e.target.dataset.duration;
+                document.querySelectorAll('.video-duration-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                // Update the hidden video duration selector
+                document.getElementById('video-duration').value = duration;
+                document.getElementById('record-video-btn').textContent = `🎥 Record Video (${duration}s)`;
+                this.updateToolbarInfo();
+            });
+        });
+
+        // Video FPS buttons
+        document.querySelectorAll('.video-fps-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const fps = e.target.dataset.fps;
+                document.querySelectorAll('.video-fps-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                // Update the hidden FPS selector
+                document.getElementById('video-fps').value = fps;
+                this.updateToolbarInfo();
+            });
+        });
+
+        // Animation pills
+        const pillParams = ['complexity', 'frequency', 'amplitude', 'rotation', 'glow', 'zoom'];
+        pillParams.forEach(param => {
+            const pill = document.getElementById(`pill-${param}`);
+            if (pill) {
+                pill.addEventListener('click', () => {
+                    const checkbox = document.getElementById(`animate-${param}`);
+                    checkbox.checked = !checkbox.checked;
+                    checkbox.dispatchEvent(new Event('change'));
+                    this.updateToolbarAnimationPills();
+                });
+            }
+        });
+
+        // Animation mode buttons
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const mode = e.target.dataset.mode;
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                // Update the hidden animation mode selector
+                document.getElementById('animation-mode').value = mode;
+            });
+        });
+
+        // Action buttons
+        document.getElementById('toolbar-export-png').addEventListener('click', () => {
+            this.exportTransparentPNG();
+        });
+
+        document.getElementById('toolbar-record-video').addEventListener('click', async () => {
+            const duration = parseInt(document.getElementById('video-duration').value);
+            
+            if (!this.isAnimating) {
+                this.showError('Please enable at least one animation (🎬) before recording!');
+                return;
+            }
+            
+            await this.startVideoRecording(duration);
+        });
+
+        // Initial update
+        this.updateToolbarInfo();
+        this.updateToolbarAnimationPills();
+
+        // Listen for changes to animation checkboxes to update pills
+        pillParams.forEach(param => {
+            const checkbox = document.getElementById(`animate-${param}`);
+            if (checkbox) {
+                checkbox.addEventListener('change', () => {
+                    this.updateToolbarAnimationPills();
+                });
+            }
+        });
+
+        // Listen for changes to range inputs to update pill ranges
+        pillParams.forEach(param => {
+            const startInput = document.getElementById(`${param}-start`);
+            const endInput = document.getElementById(`${param}-end`);
+            if (startInput && endInput) {
+                startInput.addEventListener('input', () => this.updateToolbarAnimationPills());
+                endInput.addEventListener('input', () => this.updateToolbarAnimationPills());
+            }
+        });
+    }
+
+    updateToolbarInfo() {
+        // Update canvas info
+        const canvasInfo = document.getElementById('toolbar-canvas-info');
+        const width = this.actualWidth;
+        const height = this.actualHeight;
+        const pixelScale = 3.78; // 96 DPI conversion
+        const displayWidth = Math.round(width * pixelScale);
+        const displayHeight = Math.round(height * pixelScale);
+        canvasInfo.textContent = `${width}×${height}mm (${displayWidth}×${displayHeight}px)`;
+
+        // Update video info
+        const videoInfo = document.getElementById('toolbar-video-info');
+        const duration = parseInt(document.getElementById('video-duration').value);
+        const fps = parseInt(document.getElementById('video-fps')?.value || 24);
+        const totalFrames = duration * fps;
+        
+        // Calculate export resolution based on canvas aspect ratio
+        const canvasAspectRatio = this.actualWidth / this.actualHeight;
+        const quality = document.getElementById('video-quality')?.value || '2160';
+        const targetHeights = { '1080': 1080, '1440': 1440, '2160': 2160 };
+        const exportHeight = targetHeights[quality] || 2160;
+        const exportWidth = Math.round(exportHeight * canvasAspectRatio);
+        
+        videoInfo.textContent = `= ${totalFrames} frames • Export: ${exportWidth}×${exportHeight}`;
+    }
+
+    updateToolbarAnimationPills() {
+        const pillParams = [
+            { id: 'complexity', format: (s, e) => `${s}→${e}` },
+            { id: 'frequency', format: (s, e) => `${s}→${e}` },
+            { id: 'amplitude', format: (s, e) => `${s}→${e}` },
+            { id: 'rotation', format: (s, e) => `${s}°→${e}°` },
+            { id: 'glow', format: (s, e) => `${s}→${e}` },
+            { id: 'zoom', format: (s, e) => `${s}×→${e}×` }
+        ];
+
+        pillParams.forEach(({ id, format }) => {
+            const pill = document.getElementById(`pill-${id}`);
+            const checkbox = document.getElementById(`animate-${id}`);
+            const rangeSpan = pill.querySelector('.pill-range');
+            
+            if (checkbox && checkbox.checked) {
+                pill.classList.add('active');
+                const startVal = document.getElementById(`${id}-start`)?.value || '0';
+                const endVal = document.getElementById(`${id}-end`)?.value || '0';
+                rangeSpan.textContent = format(startVal, endVal);
+                rangeSpan.style.display = 'inline';
+            } else {
+                pill.classList.remove('active');
+                rangeSpan.style.display = 'none';
             }
         });
     }
