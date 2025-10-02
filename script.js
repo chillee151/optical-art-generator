@@ -361,6 +361,23 @@ class OpticalArtGenerator {
         videoInfo.textContent = `= ${totalFrames} frames • Export: ${exportWidth}×${exportHeight}`;
     }
 
+    // Snap range values to be frame-aligned (for smooth, jitter-free animation)
+    snapToFrameAligned(value, min, max) {
+        const fps = parseInt(document.getElementById('video-fps')?.value || 24);
+        const duration = parseInt(document.getElementById('video-duration')?.value || 10);
+        const totalFrames = fps * duration;
+        
+        // Calculate range and step per frame
+        const totalRange = max - min;
+        const stepPerFrame = totalRange / totalFrames;
+        
+        // Snap value to nearest frame-aligned increment
+        const stepsFromMin = Math.round((value - min) / stepPerFrame);
+        const snappedValue = min + (stepsFromMin * stepPerFrame);
+        
+        return Math.max(min, Math.min(max, snappedValue));
+    }
+
     updateToolbarAnimationPills() {
         const pillParams = [
             { id: 'complexity', format: (s, e) => `${s}→${e}` },
@@ -1659,14 +1676,39 @@ class OpticalArtGenerator {
                 
                 this.updateAnimationState();
             });
+            
+            // Add frame-aligned snapping to range inputs (except zoom/rotation - they stay smooth)
+            if (!isRotation && !isZoom) {
+                const startInput = document.getElementById(`${param}-start`);
+                const endInput = document.getElementById(`${param}-end`);
+                
+                startInput.addEventListener('blur', (e) => {
+                    const value = parseFloat(e.target.value);
+                    const snapped = this.snapToFrameAligned(value, min, max);
+                    e.target.value = Math.round(snapped);
+                    this.updateToolbarAnimationPills();
+                });
+                
+                endInput.addEventListener('blur', (e) => {
+                    const value = parseFloat(e.target.value);
+                    const snapped = this.snapToFrameAligned(value, min, max);
+                    e.target.value = Math.round(snapped);
+                    this.updateToolbarAnimationPills();
+                });
+            }
         });
         
         // Initial animation state
         this.updateAnimationState();
 
-        // Animation speed slider
-        document.getElementById('animation-speed').addEventListener('input', (e) => {
-            document.getElementById('animation-speed-value').textContent = `${parseFloat(e.target.value).toFixed(1)}x`;
+        // Animation speed multiplier (discrete dropdown)
+        document.getElementById('animation-speed').addEventListener('change', (e) => {
+            const value = parseFloat(e.target.value);
+            document.getElementById('animation-speed-value').textContent = `${value}×`;
+            // Regenerate pattern with new speed
+            if (this.isAnimating) {
+                this.generatePattern(true);
+            }
         });
 
         document.getElementById('zoom-in-btn').addEventListener('click', () => this.zoomIn());
@@ -1765,24 +1807,29 @@ class OpticalArtGenerator {
             // Check animation mode
             const animationMode = document.getElementById('animation-mode')?.value || 'bounce';
             
-            // Get FPS for frame quantization
+            // Get FPS and calculate discrete frame progression
             const fps = parseInt(document.getElementById('video-fps')?.value || 24);
+            const duration = parseInt(document.getElementById('video-duration')?.value || 10);
+            const totalFrames = fps * duration;
             
-            // Calculate oscillation/progression based on mode
+            // Calculate current frame number (discrete)
+            const currentFrame = Math.floor((this.slowAnimationTime % 1) * totalFrames);
+            
+            // Frame-based progress (0 to 1, but in discrete steps)
+            const frameProgress = currentFrame / totalFrames;
+            
+            // Calculate oscillation based on DISCRETE frames
             let oscillation;
             if (animationMode === 'linear') {
-                // Linear progression: 0 to 1 over time (for smooth video transitions)
-                oscillation = (this.slowAnimationTime % 1); // 0 to 1, repeats
+                // Linear: 0 to 1 progression in discrete frame steps
+                oscillation = frameProgress;
             } else {
-                // Bounce mode: sine wave oscillation -1 to 1
-                oscillation = Math.sin(this.slowAnimationTime * Math.PI * 2);
+                // Bounce: sine wave based on discrete frames
+                oscillation = Math.sin(frameProgress * Math.PI * 2);
             }
             
-            // Get speed multiplier (affects RANGE, not time)
+            // Get speed multiplier (discrete: 0.5x, 1x, 2x, 3x, 4x, 5x)
             const speedMultiplier = parseFloat(document.getElementById('animation-speed').value);
-            
-            // Frame quantization: snap oscillation to frame boundaries
-            const frameQuantizedOscillation = Math.floor(oscillation * fps) / fps;
             
             // Animate each parameter if checkbox is checked (using user-defined ranges)
             // Speed multiplier EXPANDS range for complexity, frequency, amplitude, glow
@@ -1792,8 +1839,8 @@ class OpticalArtGenerator {
                 const baseRange = endVal - startVal;
                 const expandedRange = baseRange * speedMultiplier; // Expand by speed
                 const newValue = animationMode === 'linear' 
-                    ? startVal + frameQuantizedOscillation * expandedRange
-                    : this.originalValues.complexity + frameQuantizedOscillation * expandedRange / 2;
+                    ? startVal + oscillation * expandedRange  // Frame-locked oscillation
+                    : this.originalValues.complexity + oscillation * expandedRange / 2;
                 document.getElementById('complexity').value = Math.max(5, Math.min(300, newValue));
                 document.getElementById('complexity-value').textContent = Math.round(newValue);
             }
@@ -1804,8 +1851,8 @@ class OpticalArtGenerator {
                 const baseRange = endVal - startVal;
                 const expandedRange = baseRange * speedMultiplier;
                 const newValue = animationMode === 'linear'
-                    ? startVal + frameQuantizedOscillation * expandedRange
-                    : this.originalValues.frequency + frameQuantizedOscillation * expandedRange / 2;
+                    ? startVal + oscillation * expandedRange  // Frame-locked oscillation
+                    : this.originalValues.frequency + oscillation * expandedRange / 2;
                 document.getElementById('frequency').value = Math.max(1, Math.min(100, newValue));
                 document.getElementById('frequency-value').textContent = Math.round(newValue);
             }
@@ -1816,8 +1863,8 @@ class OpticalArtGenerator {
                 const baseRange = endVal - startVal;
                 const expandedRange = baseRange * speedMultiplier;
                 const newValue = animationMode === 'linear'
-                    ? startVal + frameQuantizedOscillation * expandedRange
-                    : this.originalValues.amplitude + frameQuantizedOscillation * expandedRange / 2;
+                    ? startVal + oscillation * expandedRange  // Frame-locked oscillation
+                    : this.originalValues.amplitude + oscillation * expandedRange / 2;
                 document.getElementById('amplitude').value = Math.max(-1000, Math.min(1000, newValue));
                 const rounded = Math.round(newValue);
                 document.getElementById('amplitude-value').textContent = rounded >= 0 ? `+${rounded}` : rounded;
@@ -1829,8 +1876,8 @@ class OpticalArtGenerator {
                 const baseRange = endVal - startVal;
                 const expandedRange = baseRange * speedMultiplier;
                 const newValue = animationMode === 'linear'
-                    ? startVal + frameQuantizedOscillation * expandedRange
-                    : this.originalValues.glow + frameQuantizedOscillation * expandedRange / 2;
+                    ? startVal + oscillation * expandedRange  // Frame-locked oscillation
+                    : this.originalValues.glow + oscillation * expandedRange / 2;
                 document.getElementById('glow').value = Math.max(0, Math.min(10, newValue));
                 document.getElementById('glow-value').textContent = Math.round(newValue);
             }
