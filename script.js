@@ -1705,82 +1705,8 @@ class OpticalArtGenerator {
         // Get animation mode
         const animationMode = document.getElementById('animation-mode').value;
         
-        // Calculate oscillation value based on mode
-        let oscillation;
-        if (animationMode === 'linear') {
-            // Linear: simple 0 to 1 progression
-            oscillation = progress;
-        } else {
-            // Bounce: sine wave at this point in time
-            oscillation = Math.sin(progress * Math.PI * 2);
-        }
-        
-        // Apply animation to each parameter if checked (using user-defined ranges)
-        if (document.getElementById('animate-complexity').checked) {
-            const startVal = parseFloat(document.getElementById('complexity-start').value);
-            const endVal = parseFloat(document.getElementById('complexity-end').value);
-            const newValue = animationMode === 'linear'
-                ? Math.round(startVal + oscillation * (endVal - startVal))
-                : Math.round(this.originalValues.complexity + oscillation * (endVal - startVal) / 2);
-            document.getElementById('complexity').value = Math.max(5, Math.min(300, newValue));
-            document.getElementById('complexity-value').textContent = newValue;
-        }
-        
-        if (document.getElementById('animate-frequency').checked) {
-            const startVal = parseFloat(document.getElementById('frequency-start').value);
-            const endVal = parseFloat(document.getElementById('frequency-end').value);
-            const newValue = animationMode === 'linear'
-                ? Math.round(startVal + oscillation * (endVal - startVal))
-                : Math.round(this.originalValues.frequency + oscillation * (endVal - startVal) / 2);
-            document.getElementById('frequency').value = Math.max(1, Math.min(100, newValue));
-            document.getElementById('frequency-value').textContent = newValue;
-        }
-        
-        if (document.getElementById('animate-amplitude').checked) {
-            const startVal = parseFloat(document.getElementById('amplitude-start').value);
-            const endVal = parseFloat(document.getElementById('amplitude-end').value);
-            const newValue = animationMode === 'linear'
-                ? Math.round(startVal + oscillation * (endVal - startVal))
-                : Math.round(this.originalValues.amplitude + oscillation * (endVal - startVal) / 2);
-            document.getElementById('amplitude').value = Math.max(-1000, Math.min(1000, newValue));
-            document.getElementById('amplitude-value').textContent = newValue >= 0 ? `+${newValue}` : newValue;
-        }
-        
-        if (document.getElementById('animate-rotation').checked) {
-            const startVal = parseFloat(document.getElementById('rotation-start').value);
-            const endVal = parseFloat(document.getElementById('rotation-end').value);
-            const newValue = animationMode === 'linear'
-                ? Math.round(startVal + oscillation * (endVal - startVal))
-                : Math.round(this.originalValues.rotation + (timeInSeconds / totalDuration) * 360) % 360;
-            const normalizedValue = newValue > 180 ? newValue - 360 : newValue;
-            document.getElementById('rotation').value = normalizedValue;
-            const sign = normalizedValue > 0 ? '+' : (normalizedValue < 0 ? '' : '');
-            document.getElementById('rotation-value').textContent = `${sign}${normalizedValue}°`;
-        }
-        
-        if (document.getElementById('animate-glow').checked) {
-            const startVal = parseFloat(document.getElementById('glow-start').value);
-            const endVal = parseFloat(document.getElementById('glow-end').value);
-            const newValue = animationMode === 'linear'
-                ? Math.round(startVal + oscillation * (endVal - startVal))
-                : Math.round(this.originalValues.glow + oscillation * (endVal - startVal) / 2);
-            document.getElementById('glow').value = Math.max(0, Math.min(10, newValue));
-            document.getElementById('glow-value').textContent = newValue;
-        }
-        
-        if (document.getElementById('animate-zoom').checked) {
-            const startZoom = parseFloat(document.getElementById('zoom-start').value);
-            const endZoom = parseFloat(document.getElementById('zoom-end').value);
-            const newZoomLevel = animationMode === 'linear'
-                ? startZoom + oscillation * (endZoom - startZoom)
-                : this.originalValues.zoomLevel + oscillation * (endZoom - startZoom) / 2;
-            
-            this.zoomLevel = Math.max(0.1, Math.min(10, newZoomLevel));
-            this.updateViewBox();
-        }
-        
-        // Regenerate pattern with new values
-        this.generatePattern(true);
+        // Use the SAME method as video export for perfect alignment
+        this.applyAnimationForFrame(progress, animationMode);
     }
 
 
@@ -1798,6 +1724,11 @@ class OpticalArtGenerator {
             oscillation = Math.sin(progress * Math.PI * 2);
         }
         
+        // Debug first and last frame
+        if (progress < 0.01 || progress > 0.99) {
+            console.log(`🎬 Frame progress: ${(progress * 100).toFixed(1)}%, mode: ${animationMode}, oscillation: ${oscillation.toFixed(3)}`);
+        }
+        
         // Apply animation to each parameter if checked (using user-defined ranges)
         if (document.getElementById('animate-complexity').checked) {
             const startVal = parseFloat(document.getElementById('complexity-start').value);
@@ -1807,6 +1738,11 @@ class OpticalArtGenerator {
                 : Math.round(startVal + (endVal - startVal) / 2 + oscillation * (endVal - startVal) / 2);
             document.getElementById('complexity').value = Math.max(5, Math.min(300, newValue));
             document.getElementById('complexity-value').textContent = newValue;
+            
+            // Debug first and last frame
+            if (progress < 0.01 || progress > 0.99) {
+                console.log(`  Complexity: ${startVal} → ${endVal}, current: ${newValue}`);
+            }
         }
         
         if (document.getElementById('animate-frequency').checked) {
@@ -5455,7 +5391,9 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
                 const tempCanvas = document.createElement('canvas');
                 
                 // Calculate canvas aspect ratio
+                console.log(`📐 Canvas dimensions: ${this.actualWidth} × ${this.actualHeight}`);
                 const canvasAspectRatio = this.actualWidth / this.actualHeight;
+                console.log(`📐 Aspect ratio: ${canvasAspectRatio.toFixed(3)} (${this.actualWidth}:${this.actualHeight})`);
                 
                 // Define target heights for each quality level
                 const targetHeights = {
@@ -5531,7 +5469,11 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
             const progressBar = document.getElementById('video-progress-bar');
             const statusText = document.getElementById('video-status');
             const quality = document.getElementById('video-quality')?.value || '2160';
-            const animationMode = document.getElementById('animation-mode')?.value || 'bounce';
+            const animationMode = document.getElementById('animation-mode')?.value || 'linear';
+            
+            // Debug: Check animation mode
+            console.log(`🎬 Animation Mode: ${animationMode}`);
+            console.log(`📐 Canvas: ${this.actualWidth} × ${this.actualHeight} (ratio: ${(this.actualWidth / this.actualHeight).toFixed(3)})`);
             
             if (recordBtn) {
                 recordBtn.textContent = `🔴 Recording...`;
@@ -5542,8 +5484,12 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
                 progressDiv.style.display = 'block';
             }
             
-            // Store original animation settings
+            // CRITICAL: Stop any existing real-time animation
             const wasAnimating = this.isAnimating;
+            if (this.isAnimating) {
+                this.stopAnimation();
+                console.log('⏹️ Stopped real-time animation for video recording');
+            }
             const originalAnimationTime = this.slowAnimationTime || 0;
             
             // Animation mode will be passed to applyAnimationForFrame
