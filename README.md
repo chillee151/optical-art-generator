@@ -6,14 +6,23 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 
 ### v5.6.0 (Latest - INTERACTIVE TOOLBAR!)
 
-**🎛️ PERSISTENT CONTROL TOOLBAR:**
-- **All Critical Settings at Your Fingertips** - No more hunting through tabs!
-  - **Sticky toolbar** at top - follows you as you scroll
+**🎛️ UNIFIED CONTROL TOOLBAR:**
+- **All-in-One Control Panel** - Logo + controls in single sticky toolbar
+  - **Integrated logo/title** at top - no separate header bar
+  - **Saves ~80px of vertical space** - more room for canvas/controls
+  - **Sticky positioning** - follows you as you scroll
   - **Beautiful glass morphism design** with purple/blue gradient accents
-  - **4 organized rows** of interactive controls
+  - **5 organized rows** (header + 4 control rows)
   - **Live updates** - all info refreshes in real-time
+  - **Responsive design** - scales beautifully on all screens
 
-**🎯 Row 1 - Canvas Settings:**
+**🎨 Header Row - Logo & Title:**
+- **🎨 Optical Art Generator** with gradient text effect
+- Descriptive subtitle below logo
+- Always visible (toolbar is sticky)
+- Professional, clean appearance
+
+**📐 Row 1 - Canvas Settings:**
 - Quick canvas ratio buttons: **1:1**, **16:9**, **9:16**, **4:3**
 - Live dimension display: `600×1200mm (2268×4536px)`
 - One-click aspect ratio switching
@@ -25,19 +34,22 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 - Live frame count: `= 240 frames`
 - Auto-calculated export resolution: `Export: 1215×2160`
 - Format adapts to canvas aspect ratio
+- Two-way sync with dropdown controls
 
 **⚡ Row 3 - Animation Toggles:**
 - **Interactive pills** for all parameters
 - Click to enable/disable animations instantly
 - Active pills show ranges: `Complexity ● 50→200`
-- Syncs with animation checkboxes
+- Syncs with animation checkboxes in real-time
 - Updates live when you change ranges
+- Beautiful rounded pill design with gradients
 
 **🎯 Row 4 - Mode & Actions:**
 - **Mode toggle**: Linear ➡️ / Bounce 🔄
-- **Quick Export PNG** button (transparent)
+- **Quick Export PNG** button (transparent background)
 - **Quick Record Video** button
 - Instant access to most-used actions
+- No need to navigate to Actions tab
 
 ### v5.5.0 (ANIMATION REVOLUTION!)
 
