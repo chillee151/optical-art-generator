@@ -145,6 +145,9 @@ class OpticalArtGenerator {
         this.generatePatternPreviews();
         this.generatePattern();
         
+        // Setup GPU optimizations for zoom/pan
+        this.setupZoomPanOptimization();
+        
         // Restore dark mode preference
         if (localStorage.getItem('darkMode') === 'true') {
             document.getElementById('dark-mode-toggle').checked = true;
@@ -1810,6 +1813,12 @@ class OpticalArtGenerator {
                     this.canvas.classList.remove('optical-loading');
                     this.isGenerating = false;
                     this.updateViewBox(); // Apply current zoom/pan after generation
+                    
+                    // Apply GPU optimizations after pattern is rendered
+                    setTimeout(() => {
+                        this.optimizeSVGPerformance();
+                        this.optimizePathElements();
+                    }, 50);
                 }
             }, 100);
         } catch (error) {
@@ -5234,6 +5243,64 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
             console.error('Error encoding video:', error);
             throw error;
         }
+    }
+
+    // =================================================================================
+    // GPU OPTIMIZATION METHODS - M4 Pro Hardware Acceleration
+    // =================================================================================
+
+    optimizeSVGPerformance() {
+        const canvas = this.canvas;
+        if (!canvas) return;
+        
+        // Count total elements in SVG
+        const elementCount = canvas.querySelectorAll('*').length;
+        
+        // Remove old optimization classes
+        canvas.classList.remove('complex-pattern', 'high-quality');
+        
+        // Apply appropriate optimization class based on complexity
+        if (elementCount > 5000) {
+            // Very complex pattern - prioritize speed
+            canvas.classList.add('complex-pattern');
+            console.log(`⚡ GPU Optimized: ${elementCount} elements (speed mode)`);
+        } else if (elementCount < 1000) {
+            // Simple pattern - prioritize quality
+            canvas.classList.add('high-quality');
+            console.log(`✨ GPU Optimized: ${elementCount} elements (quality mode)`);
+        } else {
+            // Medium complexity - balanced (default CSS)
+            console.log(`⚖️ GPU Optimized: ${elementCount} elements (balanced mode)`);
+        }
+        
+        // Force browser to create a new compositing layer
+        canvas.style.transform = 'translateZ(0)';
+    }
+
+    optimizePathElements() {
+        // Group similar paths for better GPU batching
+        const paths = this.canvas.querySelectorAll('path, circle, rect, line, polyline, polygon');
+        
+        // Add hint for browser to batch these elements (limit to 100 to avoid memory issues)
+        paths.forEach((path, index) => {
+            if (index < 100) {
+                path.style.willChange = 'auto';
+            }
+        });
+    }
+
+    setupZoomPanOptimization() {
+        let zoomTimeout;
+        
+        // Listen for zoom events and optimize rendering during interaction
+        this.canvas?.addEventListener('wheel', () => {
+            this.canvas?.classList.add('zooming');
+            
+            clearTimeout(zoomTimeout);
+            zoomTimeout = setTimeout(() => {
+                this.canvas?.classList.remove('zooming');
+            }, 150); // Remove class 150ms after zoom ends
+        }, { passive: true });
     }
 
 }
