@@ -1304,6 +1304,19 @@ class OpticalArtGenerator {
             btn.textContent = `🎥 Record Video (${e.target.value}s)`;
         });
 
+        // Animation preview scrubber
+        document.getElementById('animation-preview').addEventListener('input', (e) => {
+            const duration = parseInt(document.getElementById('video-duration').value);
+            const progress = parseFloat(e.target.value) / 100; // 0 to 1
+            const timeInSeconds = progress * duration;
+            
+            // Update time display
+            document.getElementById('preview-time').textContent = `${timeInSeconds.toFixed(1)}s`;
+            
+            // Preview the animation at this point in time
+            this.previewAnimationAtTime(timeInSeconds, duration);
+        });
+
         // Dark mode toggle
         document.getElementById('dark-mode-toggle').addEventListener('change', (e) => {
             const canvasContainer = document.querySelector('.canvas-container');
@@ -1505,32 +1518,60 @@ class OpticalArtGenerator {
             const speedMultiplier = parseFloat(document.getElementById('animation-speed').value);
             this.slowAnimationTime = (elapsedTime / 10000) * speedMultiplier;
             
-            // Check if we're in loop mode during recording
-            const isLoopMode = window.recordingAnimationMode === 'loop';
+            // Check animation mode
+            const animationMode = document.getElementById('animation-mode')?.value || 'bounce';
             
-            // Oscillate using sine wave for smooth animation (or linear for loop mode)
-            const oscillation = isLoopMode 
-                ? (this.slowAnimationTime % 2) - 1  // Linear -1 to 1 loop
-                : Math.sin(this.slowAnimationTime * Math.PI * 2); // Sine wave bounce
+            // Calculate oscillation/progression based on mode
+            let oscillation;
+            if (animationMode === 'linear') {
+                // Linear progression: 0 to 1 over time (for smooth video transitions)
+                oscillation = (this.slowAnimationTime % 1); // 0 to 1, repeats
+            } else {
+                // Bounce mode: sine wave oscillation -1 to 1
+                oscillation = Math.sin(this.slowAnimationTime * Math.PI * 2);
+            }
             
             // Animate each parameter if checkbox is checked
             if (document.getElementById('animate-complexity').checked) {
-                const range = this.originalValues.complexity * 0.3; // ±30%
-                const newValue = Math.round(this.originalValues.complexity + oscillation * range);
+                let newValue;
+                if (animationMode === 'linear') {
+                    // Linear: progress from min to max
+                    const minComplexity = Math.max(5, this.originalValues.complexity * 0.7);
+                    const maxComplexity = Math.min(300, this.originalValues.complexity * 1.5);
+                    newValue = Math.round(minComplexity + oscillation * (maxComplexity - minComplexity));
+                } else {
+                    // Bounce: oscillate around original
+                    const range = this.originalValues.complexity * 0.3;
+                    newValue = Math.round(this.originalValues.complexity + oscillation * range);
+                }
                 document.getElementById('complexity').value = Math.max(5, Math.min(300, newValue));
                 document.getElementById('complexity-value').textContent = newValue;
             }
             
             if (document.getElementById('animate-frequency').checked) {
-                const range = this.originalValues.frequency * 0.4; // ±40%
-                const newValue = Math.round(this.originalValues.frequency + oscillation * range);
+                let newValue;
+                if (animationMode === 'linear') {
+                    const minFreq = Math.max(1, this.originalValues.frequency * 0.6);
+                    const maxFreq = Math.min(100, this.originalValues.frequency * 1.6);
+                    newValue = Math.round(minFreq + oscillation * (maxFreq - minFreq));
+                } else {
+                    const range = this.originalValues.frequency * 0.4;
+                    newValue = Math.round(this.originalValues.frequency + oscillation * range);
+                }
                 document.getElementById('frequency').value = Math.max(1, Math.min(100, newValue));
                 document.getElementById('frequency-value').textContent = newValue;
             }
             
             if (document.getElementById('animate-amplitude').checked) {
-                const range = Math.abs(this.originalValues.amplitude) * 0.5; // ±50%
-                const newValue = Math.round(this.originalValues.amplitude + oscillation * range);
+                let newValue;
+                if (animationMode === 'linear') {
+                    const minAmp = Math.max(-1000, this.originalValues.amplitude - Math.abs(this.originalValues.amplitude) * 0.5);
+                    const maxAmp = Math.min(1000, this.originalValues.amplitude + Math.abs(this.originalValues.amplitude) * 0.5);
+                    newValue = Math.round(minAmp + oscillation * (maxAmp - minAmp));
+                } else {
+                    const range = Math.abs(this.originalValues.amplitude) * 0.5;
+                    newValue = Math.round(this.originalValues.amplitude + oscillation * range);
+                }
                 document.getElementById('amplitude').value = Math.max(-1000, Math.min(1000, newValue));
                 document.getElementById('amplitude-value').textContent = newValue >= 0 ? `+${newValue}` : newValue;
             }
@@ -1546,8 +1587,15 @@ class OpticalArtGenerator {
             }
             
             if (document.getElementById('animate-glow').checked) {
-                const range = 5; // ±5
-                const newValue = Math.round(Math.max(0, this.originalValues.glow + oscillation * range));
+                let newValue;
+                if (animationMode === 'linear') {
+                    const minGlow = Math.max(0, this.originalValues.glow - 3);
+                    const maxGlow = Math.min(10, this.originalValues.glow + 5);
+                    newValue = Math.round(minGlow + oscillation * (maxGlow - minGlow));
+                } else {
+                    const range = 5;
+                    newValue = Math.round(Math.max(0, this.originalValues.glow + oscillation * range));
+                }
                 document.getElementById('glow').value = Math.max(0, Math.min(10, newValue));
                 document.getElementById('glow-value').textContent = newValue;
             }
@@ -1617,6 +1665,139 @@ class OpticalArtGenerator {
             this.originalValues = null;
             this.generatePattern(true);
         }
+    }
+
+    previewAnimationAtTime(timeInSeconds, totalDuration) {
+        // Store original values if not already stored
+        if (!this.originalValues) {
+            this.originalValues = {
+                complexity: parseInt(document.getElementById('complexity').value),
+                frequency: parseInt(document.getElementById('frequency').value),
+                amplitude: parseInt(document.getElementById('amplitude').value),
+                rotation: parseInt(document.getElementById('rotation').value),
+                glow: parseInt(document.getElementById('glow').value),
+                zoomLevel: this.zoomLevel
+            };
+        }
+        
+        // Calculate progress (0 to 1) based on current time in duration
+        const progress = timeInSeconds / totalDuration;
+        
+        // Get animation mode
+        const animationMode = document.getElementById('animation-mode').value;
+        
+        // Calculate oscillation value based on mode
+        let oscillation;
+        if (animationMode === 'linear') {
+            // Linear: simple 0 to 1 progression
+            oscillation = progress;
+        } else {
+            // Bounce: sine wave at this point in time
+            oscillation = Math.sin(progress * Math.PI * 2);
+        }
+        
+        // Apply animation to each parameter if checked
+        if (document.getElementById('animate-complexity').checked) {
+            let newValue;
+            if (animationMode === 'linear') {
+                const minComplexity = Math.max(5, this.originalValues.complexity * 0.7);
+                const maxComplexity = Math.min(300, this.originalValues.complexity * 1.5);
+                newValue = Math.round(minComplexity + oscillation * (maxComplexity - minComplexity));
+            } else {
+                const range = this.originalValues.complexity * 0.3;
+                newValue = Math.round(this.originalValues.complexity + oscillation * range);
+            }
+            document.getElementById('complexity').value = Math.max(5, Math.min(300, newValue));
+            document.getElementById('complexity-value').textContent = newValue;
+        }
+        
+        if (document.getElementById('animate-frequency').checked) {
+            let newValue;
+            if (animationMode === 'linear') {
+                const minFreq = Math.max(1, this.originalValues.frequency * 0.6);
+                const maxFreq = Math.min(100, this.originalValues.frequency * 1.6);
+                newValue = Math.round(minFreq + oscillation * (maxFreq - minFreq));
+            } else {
+                const range = this.originalValues.frequency * 0.4;
+                newValue = Math.round(this.originalValues.frequency + oscillation * range);
+            }
+            document.getElementById('frequency').value = Math.max(1, Math.min(100, newValue));
+            document.getElementById('frequency-value').textContent = newValue;
+        }
+        
+        if (document.getElementById('animate-amplitude').checked) {
+            let newValue;
+            if (animationMode === 'linear') {
+                const minAmp = Math.max(-1000, this.originalValues.amplitude - Math.abs(this.originalValues.amplitude) * 0.5);
+                const maxAmp = Math.min(1000, this.originalValues.amplitude + Math.abs(this.originalValues.amplitude) * 0.5);
+                newValue = Math.round(minAmp + oscillation * (maxAmp - minAmp));
+            } else {
+                const range = Math.abs(this.originalValues.amplitude) * 0.5;
+                newValue = Math.round(this.originalValues.amplitude + oscillation * range);
+            }
+            document.getElementById('amplitude').value = Math.max(-1000, Math.min(1000, newValue));
+            document.getElementById('amplitude-value').textContent = newValue >= 0 ? `+${newValue}` : newValue;
+        }
+        
+        if (document.getElementById('animate-rotation').checked) {
+            const rotationSpeed = 360; // Full rotation over duration in linear mode
+            const newValue = animationMode === 'linear' 
+                ? Math.round((this.originalValues.rotation + progress * rotationSpeed) % 360)
+                : Math.round((this.originalValues.rotation + (timeInSeconds / totalDuration) * 360) % 360);
+            const normalizedValue = newValue > 180 ? newValue - 360 : newValue;
+            document.getElementById('rotation').value = normalizedValue;
+            const sign = normalizedValue > 0 ? '+' : (normalizedValue < 0 ? '' : '');
+            document.getElementById('rotation-value').textContent = `${sign}${normalizedValue}°`;
+        }
+        
+        if (document.getElementById('animate-glow').checked) {
+            let newValue;
+            if (animationMode === 'linear') {
+                const minGlow = Math.max(0, this.originalValues.glow - 3);
+                const maxGlow = Math.min(10, this.originalValues.glow + 5);
+                newValue = Math.round(minGlow + oscillation * (maxGlow - minGlow));
+            } else {
+                const range = 5;
+                newValue = Math.round(Math.max(0, this.originalValues.glow + oscillation * range));
+            }
+            document.getElementById('glow').value = Math.max(0, Math.min(10, newValue));
+            document.getElementById('glow-value').textContent = newValue;
+        }
+        
+        if (document.getElementById('animate-zoom').checked) {
+            const zoomAmount = parseInt(document.getElementById('zoom-amount').value);
+            const zoomDirection = document.getElementById('zoom-direction').value;
+            const zoomRange = zoomAmount * 0.1;
+            
+            let newZoomLevel;
+            if (animationMode === 'linear') {
+                if (zoomDirection === 'in') {
+                    newZoomLevel = this.originalValues.zoomLevel * (1 + progress * zoomRange * 10);
+                } else if (zoomDirection === 'out') {
+                    newZoomLevel = this.originalValues.zoomLevel / (1 + progress * zoomRange * 10);
+                } else {
+                    // Pulse in linear mode: go from min to max
+                    const minZoom = this.originalValues.zoomLevel * (1 - zoomRange);
+                    const maxZoom = this.originalValues.zoomLevel * (1 + zoomRange);
+                    newZoomLevel = minZoom + progress * (maxZoom - minZoom);
+                }
+            } else {
+                // Bounce mode
+                if (zoomDirection === 'in') {
+                    newZoomLevel = this.originalValues.zoomLevel * (1 + (progress * 10) * zoomRange);
+                } else if (zoomDirection === 'out') {
+                    newZoomLevel = this.originalValues.zoomLevel / (1 + (progress * 10) * zoomRange);
+                } else {
+                    newZoomLevel = this.originalValues.zoomLevel * (1 + oscillation * zoomRange);
+                }
+            }
+            
+            this.zoomLevel = Math.max(0.1, Math.min(10, newZoomLevel));
+            this.updateViewBox();
+        }
+        
+        // Regenerate pattern with new values
+        this.generatePattern(true);
     }
 
 

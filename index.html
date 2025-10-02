@@ -326,9 +326,15 @@
                         <div class="video-controls">
                             <label for="animation-mode">Animation:</label>
                             <select id="animation-mode">
-                                <option value="bounce" selected>🔄 Bounce (oscillate)</option>
-                                <option value="loop">➡️ Loop (continuous)</option>
+                                <option value="linear" selected>➡️ Linear (smooth progression)</option>
+                                <option value="bounce">🔄 Bounce (oscillate)</option>
                             </select>
+                        </div>
+                        <div class="video-preview-group">
+                            <label for="animation-preview">Preview Timeline:</label>
+                            <input type="range" id="animation-preview" min="0" max="100" value="0" step="1">
+                            <span id="preview-time">0.0s</span>
+                            <p class="video-hint" style="font-size: 0.85em; margin-top: 4px;">👆 Scrub to preview animation at different times</p>
                         </div>
                         <button id="record-video-btn" class="export-btn">🎥 Record Video (10s)</button>
                         <div id="video-progress" class="video-progress" style="display: none;">
