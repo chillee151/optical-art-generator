@@ -4,7 +4,39 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 
 ## 🚀 Recent Updates
 
-### v5.6.0 (Latest - INTERACTIVE TOOLBAR!)
+### v5.7.0 (Latest - ANIMATION PERFECTION!)
+
+**🎬 TIMELINE PREVIEW RELOCATED:**
+- **Now Below Canvas** - Direct visual connection between canvas and scrubber
+  - Beautiful gradient slider with purple thumb
+  - Time + frame counter in header
+  - Percentage markers (0%-100%)
+  - Removed from Video tab for cleaner interface
+  - Always visible while adjusting patterns
+
+**⚡ SPEED MULTIPLIER SYSTEM:**
+- **Expands Animation Range** - Not just faster, but MORE dramatic!
+  - `1x`: Complexity 50→200 (Δ150 change)
+  - `2x`: Complexity 50→350 (Δ300 change) in same duration!
+  - `0.5x`: Complexity 50→125 (Δ75 change) for subtle effects
+  - Formula: Range × Speed = Expanded Range
+  - Same frames, bigger visual change
+
+**🎯 Smart Property Handling:**
+- **Affected by Speed**: Complexity, Frequency, Amplitude, Glow
+- **Independent (Smooth)**: Zoom & Rotation maintain own controls
+- **Sub-frame precision**: No jitter, smooth interpolation
+- **Optimized for visual smoothness**
+
+**🌊 MOTION BLUR OPTION:**
+- **FFmpeg Frame Blending** - Silky smooth video output
+  - Optional checkbox in Video Export tab
+  - Uses `tblend` filter for frame averaging
+  - Eliminates jittery animation
+  - No performance impact when disabled
+  - Professional cinematic smoothness
+
+### v5.6.0 (INTERACTIVE TOOLBAR!)
 
 **🎛️ UNIFIED CONTROL TOOLBAR:**
 - **All-in-One Control Panel** - Logo + controls in single sticky toolbar
