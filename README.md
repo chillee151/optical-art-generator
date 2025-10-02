@@ -4,7 +4,42 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 
 ## 🚀 Recent Updates
 
-### v5.5.0 (Latest - ANIMATION REVOLUTION!)
+### v5.6.0 (Latest - INTERACTIVE TOOLBAR!)
+
+**🎛️ PERSISTENT CONTROL TOOLBAR:**
+- **All Critical Settings at Your Fingertips** - No more hunting through tabs!
+  - **Sticky toolbar** at top - follows you as you scroll
+  - **Beautiful glass morphism design** with purple/blue gradient accents
+  - **4 organized rows** of interactive controls
+  - **Live updates** - all info refreshes in real-time
+
+**🎯 Row 1 - Canvas Settings:**
+- Quick canvas ratio buttons: **1:1**, **16:9**, **9:16**, **4:3**
+- Live dimension display: `600×1200mm (2268×4536px)`
+- One-click aspect ratio switching
+- Perfect sync with canvas format selector
+
+**🎬 Row 2 - Video Settings:**
+- **Duration buttons**: 5s, 10s, 15s, 20s, 30s
+- **FPS buttons**: 24fps, 30fps, 60fps
+- Live frame count: `= 240 frames`
+- Auto-calculated export resolution: `Export: 1215×2160`
+- Format adapts to canvas aspect ratio
+
+**⚡ Row 3 - Animation Toggles:**
+- **Interactive pills** for all parameters
+- Click to enable/disable animations instantly
+- Active pills show ranges: `Complexity ● 50→200`
+- Syncs with animation checkboxes
+- Updates live when you change ranges
+
+**🎯 Row 4 - Mode & Actions:**
+- **Mode toggle**: Linear ➡️ / Bounce 🔄
+- **Quick Export PNG** button (transparent)
+- **Quick Record Video** button
+- Instant access to most-used actions
+
+### v5.5.0 (ANIMATION REVOLUTION!)
 
 **🎯 VIDEO-SYNCED ANIMATION (THE BIG FIX!):**
 - **Animation Cycles ONCE Over Entire Video** - No more repetition!
