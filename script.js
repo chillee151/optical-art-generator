@@ -1337,6 +1337,10 @@ class OpticalArtGenerator {
             this.generatePattern(true);
         });
 
+        document.getElementById('zoom-amount').addEventListener('input', (e) => {
+            document.getElementById('zoom-amount-value').textContent = e.target.value;
+        });
+
         document.getElementById('amplitude').addEventListener('input', (e) => {
             const val = parseInt(e.target.value);
             document.getElementById('amplitude-value').textContent = val >= 0 ? `+${val}` : val;
@@ -1383,7 +1387,8 @@ class OpticalArtGenerator {
             'animate-frequency', 
             'animate-amplitude',
             'animate-rotation',
-            'animate-glow'
+            'animate-glow',
+            'animate-zoom'
         ];
         
         animationCheckboxes.forEach(id => {
@@ -1456,7 +1461,8 @@ class OpticalArtGenerator {
             document.getElementById('animate-frequency').checked ||
             document.getElementById('animate-amplitude').checked ||
             document.getElementById('animate-rotation').checked ||
-            document.getElementById('animate-glow').checked;
+            document.getElementById('animate-glow').checked ||
+            document.getElementById('animate-zoom').checked;
         
         this.isAnimating = anyAnimationActive;
         
@@ -1479,7 +1485,8 @@ class OpticalArtGenerator {
                 frequency: parseInt(document.getElementById('frequency').value),
                 amplitude: parseInt(document.getElementById('amplitude').value),
                 rotation: parseInt(document.getElementById('rotation').value),
-                glow: parseInt(document.getElementById('glow').value)
+                glow: parseInt(document.getElementById('glow').value),
+                zoomLevel: this.zoomLevel
             };
         }
         
@@ -1536,6 +1543,30 @@ class OpticalArtGenerator {
                 document.getElementById('glow').value = Math.max(0, Math.min(10, newValue));
                 document.getElementById('glow-value').textContent = newValue;
             }
+            
+            if (document.getElementById('animate-zoom').checked) {
+                const zoomAmount = parseInt(document.getElementById('zoom-amount').value);
+                const zoomDirection = document.getElementById('zoom-direction').value;
+                
+                // Calculate zoom range based on amount slider (0-10)
+                const zoomRange = zoomAmount * 0.1; // 0 to 1.0 range
+                
+                let newZoomLevel;
+                if (zoomDirection === 'in') {
+                    // Continuous zoom in
+                    newZoomLevel = this.originalValues.zoomLevel * (1 + (this.slowAnimationTime / 10) * zoomRange);
+                } else if (zoomDirection === 'out') {
+                    // Continuous zoom out
+                    newZoomLevel = this.originalValues.zoomLevel / (1 + (this.slowAnimationTime / 10) * zoomRange);
+                } else {
+                    // Pulse (in/out oscillation)
+                    newZoomLevel = this.originalValues.zoomLevel * (1 + oscillation * zoomRange);
+                }
+                
+                // Clamp zoom level to reasonable bounds
+                this.zoomLevel = Math.max(0.1, Math.min(10, newZoomLevel));
+                this.updateViewBox();
+            }
 
             this.generatePattern(true, this.slowAnimationTime);
 
@@ -1571,6 +1602,9 @@ class OpticalArtGenerator {
             
             document.getElementById('glow').value = this.originalValues.glow;
             document.getElementById('glow-value').textContent = this.originalValues.glow;
+            
+            this.zoomLevel = this.originalValues.zoomLevel;
+            this.updateViewBox();
             
             this.originalValues = null;
             this.generatePattern(true);
