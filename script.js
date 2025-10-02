@@ -199,6 +199,7 @@ class OpticalArtGenerator {
         document.querySelectorAll('.canvas-ratio-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const ratio = e.target.dataset.ratio;
+                console.log(`🎨 Toolbar canvas ratio button clicked: ${ratio}`);
                 document.querySelectorAll('.canvas-ratio-btn').forEach(b => b.classList.remove('active'));
                 e.target.classList.add('active');
                 
@@ -206,6 +207,7 @@ class OpticalArtGenerator {
                 document.getElementById('format-preset').value = ratio;
                 this.updateCanvasSize();
                 this.updateToolbarInfo();
+                this.generatePattern(true); // Regenerate pattern with new canvas size
             });
         });
 
@@ -2190,6 +2192,9 @@ class OpticalArtGenerator {
         // Store actual dimensions for export
         this.actualWidth = width;
         this.actualHeight = height;
+        
+        console.log(`📐 Canvas updated: ${formatPreset} → ${width}×${height}mm (${displayWidth}×${displayHeight}px), aspect: ${(width/height).toFixed(3)}`);
+        
         this.updateViewBox();
     }
 
@@ -5809,6 +5814,18 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
                 // Wait for render
                 await new Promise(resolve => requestAnimationFrame(resolve));
                 await new Promise(resolve => requestAnimationFrame(resolve));
+                
+                // Debug: Log dimensions before capture (first frame only)
+                if (i === 0) {
+                    console.log(`🎥 VIDEO EXPORT DEBUG (Frame 0):`);
+                    console.log(`   format-preset value: ${document.getElementById('format-preset').value}`);
+                    console.log(`   this.actualWidth: ${this.actualWidth}`);
+                    console.log(`   this.actualHeight: ${this.actualHeight}`);
+                    console.log(`   Aspect ratio: ${(this.actualWidth / this.actualHeight).toFixed(3)}`);
+                    console.log(`   Canvas SVG width: ${this.canvas.getAttribute('width')}`);
+                    console.log(`   Canvas SVG height: ${this.canvas.getAttribute('height')}`);
+                    console.log(`   Canvas viewBox: ${this.canvas.getAttribute('viewBox')}`);
+                }
                 
                 const frameBlob = await this.captureFrame(quality);
                 if (frameBlob) {
