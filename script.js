@@ -5811,9 +5811,15 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
                     statusText.textContent = `🎬 Capturing frame ${i + 1} of ${totalFrames} (${timeInSeconds.toFixed(1)}s)`;
                 }
                 
-                // Wait for render
+                // Wait for render to fully complete (more robust timing)
+                // Multiple RAF calls + fixed delay ensures SVG/DOM has time to render
                 await new Promise(resolve => requestAnimationFrame(resolve));
                 await new Promise(resolve => requestAnimationFrame(resolve));
+                await new Promise(resolve => requestAnimationFrame(resolve));
+                await new Promise(resolve => requestAnimationFrame(resolve));
+                
+                // Additional fixed delay for complex patterns (especially glow/filters)
+                await new Promise(resolve => setTimeout(resolve, 50));
                 
                 // Debug: Log dimensions before capture (first frame only)
                 if (i === 0) {
@@ -5840,8 +5846,10 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
                     console.log(`📸 Captured ${i + 1}/${totalFrames} frames (${((i + 1) / totalFrames * 100).toFixed(1)}%)`);
                 }
                 
-                // Smooth timing between frames
-                await new Promise(resolve => setTimeout(resolve, Math.max(10, frameInterval / 2)));
+                // Small breathing room for browser event loop (prevent UI freeze)
+                if (i % 10 === 0) {
+                    await new Promise(resolve => setTimeout(resolve, 10));
+                }
             }
             
             console.log(`✅ Frame capture complete: ${window.recordedFrames.length} frames captured`);
