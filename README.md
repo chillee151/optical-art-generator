@@ -4,7 +4,25 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 
 ## 🚀 Recent Updates
 
-### v5.2.0 (Latest - COLOR & RANDOMIZATION REFINEMENTS!)
+### v5.3.0 (Latest - DARK MODE & ICON EXPORT!)
+
+**🌙 DARK MODE:**
+- **Dark Mode Toggle** - View patterns on black background for dramatic effect!
+  - Located in Canvas & Color tab
+  - Instantly switches canvas background to pure black
+  - Perfect for neon/glow effects and vibrant colors
+  - Preference saved in localStorage
+  - Makes rainbow and gradient patterns pop!
+
+**🖼️ ICON EXPORT:**
+- **Export Icon PNG (1024x1024)** - Perfect for creating macOS icons!
+  - One-click export at standard icon resolution
+  - Transparent background (no white fill)
+  - Ready for Preview.app → Export as ICNS
+  - Ideal for app icons, folder icons, custom macOS icons
+  - Success message guides you through ICNS conversion
+
+### v5.2.0 (COLOR & RANDOMIZATION REFINEMENTS!)
 
 **🎨 IMPROVED COLOR GENERATION:**
 - **Generate Colors Button** - Now generates truly random gradient colors every time!
@@ -126,6 +144,7 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 ## ✨ Features
 
 ### 🎨 Creative Features
+- **🌙 Dark Mode** - View patterns on black background for dramatic effect (v5.3.0)
 - **🌟 Symmetry Transformation** - Convert any pattern into mandalas/kaleidoscopes (2/4/6/8/12-fold)
 - **✨ Glow Effects** - Psychedelic halos and neon aesthetics (0-10 intensity)
 - **🎨 Random Gradient Generator** - Truly random gradient colors every click (v5.2.0)
@@ -216,6 +235,7 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 - **SVG Export** - Vector format with millimeter units for LightBurn
 - **PNG Export** - High-resolution (8x scale) lossless images
 - **JPG Export** - Compressed format (95% quality)
+- **Icon PNG Export** - 1024x1024 transparent PNG for macOS icons (v5.3.0)
 - **MP4/WebM Video** - Animated patterns (H.264 codec, 3-30 sec, 30 FPS, iPhone compatible!)
 - **Smart Filenames** - Auto-naming with pattern type, settings, timestamp
 
@@ -354,10 +374,20 @@ http://localhost:8000
 
 ### For Digital Wallpapers
 - **Color Modes**: Use Generate Colors, Artistic, Rainbow, Gradient
+- **Dark Mode**: Enable for dramatic black background
 - **Symmetry**: Try 4-Fold or 6-Fold for mandalas
 - **Glow**: Add 3-7 for dreamlike quality
 - **Export Format**: PNG for best quality
 - **Recommended**: Radial Vortex + 6-Fold Symmetry + Glow 5
+
+### For macOS Icons (v5.3.0)
+1. Create your pattern with desired settings
+2. Click **Export Icon PNG (1024x1024)**
+3. Open the exported PNG in Preview.app
+4. Go to File → Export
+5. Change Format to **Apple Icon Image**
+6. Save as .icns file
+7. Use for custom app/folder icons!
 
 ## 🔬 Technical Details
 
@@ -477,6 +507,12 @@ else return 1-0.5px                     // Thin for high detail
 
 ## 🎯 Tips & Tricks
 
+### Dark Mode Magic (v5.3.0)
+1. **Neon Aesthetics**: Dark Mode + Rainbow Lines + Glow 8
+2. **Dramatic Contrast**: Dark Mode + High saturation colors
+3. **Starfield Effects**: Dark Mode + Low complexity points + Glow
+4. **Cyberpunk Vibes**: Dark Mode + Custom Gradient (cyan/magenta)
+
 ### Symmetry Magic
 1. **Instant Mandalas**: Any pattern + 4-Fold or 6-Fold symmetry
 2. **Psychedelic Flowers**: Eye Pattern + 6-Fold + Glow 7
@@ -532,5 +568,5 @@ Mathematical foundations from:
 
 **Built with ❤️ for laser engravers, digital artists, and optical art enthusiasts**
 
-**Version**: 5.2.0 (2025 Edition - Color & Randomization Refinements)  
+**Version**: 5.3.0 (2025 Edition - Dark Mode & Icon Export)  
 **Last Updated**: October 2025

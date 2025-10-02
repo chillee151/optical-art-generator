@@ -5,6 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Optical Art Generator</title>
     <link rel="stylesheet" href="styles.css">
+    <!-- FFmpeg.wasm for video export - UMD bundle loaded locally -->
+    <script src="/ffmpeg-umd.js"></script>
+    <script>
+        // FFmpeg is now available as window.FFmpegWASM.FFmpeg
+        if (window.FFmpegWASM) {
+            window.FFmpeg = window.FFmpegWASM.FFmpeg;
+            console.log('✅ FFmpeg UMD loaded');
+        }
+    </script>
 </head>
 <body>
     <div class="container">
@@ -271,6 +280,41 @@
                         <button id="export-svg-btn" class="export-btn">Export SVG (LightBurn)</button>
                         <button id="export-png-btn" class="export-btn">Export PNG (Wallpaper)</button>
                         <button id="export-jpg-btn" class="export-btn">Export JPG (Wallpaper)</button>
+                    </div>
+                    <div class="video-export-group">
+                        <h4>🎬 Video Export</h4>
+                        <p class="video-hint">📹 FFmpeg H.264 encoder (QuickTime compatible)</p>
+                        <div class="video-controls">
+                            <label for="video-duration">Duration:</label>
+                            <select id="video-duration">
+                                <option value="5">5 seconds</option>
+                                <option value="10" selected>10 seconds</option>
+                                <option value="15">15 seconds</option>
+                            </select>
+                        </div>
+                        <div class="video-controls">
+                            <label for="video-quality">Quality:</label>
+                            <select id="video-quality">
+                                <option value="1080">HD (1920x1080)</option>
+                                <option value="1440">2K (2560x1440)</option>
+                                <option value="2160" selected>4K (3840x2160)</option>
+                            </select>
+                        </div>
+                        <div class="video-controls">
+                            <label for="animation-mode">Animation:</label>
+                            <select id="animation-mode">
+                                <option value="bounce" selected>🔄 Bounce (oscillate)</option>
+                                <option value="loop">➡️ Loop (continuous)</option>
+                            </select>
+                        </div>
+                        <button id="record-video-btn" class="export-btn">🎥 Record Video (10s)</button>
+                        <div id="video-progress" class="video-progress" style="display: none;">
+                            <div class="progress-bar-container">
+                                <div id="video-progress-bar" class="progress-bar"></div>
+                            </div>
+                            <p id="video-status" class="video-status">Preparing...</p>
+                        </div>
+                        <p class="video-note">⚠️ First use will download ~30MB FFmpeg library (one-time)</p>
                     </div>
                 </div>
             </div>

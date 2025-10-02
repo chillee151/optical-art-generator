@@ -1239,6 +1239,23 @@ class OpticalArtGenerator {
             this.exportImage('jpeg');
         });
 
+        // Video export listeners
+        document.getElementById('record-video-btn').addEventListener('click', async () => {
+            const duration = parseInt(document.getElementById('video-duration').value);
+            
+            if (!this.isAnimating) {
+                this.showError('Please enable at least one animation (🎬) before recording!');
+                return;
+            }
+            
+            await this.startVideoRecording(duration);
+        });
+
+        document.getElementById('video-duration').addEventListener('change', (e) => {
+            const btn = document.getElementById('record-video-btn');
+            btn.textContent = `🎥 Record Video (${e.target.value}s)`;
+        });
+
         document.getElementById('pattern-type').addEventListener('change', () => {
             this.updatePatternPreviews();
             this.updatePatternInfo();
@@ -1417,8 +1434,13 @@ class OpticalArtGenerator {
             const speedMultiplier = parseFloat(document.getElementById('animation-speed').value);
             this.slowAnimationTime = (elapsedTime / 10000) * speedMultiplier;
             
-            // Oscillate using sine wave for smooth animation
-            const oscillation = Math.sin(this.slowAnimationTime * Math.PI * 2); // -1 to 1
+            // Check if we're in loop mode during recording
+            const isLoopMode = window.recordingAnimationMode === 'loop';
+            
+            // Oscillate using sine wave for smooth animation (or linear for loop mode)
+            const oscillation = isLoopMode 
+                ? (this.slowAnimationTime % 2) - 1  // Linear -1 to 1 loop
+                : Math.sin(this.slowAnimationTime * Math.PI * 2); // Sine wave bounce
             
             // Animate each parameter if checkbox is checked
             if (document.getElementById('animate-complexity').checked) {
@@ -4861,7 +4883,321 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         this.updatePresetUI();
         this.updateMorphDropdowns();
     }
+
+    // =================================================================================
+    // VIDEO EXPORT METHODS
+    // =================================================================================
+
+    async captureFrame(quality = '2160') {
+        return new Promise((resolve) => {
+            try {
+                const tempCanvas = document.createElement('canvas');
+                // High quality resolutions
+                const resolutions = {
+                    '1080': { width: 1920, height: 1080 },
+                    '1440': { width: 2560, height: 1440 },
+                    '2160': { width: 3840, height: 2160 }  // 4K
+                };
+                const { width, height } = resolutions[quality] || resolutions['2160'];
+                tempCanvas.width = width;
+                tempCanvas.height = height;
+                const ctx = tempCanvas.getContext('2d');
+                
+                if (!ctx) {
+                    resolve(null);
+                    return;
+                }
+                
+                // White background
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, width, height);
+                
+                // Convert SVG to image
+                const svgData = new XMLSerializer().serializeToString(this.canvas);
+                const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+                const url = URL.createObjectURL(svgBlob);
+                
+                const img = new Image();
+                img.onload = () => {
+                    // Center and scale
+                    const scale = Math.min(width / this.actualWidth, height / this.actualHeight);
+                    const scaledWidth = this.actualWidth * scale;
+                    const scaledHeight = this.actualHeight * scale;
+                    const x = (width - scaledWidth) / 2;
+                    const y = (height - scaledHeight) / 2;
+                    
+                    ctx.drawImage(img, x, y, scaledWidth, scaledHeight);
+                    URL.revokeObjectURL(url);
+                    
+                    tempCanvas.toBlob((blob) => {
+                        resolve(blob);
+                    }, 'image/png', 1.0);
+                };
+                img.onerror = () => {
+                    URL.revokeObjectURL(url);
+                    resolve(null);
+                };
+                img.src = url;
+            } catch (error) {
+                console.error('Error capturing frame:', error);
+                resolve(null);
+            }
+        });
+    }
+
+    async startVideoRecording(duration = 10) {
+        if (window.isRecording) return;
+        
+        try {
+            window.isRecording = true;
+            window.recordedFrames = [];
+            
+            const fps = 24; // 24fps is smoother and cinematic
+            const totalFrames = duration * fps;
+            const frameInterval = 1000 / fps;
+            
+            const recordBtn = document.getElementById('record-video-btn');
+            const progressDiv = document.getElementById('video-progress');
+            const progressBar = document.getElementById('video-progress-bar');
+            const statusText = document.getElementById('video-status');
+            const quality = document.getElementById('video-quality')?.value || '2160';
+            const animationMode = document.getElementById('animation-mode')?.value || 'bounce';
+            
+            if (recordBtn) {
+                recordBtn.textContent = `🔴 Recording...`;
+                recordBtn.disabled = true;
+            }
+            
+            if (progressDiv) {
+                progressDiv.style.display = 'block';
+            }
+            
+            // Store original animation settings
+            const wasAnimating = this.isAnimating;
+            const originalAnimationTime = this.slowAnimationTime || 0;
+            
+            // Set animation mode
+            if (animationMode === 'loop') {
+                // For loop mode, we'll increment time linearly
+                window.recordingAnimationMode = 'loop';
+                window.recordingStartTime = originalAnimationTime;
+            } else {
+                // Bounce mode (default)
+                window.recordingAnimationMode = 'bounce';
+            }
+            
+            // Capture frames with better timing
+            for (let i = 0; i < totalFrames; i++) {
+                if (!window.isRecording) break;
+                
+                // Update animation time for recording
+                if (animationMode === 'loop') {
+                    // Linear progression for loop
+                    this.slowAnimationTime = originalAnimationTime + (i / fps) * 0.5;
+                }
+                // For bounce mode, the existing animation system handles it
+                
+                // Update progress
+                const captureProgress = ((i + 1) / totalFrames) * 100;
+                if (progressBar) {
+                    progressBar.style.width = `${captureProgress}%`;
+                    progressBar.textContent = `${Math.round(captureProgress)}%`;
+                }
+                if (statusText) {
+                    statusText.textContent = `🎬 Capturing frame ${i + 1} of ${totalFrames}`;
+                }
+                
+                // Wait a bit for the animation frame to render
+                await new Promise(resolve => requestAnimationFrame(resolve));
+                await new Promise(resolve => requestAnimationFrame(resolve));
+                
+                const frameBlob = await this.captureFrame(quality);
+                if (frameBlob) {
+                    window.recordedFrames.push(frameBlob);
+                }
+                
+                // Smooth timing between frames
+                await new Promise(resolve => setTimeout(resolve, frameInterval));
+            }
+            
+            // Restore animation state
+            window.recordingAnimationMode = null;
+            
+            if (recordBtn) {
+                recordBtn.textContent = '⏳ Encoding video...';
+            }
+            if (statusText) {
+                statusText.textContent = '🎞️ Preparing video encoder...';
+            }
+            
+            // Use FFmpeg for QuickTime-compatible MP4
+            if (statusText) {
+                statusText.textContent = '🎞️ Encoding with FFmpeg...';
+            }
+            await this.encodeVideo(window.recordedFrames, fps, progressBar, statusText);
+            
+            if (recordBtn) {
+                recordBtn.textContent = '🎥 Record Video (10s)';
+                recordBtn.disabled = false;
+            }
+            
+            if (progressDiv) {
+                setTimeout(() => {
+                    progressDiv.style.display = 'none';
+                    if (progressBar) progressBar.style.width = '0%';
+                }, 3000);
+            }
+            
+            const qualityName = quality === '2160' ? '4K' : quality === '1440' ? '2K' : 'HD';
+            this.showSuccess(`✅ Video recorded! (${qualityName} H.264 MP4)`);
+            
+        } catch (error) {
+            console.error('Error recording video:', error);
+            this.showError(`Failed to record video: ${error.message}`);
+            
+            const recordBtn = document.getElementById('record-video-btn');
+            const progressDiv = document.getElementById('video-progress');
+            if (recordBtn) {
+                recordBtn.textContent = '🎥 Record Video (10s)';
+                recordBtn.disabled = false;
+            }
+            if (progressDiv) {
+                progressDiv.style.display = 'none';
+            }
+        } finally {
+            window.isRecording = false;
+            window.recordedFrames = [];
+        }
+    }
+
+    async encodeVideo(frames, fps, progressBar, statusText) {
+        try {
+            if (statusText) statusText.textContent = '📦 Loading FFmpeg encoder...';
+            const ffmpegInstance = await window.loadFFmpeg();
+            
+            // Add progress tracking for FFmpeg
+            ffmpegInstance.on('progress', ({ progress, time }) => {
+                const encodingProgress = Math.min(progress * 100, 100);
+                if (progressBar) {
+                    progressBar.style.width = `${encodingProgress}%`;
+                    progressBar.textContent = `${Math.round(encodingProgress)}%`;
+                }
+                if (statusText) {
+                    statusText.textContent = `🎞️ Encoding: ${Math.round(encodingProgress)}% (${(time / 1000000).toFixed(1)}s processed)`;
+                }
+            });
+            
+            // Write frames to virtual filesystem
+            if (statusText) statusText.textContent = '💾 Writing frames to memory...';
+            for (let i = 0; i < frames.length; i++) {
+                const arrayBuffer = await frames[i].arrayBuffer();
+                const uint8Array = new Uint8Array(arrayBuffer);
+                const paddedIndex = String(i).padStart(5, '0');
+                await ffmpegInstance.writeFile(`frame${paddedIndex}.png`, uint8Array);
+                
+                // Update progress for writing frames
+                const writeProgress = ((i + 1) / frames.length) * 50; // 0-50%
+                if (progressBar) {
+                    progressBar.style.width = `${writeProgress}%`;
+                    progressBar.textContent = `${Math.round(writeProgress)}%`;
+                }
+                if (statusText && i % 10 === 0) {
+                    statusText.textContent = `💾 Writing frame ${i + 1}/${frames.length}...`;
+                }
+            }
+            
+            if (statusText) statusText.textContent = '🎬 Starting H.264 encoding...';
+            
+            // Encode to H.264 MP4 optimized for speed with high quality
+            await ffmpegInstance.exec([
+                '-framerate', String(fps),
+                '-i', 'frame%05d.png',
+                '-c:v', 'libx264',
+                '-pix_fmt', 'yuv420p',
+                '-crf', '18', // High quality (18 is visually lossless)
+                '-preset', 'veryfast', // Much faster encoding
+                '-tune', 'fastdecode', // Optimize for fast playback
+                '-movflags', '+faststart', // Web/QuickTime optimization
+                'output.mp4'
+            ]);
+            
+            // Read the output file
+            const data = await ffmpegInstance.readFile('output.mp4');
+            
+            // Clean up virtual filesystem
+            for (let i = 0; i < frames.length; i++) {
+                const paddedIndex = String(i).padStart(5, '0');
+                try {
+                    await ffmpegInstance.deleteFile(`frame${paddedIndex}.png`);
+                } catch (e) {
+                    // Ignore cleanup errors
+                }
+            }
+            try {
+                await ffmpegInstance.deleteFile('output.mp4');
+            } catch (e) {
+                // Ignore cleanup errors
+            }
+            
+            // Create download link
+            const blob = new Blob([data.buffer], { type: 'video/mp4' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `optical-art-${Date.now()}.mp4`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+        } catch (error) {
+            console.error('Error encoding video:', error);
+            throw error;
+        }
+    }
+
 }
+
+// =================================================================================
+// VIDEO EXPORT - FFmpeg.wasm Setup
+// =================================================================================
+
+window.loadFFmpeg = async function() {
+    if (window.ffmpeg) return window.ffmpeg;
+    
+    try {
+        // Wait for FFmpeg to be available
+        let attempts = 0;
+        while (!window.FFmpeg && attempts < 50) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            attempts++;
+        }
+        
+        if (!window.FFmpeg) {
+            throw new Error('FFmpeg module not loaded');
+        }
+        
+        window.ffmpeg = new window.FFmpeg();
+        
+        // Load FFmpeg core - use LOCAL files with proper CORS headers
+        const baseURL = '/ffmpeg-core';
+        await window.ffmpeg.load({
+            coreURL: `${baseURL}/ffmpeg-core.js`,
+            wasmURL: `${baseURL}/ffmpeg-core.wasm`,
+            workerURL: `${baseURL}/ffmpeg-core.worker.js`,
+        });
+        
+        window.ffmpeg.on('log', ({ message }) => {
+            console.log('[FFmpeg]:', message);
+        });
+        
+        console.log('✅ FFmpeg loaded successfully!');
+        return window.ffmpeg;
+    } catch (error) {
+        console.error('❌ Error loading FFmpeg:', error);
+        throw new Error(`Failed to load FFmpeg: ${error.message}`);
+    }
+};
 
 // Initialize the app when the page loads
 document.addEventListener('DOMContentLoaded', () => {
