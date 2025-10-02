@@ -161,6 +161,15 @@ header p {
     min-height: 60vh;
     position: relative;
     overflow: hidden;
+    /* GPU ACCELERATION - M4 Pro Optimizations */
+    will-change: transform;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    contain: layout style paint;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    perspective: 1000px;
+    -webkit-perspective: 1000px;
 }
 
 #art-canvas {
@@ -171,10 +180,42 @@ header p {
     height: auto;
     box-shadow: var(--shadow-md);
     transition: var(--transition-smooth);
+    /* GPU ACCELERATION - M4 Pro Optimizations */
+    will-change: transform, contents;
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    shape-rendering: optimizeSpeed;
+    -webkit-font-smoothing: subpixel-antialiased;
+    -moz-osx-font-smoothing: auto;
+    isolation: isolate;
+    contain: strict;
 }
 
 #art-canvas:hover {
     box-shadow: var(--shadow-lg);
+}
+
+/* Complexity-based rendering optimization */
+#art-canvas.complex-pattern {
+    shape-rendering: optimizeSpeed;
+    text-rendering: optimizeSpeed;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+#art-canvas.high-quality {
+    shape-rendering: geometricPrecision;
+    text-rendering: geometricPrecision;
+    image-rendering: high-quality;
+}
+
+/* Optimize during zoom/pan interactions */
+#art-canvas.zooming,
+#art-canvas.panning {
+    shape-rendering: optimizeSpeed;
+    will-change: transform;
 }
 
 /* Dark mode for canvas */
