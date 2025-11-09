@@ -1,0 +1,102 @@
+/* ==========================================
+   PHASE 1 & 2: SVG GPU ACCELERATION & OPTIMIZATION
+   M4 Pro Hardware Acceleration
+   Add these rules to your styles.css
+   ========================================== */
+
+/* PHASE 1: GPU Acceleration for Canvas Container & SVG */
+.canvas-container {
+    /* Existing properties stay the same... */
+    
+    /* NEW: GPU acceleration hints */
+    will-change: transform;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    
+    /* Contain rendering for better performance */
+    contain: layout style paint;
+    
+    /* Enable hardware compositing layer */
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    perspective: 1000px;
+    -webkit-perspective: 1000px;
+}
+
+#art-canvas {
+    /* Existing properties stay the same... */
+    
+    /* NEW: GPU acceleration for SVG */
+    will-change: transform, contents;
+    transform: translate3d(0, 0, 0);
+    -webkit-transform: translate3d(0, 0, 0);
+    
+    /* Force GPU compositing */
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    
+    /* Optimize rendering for speed */
+    shape-rendering: optimizeSpeed;
+    
+    /* Enable subpixel antialiasing for Retina displays */
+    -webkit-font-smoothing: subpixel-antialiased;
+    -moz-osx-font-smoothing: auto;
+    
+    /* Isolate rendering context */
+    isolation: isolate;
+    contain: strict;
+}
+
+/* PHASE 2: Optimize for complex patterns (5000+ elements) */
+#art-canvas.complex-pattern {
+    /* For patterns with >5000 elements */
+    shape-rendering: optimizeSpeed;
+    text-rendering: optimizeSpeed;
+    
+    /* Reduce quality slightly for better performance */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+}
+
+#art-canvas.high-quality {
+    /* For patterns with <1000 elements - prioritize quality */
+    shape-rendering: geometricPrecision;
+    text-rendering: geometricPrecision;
+    
+    /* Max quality rendering */
+    image-rendering: high-quality;
+}
+
+/* M4 Pro specific - ProMotion 120Hz optimization */
+@media (prefers-reduced-motion: no-preference) {
+    .canvas-container,
+    #art-canvas {
+        /* Optimize for 120Hz displays */
+        animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+}
+
+/* Safari/WebKit specific optimizations (M4 Pro uses WebKit) */
+@supports (-webkit-backdrop-filter: blur(1px)) {
+    #art-canvas {
+        /* Enable Metal API acceleration on Apple Silicon */
+        -webkit-transform: translate3d(0, 0, 0);
+        -webkit-backface-visibility: hidden;
+        -webkit-perspective: 1000;
+    }
+}
+
+/* Optimize canvas transforms during zoom/pan */
+#art-canvas.zooming,
+#art-canvas.panning {
+    /* Faster transforms during interaction */
+    shape-rendering: optimizeSpeed;
+    will-change: transform;
+}
+
+/* Reset will-change after interaction completes */
+#art-canvas:not(.zooming):not(.panning) {
+    will-change: auto;
+}
+
+
