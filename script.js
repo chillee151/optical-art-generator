@@ -668,6 +668,7 @@ class OpticalArtGenerator {
                     document.getElementById('pattern-type').value = pattern.id;
                     this.updatePatternPreviews();
                     this.updatePatternInfo();
+                    this.applyPatternDefaults(); // Apply pattern-specific defaults
                     this.generatePattern();
                 });
 
@@ -678,6 +679,7 @@ class OpticalArtGenerator {
                         document.getElementById('pattern-type').value = pattern.id;
                         this.updatePatternPreviews();
                         this.updatePatternInfo();
+                        this.applyPatternDefaults(); // Apply pattern-specific defaults
                         this.generatePattern();
                     }
                 });
@@ -1792,6 +1794,7 @@ class OpticalArtGenerator {
         document.getElementById('pattern-type').addEventListener('change', () => {
             this.updatePatternPreviews();
             this.updatePatternInfo();
+            this.applyPatternDefaults(); // Apply pattern-specific defaults
             this.generatePattern(true);
         });
 
@@ -2503,6 +2506,63 @@ class OpticalArtGenerator {
         const patternType = document.getElementById('pattern-type').value;
         document.getElementById('pattern-info').textContent =
             this.patternInfo[patternType];
+    }
+
+    // Apply pattern-specific default settings when a pattern is selected
+    applyPatternDefaults() {
+        const patternType = document.getElementById('pattern-type').value;
+
+        // Pattern-specific defaults
+        const patternDefaults = {
+            'vasarely-zebra': {
+                complexity: 70,
+                frequency: 62,
+                amplitude: 123,
+                rotation: 0,
+                symmetry: 'none'
+            },
+            'vasarely-vega': {
+                complexity: 70,
+                frequency: 62,
+                amplitude: 123,
+                rotation: 0,
+                symmetry: 'none'
+            }
+        };
+
+        // If this pattern has custom defaults, apply them
+        if (patternDefaults[patternType]) {
+            const defaults = patternDefaults[patternType];
+
+            // Apply complexity
+            if (defaults.complexity !== undefined) {
+                document.getElementById('complexity').value = defaults.complexity;
+                document.getElementById('complexity-value').textContent = defaults.complexity;
+            }
+
+            // Apply frequency
+            if (defaults.frequency !== undefined) {
+                document.getElementById('frequency').value = defaults.frequency;
+                document.getElementById('frequency-value').textContent = defaults.frequency;
+            }
+
+            // Apply amplitude
+            if (defaults.amplitude !== undefined) {
+                document.getElementById('amplitude').value = defaults.amplitude;
+                document.getElementById('amplitude-value').textContent = defaults.amplitude;
+            }
+
+            // Apply rotation
+            if (defaults.rotation !== undefined) {
+                document.getElementById('rotation').value = defaults.rotation;
+                document.getElementById('rotation-value').textContent = defaults.rotation + '°';
+            }
+
+            // Apply symmetry
+            if (defaults.symmetry !== undefined) {
+                document.getElementById('symmetry').value = defaults.symmetry;
+            }
+        }
     }
 
     updateCanvasSize() {
