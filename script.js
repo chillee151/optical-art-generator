@@ -2539,6 +2539,13 @@ class OpticalArtGenerator {
                 amplitude: 62,
                 rotation: -90,
                 symmetry: 'none'
+            },
+            'riley-crest': {
+                complexity: 48,
+                frequency: 63,
+                amplitude: 15,
+                rotation: 0,
+                symmetry: 'none'
             }
         };
 
@@ -5882,10 +5889,11 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
 
     generateMiniRileyCrest(svg, seed, complexity, lineWidth) {
         const size = 56;
-        const numLines = Math.min(20, complexity * 2);
+        // Updated to match default settings (complexity: 48, frequency: 63, amplitude: 15)
+        const numLines = 10; // Scaled down from complexity: 48
         const spacing = size / numLines;
-        const maxAmplitude = size * 0.15;
-        const wavelength = size / 2;
+        const maxAmplitude = size * 0.08; // Scaled from amplitude: 15 (subtle waves)
+        const wavelength = size / 3.15; // Scaled from frequency: 63 (about 63% of range = higher frequency)
         const phaseShift = (Math.PI * 2) / numLines;
 
         for (let i = 0; i < numLines; i++) {
