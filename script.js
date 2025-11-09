@@ -642,9 +642,15 @@ class OpticalArtGenerator {
                 const previewDiv = document.createElement('div');
                 previewDiv.className = 'pattern-preview';
                 previewDiv.dataset.pattern = pattern.id;
+                previewDiv.setAttribute('role', 'button');
+                previewDiv.setAttribute('aria-label', `Select ${pattern.name} pattern`);
+                previewDiv.setAttribute('tabindex', '0');
 
                 if (pattern.id === document.getElementById('pattern-type').value) {
                     previewDiv.classList.add('active');
+                    previewDiv.setAttribute('aria-pressed', 'true');
+                } else {
+                    previewDiv.setAttribute('aria-pressed', 'false');
                 }
 
                 const svg = this.generateMiniPattern(pattern.id);
@@ -663,6 +669,17 @@ class OpticalArtGenerator {
                     this.updatePatternPreviews();
                     this.updatePatternInfo();
                     this.generatePattern();
+                });
+
+                // Keyboard handler for pattern preview
+                previewDiv.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        document.getElementById('pattern-type').value = pattern.id;
+                        this.updatePatternPreviews();
+                        this.updatePatternInfo();
+                        this.generatePattern();
+                    }
                 });
             });
         });
@@ -692,7 +709,9 @@ class OpticalArtGenerator {
     updatePatternPreviews() {
         const currentPattern = document.getElementById('pattern-type').value;
         document.querySelectorAll('.pattern-preview').forEach(preview => {
-            preview.classList.toggle('active', preview.dataset.pattern === currentPattern);
+            const isActive = preview.dataset.pattern === currentPattern;
+            preview.classList.toggle('active', isActive);
+            preview.setAttribute('aria-pressed', isActive ? 'true' : 'false');
         });
     }
 
@@ -1607,6 +1626,23 @@ class OpticalArtGenerator {
             this.resetAll();
         });
 
+        // Toolbar Advanced Settings Toggle
+        document.getElementById('toggle-advanced-settings').addEventListener('click', () => {
+            const panel = document.getElementById('toolbar-advanced-panel');
+            const toggleBtn = document.getElementById('toggle-advanced-settings');
+            const isExpanded = panel.style.display !== 'none';
+
+            if (isExpanded) {
+                panel.style.display = 'none';
+                toggleBtn.classList.remove('expanded');
+                toggleBtn.setAttribute('aria-expanded', 'false');
+            } else {
+                panel.style.display = 'block';
+                toggleBtn.classList.add('expanded');
+                toggleBtn.setAttribute('aria-expanded', 'true');
+            }
+        });
+
         document.getElementById('generate-colors-btn').addEventListener('click', () => {
             this.generateColorPalette();
         });
@@ -2334,6 +2370,9 @@ class OpticalArtGenerator {
             chip.className = 'palette-chip';
             chip.setAttribute('data-palette-id', palette.id);
             chip.setAttribute('title', palette.name);
+            chip.setAttribute('role', 'button');
+            chip.setAttribute('aria-label', `Apply ${palette.name} color palette`);
+            chip.setAttribute('tabindex', '0');
 
             // Create visual representation
             if (palette.mode === 'custom-gradient' && palette.colors.length >= 2) {
@@ -2351,6 +2390,14 @@ class OpticalArtGenerator {
             // Click handler
             chip.addEventListener('click', () => {
                 this.applyPalette(palette);
+            });
+
+            // Keyboard handler
+            chip.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    this.applyPalette(palette);
+                }
             });
 
             container.appendChild(chip);
@@ -6663,7 +6710,37 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
                 return;
             }
-            
+
+            // Spacebar = Randomize
+            if (e.code === 'Space') {
+                e.preventDefault();
+                this.randomizeAll();
+                return;
+            }
+
+            // E = Export PNG
+            if (e.key === 'e' || e.key === 'E') {
+                e.preventDefault();
+                this.exportImage('png');
+                return;
+            }
+
+            // Arrow keys = Navigate patterns
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                e.preventDefault();
+                const select = document.getElementById('pattern-type');
+                const currentIndex = select.selectedIndex;
+
+                if (e.key === 'ArrowLeft' && currentIndex > 0) {
+                    select.selectedIndex = currentIndex - 1;
+                } else if (e.key === 'ArrowRight' && currentIndex < select.options.length - 1) {
+                    select.selectedIndex = currentIndex + 1;
+                }
+
+                select.dispatchEvent(new Event('change'));
+                return;
+            }
+
             // Number keys 1-9
             const num = parseInt(e.key);
             if (num >= 1 && num <= 9 && !isNaN(num)) {
@@ -6671,7 +6748,7 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
                 if (e.ctrlKey || e.metaKey) {
                     e.preventDefault();
                     this.savePreset(num);
-                } 
+                }
                 // Number only = Load preset
                 else {
                     e.preventDefault();

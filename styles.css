@@ -21,6 +21,24 @@
     box-sizing: border-box;
 }
 
+/* Skip link for accessibility */
+.skip-link {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    background: #667eea;
+    color: white;
+    padding: 8px 16px;
+    text-decoration: none;
+    font-weight: 600;
+    z-index: 1000;
+    border-radius: 0 0 8px 0;
+}
+
+.skip-link:focus {
+    top: 0;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', 'SF Pro Display', 'Roboto', system-ui, sans-serif;
     background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
@@ -123,6 +141,64 @@ body.dark-mode::before {
     margin-bottom: 16px;
     padding-bottom: 14px;
     border-bottom: 2px solid rgba(102, 126, 234, 0.15);
+}
+
+.toolbar-header-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.toolbar-toggle-advanced {
+    padding: 8px 16px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    background: rgba(102, 126, 234, 0.1);
+    border: 2px solid rgba(102, 126, 234, 0.3);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #667eea;
+    white-space: nowrap;
+}
+
+.toolbar-toggle-advanced:hover {
+    background: rgba(102, 126, 234, 0.2);
+    border-color: rgba(102, 126, 234, 0.5);
+    transform: translateY(-1px);
+}
+
+.toolbar-toggle-advanced.expanded {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: #667eea;
+}
+
+.toolbar-toggle-advanced.expanded::after {
+    content: ' ▲';
+}
+
+/* Advanced Panel - Collapsible */
+.toolbar-advanced-panel {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 2px solid rgba(102, 126, 234, 0.15);
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.toolbar-row-essential {
+    margin-bottom: 0;
 }
 
 .toolbar-logo h1 {
@@ -1873,9 +1949,13 @@ footer {
     align-items: center;
     gap: 12px;
     padding: 12px;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.9);
     border-radius: 12px;
     backdrop-filter: blur(10px);
+    position: sticky;
+    bottom: 16px;
+    z-index: 50;
+    box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.1);
 }
 
 .palette-picker-label {
@@ -1932,7 +2012,8 @@ footer {
 
 /* Dark mode support */
 .dark-mode .palette-picker-wrapper {
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0, 0, 0, 0.9);
+    box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.5);
 }
 
 .dark-mode .palette-picker-label {

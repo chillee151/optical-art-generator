@@ -16,6 +16,9 @@
     </script>
 </head>
 <body>
+    <!-- Skip to main content link for keyboard users -->
+    <a href="#art-canvas" class="skip-link">Skip to canvas</a>
+
     <div class="container">
         <!-- Interactive Toolbar -->
         <div class="toolbar" id="main-toolbar">
@@ -25,10 +28,14 @@
                     <h1>🎨 Optical Art Generator</h1>
                     <p>Generate mesmerizing geometric patterns for laser engraving</p>
                 </div>
+                <div class="toolbar-header-actions">
+                    <button class="toolbar-action-btn" id="toolbar-export-png" aria-label="Export pattern as PNG image">📷 Export PNG</button>
+                    <button class="toolbar-toggle-advanced" id="toggle-advanced-settings" aria-expanded="false" aria-label="Toggle advanced settings">Advanced ▼</button>
+                </div>
             </div>
-            
-            <!-- Row 1: Canvas Settings -->
-            <div class="toolbar-row">
+
+            <!-- Row 1: Canvas Settings (Always Visible) -->
+            <div class="toolbar-row toolbar-row-essential">
                 <span class="toolbar-label">📐 Canvas:</span>
                 <div class="toolbar-button-group">
                     <button class="toolbar-btn canvas-ratio-btn active" data-ratio="1:1">1:1</button>
@@ -39,67 +46,69 @@
                 <span class="toolbar-info" id="toolbar-canvas-info">800×800mm (3024×3024px)</span>
             </div>
 
-            <!-- Row 2: Video Settings -->
-            <div class="toolbar-row">
-                <span class="toolbar-label">🎬 Video:</span>
-                <div class="toolbar-button-group">
-                    <button class="toolbar-btn video-duration-btn" data-duration="5">5s</button>
-                    <button class="toolbar-btn video-duration-btn active" data-duration="10">10s</button>
-                    <button class="toolbar-btn video-duration-btn" data-duration="15">15s</button>
-                    <button class="toolbar-btn video-duration-btn" data-duration="20">20s</button>
-                    <button class="toolbar-btn video-duration-btn" data-duration="30">30s</button>
+            <!-- Advanced Settings Panel (Collapsed by Default) -->
+            <div class="toolbar-advanced-panel" id="toolbar-advanced-panel" style="display: none;">
+                <!-- Row 2: Video Settings -->
+                <div class="toolbar-row">
+                    <span class="toolbar-label">🎬 Video:</span>
+                    <div class="toolbar-button-group">
+                        <button class="toolbar-btn video-duration-btn" data-duration="5">5s</button>
+                        <button class="toolbar-btn video-duration-btn active" data-duration="10">10s</button>
+                        <button class="toolbar-btn video-duration-btn" data-duration="15">15s</button>
+                        <button class="toolbar-btn video-duration-btn" data-duration="20">20s</button>
+                        <button class="toolbar-btn video-duration-btn" data-duration="30">30s</button>
+                    </div>
+                    <span class="toolbar-separator">@</span>
+                    <div class="toolbar-button-group">
+                        <button class="toolbar-btn video-fps-btn active" data-fps="24">24fps</button>
+                        <button class="toolbar-btn video-fps-btn" data-fps="30">30fps</button>
+                        <button class="toolbar-btn video-fps-btn" data-fps="60">60fps</button>
+                    </div>
+                    <span class="toolbar-info" id="toolbar-video-info">= 240 frames • Export: 3840×2160</span>
                 </div>
-                <span class="toolbar-separator">@</span>
-                <div class="toolbar-button-group">
-                    <button class="toolbar-btn video-fps-btn active" data-fps="24">24fps</button>
-                    <button class="toolbar-btn video-fps-btn" data-fps="30">30fps</button>
-                    <button class="toolbar-btn video-fps-btn" data-fps="60">60fps</button>
-                </div>
-                <span class="toolbar-info" id="toolbar-video-info">= 240 frames • Export: 3840×2160</span>
-            </div>
 
-            <!-- Row 3: Animation Toggles -->
-            <div class="toolbar-row">
-                <span class="toolbar-label">⚡ Animate:</span>
-                <div class="toolbar-button-group">
-                    <button class="toolbar-pill" id="pill-complexity" data-param="complexity">
-                        <span class="pill-name">Complexity</span>
-                        <span class="pill-range" style="display: none;">50→200</span>
-                    </button>
-                    <button class="toolbar-pill" id="pill-frequency" data-param="frequency">
-                        <span class="pill-name">Frequency</span>
-                        <span class="pill-range" style="display: none;">1→50</span>
-                    </button>
-                    <button class="toolbar-pill" id="pill-amplitude" data-param="amplitude">
-                        <span class="pill-name">Amplitude</span>
-                        <span class="pill-range" style="display: none;">0→500</span>
-                    </button>
-                    <button class="toolbar-pill" id="pill-rotation" data-param="rotation">
-                        <span class="pill-name">Rotation</span>
-                        <span class="pill-range" style="display: none;">0°→360°</span>
-                    </button>
-                    <button class="toolbar-pill" id="pill-glow" data-param="glow">
-                        <span class="pill-name">Glow</span>
-                        <span class="pill-range" style="display: none;">0→8</span>
-                    </button>
-                    <button class="toolbar-pill" id="pill-zoom" data-param="zoom">
-                        <span class="pill-name">Zoom</span>
-                        <span class="pill-range" style="display: none;">0.5→2.0</span>
-                    </button>
+                <!-- Row 3: Animation Toggles -->
+                <div class="toolbar-row">
+                    <span class="toolbar-label">⚡ Animate:</span>
+                    <div class="toolbar-button-group">
+                        <button class="toolbar-pill" id="pill-complexity" data-param="complexity">
+                            <span class="pill-name">Complexity</span>
+                            <span class="pill-range" style="display: none;">50→200</span>
+                        </button>
+                        <button class="toolbar-pill" id="pill-frequency" data-param="frequency">
+                            <span class="pill-name">Frequency</span>
+                            <span class="pill-range" style="display: none;">1→50</span>
+                        </button>
+                        <button class="toolbar-pill" id="pill-amplitude" data-param="amplitude">
+                            <span class="pill-name">Amplitude</span>
+                            <span class="pill-range" style="display: none;">0→500</span>
+                        </button>
+                        <button class="toolbar-pill" id="pill-rotation" data-param="rotation">
+                            <span class="pill-name">Rotation</span>
+                            <span class="pill-range" style="display: none;">0°→360°</span>
+                        </button>
+                        <button class="toolbar-pill" id="pill-glow" data-param="glow">
+                            <span class="pill-name">Glow</span>
+                            <span class="pill-range" style="display: none;">0→8</span>
+                        </button>
+                        <button class="toolbar-pill" id="pill-zoom" data-param="zoom">
+                            <span class="pill-name">Zoom</span>
+                            <span class="pill-range" style="display: none;">0.5→2.0</span>
+                        </button>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Row 4: Animation Mode & Actions -->
-            <div class="toolbar-row">
-                <span class="toolbar-label">Mode:</span>
-                <div class="toolbar-button-group">
-                    <button class="toolbar-btn mode-btn active" data-mode="linear">➡️ Linear</button>
-                    <button class="toolbar-btn mode-btn" data-mode="bounce">🔄 Bounce</button>
-                </div>
-                <div class="toolbar-spacer"></div>
-                <div class="toolbar-button-group toolbar-actions">
-                    <button class="toolbar-action-btn" id="toolbar-export-png">📷 Export PNG</button>
-                    <button class="toolbar-action-btn" id="toolbar-record-video">🎥 Record Video</button>
+                <!-- Row 4: Animation Mode & Record Video -->
+                <div class="toolbar-row">
+                    <span class="toolbar-label">Mode:</span>
+                    <div class="toolbar-button-group">
+                        <button class="toolbar-btn mode-btn active" data-mode="linear">➡️ Linear</button>
+                        <button class="toolbar-btn mode-btn" data-mode="bounce">🔄 Bounce</button>
+                    </div>
+                    <div class="toolbar-spacer"></div>
+                    <div class="toolbar-button-group toolbar-actions">
+                        <button class="toolbar-action-btn" id="toolbar-record-video">🎥 Record Video</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -145,7 +154,7 @@
                             <option value="cellular-automata">Cellular Automata</option>
                             <option value="l-system-growth">L-System Growth</option>
                         </select>
-                        <div id="pattern-previews" class="pattern-preview-grid">
+                        <div id="pattern-previews" class="pattern-preview-grid" role="region" aria-label="Pattern gallery">
                             <!-- Preview thumbnails will be generated here -->
                         </div>
                     </div>
@@ -534,16 +543,16 @@
             </div>
 
             <div class="canvas-wrapper">
-                <div class="canvas-container">
-                    <svg id="art-canvas" width="600" height="600" viewBox="0 0 600 600">
+                <div class="canvas-container" role="main" aria-label="Optical art canvas">
+                    <svg id="art-canvas" width="600" height="600" viewBox="0 0 600 600" role="img" aria-label="Generated optical art pattern">
                         <!-- Generated patterns will appear here -->
                     </svg>
                 </div>
 
                 <!-- Color Palette Picker (Easy Mode) -->
-                <div class="palette-picker-wrapper">
+                <div class="palette-picker-wrapper" role="region" aria-label="Color palette selection">
                     <div class="palette-picker-label">Quick Colors:</div>
-                    <div id="palette-picker-container" class="palette-picker-container">
+                    <div id="palette-picker-container" class="palette-picker-container" role="list">
                         <!-- Palette chips will be dynamically generated here -->
                     </div>
                 </div>
