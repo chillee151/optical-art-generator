@@ -1649,6 +1649,11 @@ class OpticalArtGenerator {
             this.generateColorPalette();
         });
 
+        // Copy Settings button
+        document.getElementById('copy-settings-btn').addEventListener('click', () => {
+            this.copySettingsToClipboard();
+        });
+
         // Mobile FAB (Floating Action Button) listeners
         const mobileFab = document.getElementById('mobile-export-fab');
         const fabMenu = document.getElementById('mobile-fab-menu');
@@ -2563,6 +2568,45 @@ class OpticalArtGenerator {
                 document.getElementById('symmetry').value = defaults.symmetry;
             }
         }
+    }
+
+    // Copy current pattern and settings to clipboard in easy-to-paste format
+    copySettingsToClipboard() {
+        const patternType = document.getElementById('pattern-type').value;
+        const complexity = document.getElementById('complexity').value;
+        const frequency = document.getElementById('frequency').value;
+        const amplitude = document.getElementById('amplitude').value;
+        const rotation = document.getElementById('rotation').value;
+        const symmetry = document.getElementById('symmetry').value;
+
+        // Format for easy pasting
+        const settingsText = `Pattern: ${patternType}
+- Complexity: ${complexity}
+- Frequency: ${frequency}
+- Amplitude: ${amplitude}
+- Rotation: ${rotation}
+- Symmetry: ${symmetry}`;
+
+        // Copy to clipboard
+        navigator.clipboard.writeText(settingsText).then(() => {
+            // Show success feedback
+            const btn = document.getElementById('copy-settings-btn');
+            const originalText = btn.textContent;
+            btn.textContent = '✓ Copied!';
+            btn.style.background = 'rgba(76, 175, 80, 0.1)';
+            btn.style.borderColor = 'rgba(76, 175, 80, 0.3)';
+            btn.style.color = '#4CAF50';
+
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = '';
+                btn.style.borderColor = '';
+                btn.style.color = '';
+            }, 2000);
+        }).catch(err => {
+            console.error('Failed to copy settings:', err);
+            alert('Failed to copy settings to clipboard');
+        });
     }
 
     updateCanvasSize() {
@@ -5665,9 +5709,8 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
             pathData += ' Z';
 
             path.setAttribute('d', pathData);
-            // Use color palette system instead of hardcoded black/white
-            const color = isBlack ? this.getLineColor(0, 2) : this.getLineColor(1, 2);
-            path.setAttribute('fill', color);
+            // Thumbnails use hardcoded black/white for consistency
+            path.setAttribute('fill', isBlack ? '#000' : '#fff');
             path.setAttribute('stroke', 'none');
 
             svg.appendChild(path);
@@ -5950,9 +5993,8 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
                 rect.setAttribute('y', cellCenterY - squareSize / 2);
                 rect.setAttribute('width', squareSize);
                 rect.setAttribute('height', squareSize);
-                // Use color palette system instead of hardcoded black/white
-                const color = isBlack ? this.getLineColor(0, 2) : this.getLineColor(1, 2);
-                rect.setAttribute('fill', color);
+                // Thumbnails use hardcoded black/white for consistency
+                rect.setAttribute('fill', isBlack ? '#000' : '#fff');
                 rect.setAttribute('stroke', 'none');
 
                 svg.appendChild(rect);

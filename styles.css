@@ -2030,6 +2030,59 @@ footer {
     text-align: center;
     font-weight: 500;
 }
+
+/* ========================================
+   UTILITIES GROUP - Helper Buttons
+   ======================================== */
+
+.utilities-group {
+    margin-top: 16px;
+    padding: 10px 12px;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: flex-end;
+}
+
+.utility-btn {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 6px;
+    background: rgba(0, 0, 0, 0.02);
+    color: #666;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.utility-btn:hover {
+    background: rgba(102, 126, 234, 0.1);
+    border-color: rgba(102, 126, 234, 0.3);
+    color: #667eea;
+    transform: translateY(-1px);
+}
+
+.utility-btn:active {
+    transform: translateY(0);
+}
+
+/* Dark mode utilities */
+body.dark-mode .utilities-group {
+    border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+body.dark-mode .utility-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.15);
+    color: #ccc;
+}
+
+body.dark-mode .utility-btn:hover {
+    background: rgba(102, 126, 234, 0.2);
+    border-color: rgba(102, 126, 234, 0.4);
+    color: #a0b9ff;
+}
+
 /* ========================================
    PALETTE PICKER - Easy Mode
    ======================================== */
