@@ -128,7 +128,10 @@ class OpticalArtGenerator {
             'riley-waves': 'Sinusoidal wave patterns with precisely controlled rhythm variation creating vibration and shimmer effects, inspired by Bridget Riley\'s Op Art masterpieces',
             'vasarely-zebra': 'Iconic Vasarely stripe deformation where parallel lines warp around invisible spheres, creating the illusion of 3D forms beneath a striped surface',
             'anuszkiewicz-squares': 'Concentric squares in complementary colors creating intense chromatic vibration and afterimages through simultaneous contrast, inspired by Richard Anuszkiewicz',
-            'riley-crest': 'Vertical lines with phase-shifted horizontal wave displacement creating mesmerizing traveling wave illusion and lateral shimmer effects, from Bridget Riley\'s Crest series'
+            'riley-crest': 'Vertical lines with phase-shifted horizontal wave displacement creating mesmerizing traveling wave illusion and lateral shimmer effects, from Bridget Riley\'s Crest series',
+            'vasarely-vega': 'Checkerboard pattern with wave-based size modulation creating billowing, undulating surface illusion through anamorphic distortion, from Vasarely\'s Vega series',
+            'soto-vibration': 'Two overlapping layers of fine parallel lines at subtle angles creating shimmering moiré interference and vibration effects, inspired by Jesús Rafael Soto',
+            'cruz-diez-strips': 'Vertical chromatic strips in carefully arranged color triads creating kinetic color mixing and additive interference effects, inspired by Carlos Cruz-Diez\'s Physichromie'
         };
 
             this.init();
@@ -513,6 +516,9 @@ class OpticalArtGenerator {
             { id: 'vasarely-zebra', name: 'Vasarely' },
             { id: 'anuszkiewicz-squares', name: 'Anuszkiewicz' },
             { id: 'riley-crest', name: 'Riley Crest' },
+            { id: 'vasarely-vega', name: 'Vega' },
+            { id: 'soto-vibration', name: 'Soto' },
+            { id: 'cruz-diez-strips', name: 'Cruz-Diez' },
             { id: 'spiral-distortion', name: 'Spiral' },
             { id: 'concentric-circles', name: 'Circles' },
             { id: 'moire-interference', name: 'Moiré' },
@@ -639,6 +645,15 @@ class OpticalArtGenerator {
                 break;
             case 'riley-crest':
                 this.generateMiniRileyCrest(svg, miniSeed, miniComplexity, miniLineWidth);
+                break;
+            case 'vasarely-vega':
+                this.generateMiniVasarelyVega(svg, miniSeed, miniComplexity, miniLineWidth);
+                break;
+            case 'soto-vibration':
+                this.generateMiniSotoVibration(svg, miniSeed, miniComplexity, miniLineWidth);
+                break;
+            case 'cruz-diez-strips':
+                this.generateMiniCruzDiezStrips(svg, miniSeed, miniComplexity, miniLineWidth);
                 break;
         }
 
@@ -2334,6 +2349,15 @@ class OpticalArtGenerator {
                             break;
                         case 'riley-crest':
                             this.generateRileyCrest(layerGroup, currentRotation, slowAnimationTime);
+                            break;
+                        case 'vasarely-vega':
+                            this.generateVasarelyVega(layerGroup, currentRotation, slowAnimationTime);
+                            break;
+                        case 'soto-vibration':
+                            this.generateSotoVibration(layerGroup, currentRotation, slowAnimationTime);
+                            break;
+                        case 'cruz-diez-strips':
+                            this.generateCruzDiezStrips(layerGroup, currentRotation, slowAnimationTime);
                             break;
                         default:
                             throw new Error(`Unknown pattern type: ${patternType}`);
@@ -5527,6 +5551,322 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         }
     }
 
+    // ═══════════════════════════════════════════════════════════════════════
+    // VASARELY VEGA CHECKERBOARD (Bulging Grid)
+    // ═══════════════════════════════════════════════════════════════════════
+
+    generateVasarelyVega(layerGroup, currentRotation, slowAnimationTime) {
+        const complexity = parseInt(document.getElementById('complexity').value);
+        const amplitude = parseInt(document.getElementById('amplitude').value);
+        const frequency = parseInt(document.getElementById('frequency').value);
+        const rotation = parseInt(document.getElementById('rotation').value);
+        const centerX = this.actualWidth / 2;
+        const centerY = this.actualHeight / 2;
+
+        // Grid dimensions based on complexity
+        const gridSize = Math.max(8, Math.floor(complexity / 15));
+        const baseSquareSize = Math.min(this.actualWidth, this.actualHeight) / gridSize;
+
+        // Wave parameters for size modulation
+        const waveAmplitude = (amplitude / 100) * 0.8; // Scale factor: 0-0.8
+        const freqX = Math.max(1, frequency / 30);
+        const freqY = Math.max(1, frequency / 30);
+
+        // Create checkerboard with size-modulated squares
+        for (let row = 0; row < gridSize; row++) {
+            for (let col = 0; col < gridSize; col++) {
+                const isBlack = (row + col) % 2 === 0;
+
+                // Calculate center of this grid cell
+                const cellCenterX = col * baseSquareSize + baseSquareSize / 2;
+                const cellCenterY = row * baseSquareSize + baseSquareSize / 2;
+
+                // Calculate wave-based size modulation
+                const normalizedX = col / gridSize;
+                const normalizedY = row / gridSize;
+
+                // Combine sine waves to create bulging/caving effect
+                const wave = Math.sin(normalizedX * Math.PI * 2 * freqX) *
+                           Math.sin(normalizedY * Math.PI * 2 * freqY);
+
+                // Map wave to size multiplier (1.0 - waveAmplitude to 1.0 + waveAmplitude)
+                const sizeMultiplier = 1.0 + (wave * waveAmplitude);
+                const squareSize = baseSquareSize * sizeMultiplier;
+
+                // Create square centered in cell
+                const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                rect.setAttribute('x', cellCenterX - squareSize / 2);
+                rect.setAttribute('y', cellCenterY - squareSize / 2);
+                rect.setAttribute('width', squareSize);
+                rect.setAttribute('height', squareSize);
+                rect.setAttribute('fill', isBlack ? '#000' : '#fff');
+                rect.setAttribute('stroke', 'none');
+
+                if (rotation !== 0) {
+                    rect.setAttribute('transform', `rotate(${rotation} ${centerX} ${centerY})`);
+                }
+
+                layerGroup.appendChild(rect);
+            }
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // VASARELY VEGA MINI PREVIEW
+    // ═══════════════════════════════════════════════════════════════════════
+
+    generateMiniVasarelyVega(svg, seed, complexity, lineWidth) {
+        const size = 56;
+        const gridSize = 8;
+        const baseSquareSize = size / gridSize;
+        const waveAmplitude = 0.5;
+
+        for (let row = 0; row < gridSize; row++) {
+            for (let col = 0; col < gridSize; col++) {
+                const isBlack = (row + col) % 2 === 0;
+
+                const cellCenterX = col * baseSquareSize + baseSquareSize / 2;
+                const cellCenterY = row * baseSquareSize + baseSquareSize / 2;
+
+                const normalizedX = col / gridSize;
+                const normalizedY = row / gridSize;
+
+                const wave = Math.sin(normalizedX * Math.PI * 2 * 2) *
+                           Math.sin(normalizedY * Math.PI * 2 * 2);
+
+                const sizeMultiplier = 1.0 + (wave * waveAmplitude);
+                const squareSize = baseSquareSize * sizeMultiplier;
+
+                const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                rect.setAttribute('x', cellCenterX - squareSize / 2);
+                rect.setAttribute('y', cellCenterY - squareSize / 2);
+                rect.setAttribute('width', squareSize);
+                rect.setAttribute('height', squareSize);
+                rect.setAttribute('fill', isBlack ? '#000' : '#fff');
+                rect.setAttribute('stroke', 'none');
+
+                svg.appendChild(rect);
+            }
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // SOTO VIBRATION LINES (Superimposed Layers)
+    // ═══════════════════════════════════════════════════════════════════════
+
+    generateSotoVibration(layerGroup, currentRotation, slowAnimationTime) {
+        const complexity = parseInt(document.getElementById('complexity').value);
+        const lineWidth = this.getAutoLineWidth();
+        const amplitude = parseInt(document.getElementById('amplitude').value);
+        const frequency = parseInt(document.getElementById('frequency').value);
+        const rotation = parseInt(document.getElementById('rotation').value);
+        const centerX = this.actualWidth / 2;
+        const centerY = this.actualHeight / 2;
+
+        // Dense vertical lines for layer 1
+        const numLines = Math.max(50, complexity * 5);
+        const spacing = this.actualWidth / numLines;
+
+        // Layer 2 rotation angle (subtle)
+        const layer2Rotation = (amplitude / 100) * 3; // 0 to 3 degrees
+
+        // Layer 2 phase shift (alternative to rotation)
+        const phaseShift = (frequency / 100) * 10; // 0 to 10 pixels
+
+        // Create Layer 1 - vertical lines
+        const layer1 = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        layer1.setAttribute('opacity', '0.7');
+
+        for (let i = 0; i < numLines; i++) {
+            const x = i * spacing;
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', x);
+            line.setAttribute('y1', 0);
+            line.setAttribute('x2', x);
+            line.setAttribute('y2', this.actualHeight);
+            line.setAttribute('stroke', '#000');
+            line.setAttribute('stroke-width', lineWidth * 0.5);
+            layer1.appendChild(line);
+        }
+
+        if (rotation !== 0) {
+            layer1.setAttribute('transform', `rotate(${rotation} ${centerX} ${centerY})`);
+        }
+
+        // Create Layer 2 - slightly rotated or phase-shifted lines
+        const layer2 = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        layer2.setAttribute('opacity', '0.7');
+
+        for (let i = 0; i < numLines; i++) {
+            const x = i * spacing + phaseShift;
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', x);
+            line.setAttribute('y1', 0);
+            line.setAttribute('x2', x);
+            line.setAttribute('y2', this.actualHeight);
+            line.setAttribute('stroke', '#000');
+            line.setAttribute('stroke-width', lineWidth * 0.5);
+            layer2.appendChild(line);
+        }
+
+        const totalRotation = rotation + layer2Rotation;
+        layer2.setAttribute('transform', `rotate(${totalRotation} ${centerX} ${centerY})`);
+
+        layerGroup.appendChild(layer1);
+        layerGroup.appendChild(layer2);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // SOTO VIBRATION LINES MINI PREVIEW
+    // ═══════════════════════════════════════════════════════════════════════
+
+    generateMiniSotoVibration(svg, seed, complexity, lineWidth) {
+        const size = 56;
+        const numLines = 30;
+        const spacing = size / numLines;
+        const layer2Rotation = 1.5; // degrees
+
+        // Layer 1
+        const layer1 = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        layer1.setAttribute('opacity', '0.7');
+
+        for (let i = 0; i < numLines; i++) {
+            const x = i * spacing;
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', x);
+            line.setAttribute('y1', 0);
+            line.setAttribute('x2', x);
+            line.setAttribute('y2', size);
+            line.setAttribute('stroke', '#000');
+            line.setAttribute('stroke-width', lineWidth * 0.3);
+            layer1.appendChild(line);
+        }
+
+        // Layer 2
+        const layer2 = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        layer2.setAttribute('opacity', '0.7');
+
+        for (let i = 0; i < numLines; i++) {
+            const x = i * spacing;
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', x);
+            line.setAttribute('y1', 0);
+            line.setAttribute('x2', x);
+            line.setAttribute('y2', size);
+            line.setAttribute('stroke', '#000');
+            line.setAttribute('stroke-width', lineWidth * 0.3);
+            layer2.appendChild(line);
+        }
+
+        layer2.setAttribute('transform', `rotate(${layer2Rotation} ${size/2} ${size/2})`);
+
+        svg.appendChild(layer1);
+        svg.appendChild(layer2);
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // CRUZ-DIEZ CHROMATIC STRIPS (Kinetic Color)
+    // ═══════════════════════════════════════════════════════════════════════
+
+    generateCruzDiezStrips(layerGroup, currentRotation, slowAnimationTime) {
+        const complexity = parseInt(document.getElementById('complexity').value);
+        const lineWidth = this.getAutoLineWidth();
+        const amplitude = parseInt(document.getElementById('amplitude').value);
+        const frequency = parseInt(document.getElementById('frequency').value);
+        const rotation = parseInt(document.getElementById('rotation').value);
+        const centerX = this.actualWidth / 2;
+        const centerY = this.actualHeight / 2;
+
+        // Very thin vertical strips
+        const stripWidth = Math.max(1, lineWidth * 0.3);
+        const numStrips = Math.floor(this.actualWidth / stripWidth);
+
+        // Color triads for chromatic interference
+        const colorSets = [
+            { bg: '#FFFFFF', a: '#FF0000', b: '#0000FF' }, // White + Red + Blue
+            { bg: '#000000', a: '#00FF00', b: '#FF00FF' }, // Black + Green + Magenta
+            { bg: '#FFFF00', a: '#FF00FF', b: '#00FFFF' }, // Yellow + Magenta + Cyan
+            { bg: '#FF0000', a: '#00FF00', b: '#0000FF' }, // Red + Green + Blue
+        ];
+
+        // Use amplitude to select color set
+        const setIndex = Math.floor((amplitude / 100) * (colorSets.length - 1));
+        const colors = colorSets[setIndex];
+
+        // Pattern width based on frequency (how often the pattern repeats)
+        const patternRepeat = Math.max(3, Math.floor(frequency / 10));
+
+        // Create vertical strips in A-B-A-C pattern
+        for (let i = 0; i < numStrips; i++) {
+            const x = i * stripWidth;
+
+            // Determine color based on position in pattern
+            let color;
+            const posInPattern = i % (patternRepeat * 3);
+
+            if (posInPattern < patternRepeat) {
+                color = colors.a; // Color A
+            } else if (posInPattern < patternRepeat * 2) {
+                color = colors.bg; // Background
+            } else {
+                color = colors.b; // Color B
+            }
+
+            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            rect.setAttribute('x', x);
+            rect.setAttribute('y', 0);
+            rect.setAttribute('width', stripWidth);
+            rect.setAttribute('height', this.actualHeight);
+            rect.setAttribute('fill', color);
+            rect.setAttribute('stroke', 'none');
+
+            if (rotation !== 0) {
+                rect.setAttribute('transform', `rotate(${rotation} ${centerX} ${centerY})`);
+            }
+
+            layerGroup.appendChild(rect);
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // CRUZ-DIEZ CHROMATIC STRIPS MINI PREVIEW
+    // ═══════════════════════════════════════════════════════════════════════
+
+    generateMiniCruzDiezStrips(svg, seed, complexity, lineWidth) {
+        const size = 56;
+        const stripWidth = 1.5;
+        const numStrips = Math.floor(size / stripWidth);
+
+        // Red + Blue + White for preview
+        const colors = { bg: '#FFFFFF', a: '#FF0000', b: '#0000FF' };
+        const patternRepeat = 3;
+
+        for (let i = 0; i < numStrips; i++) {
+            const x = i * stripWidth;
+
+            let color;
+            const posInPattern = i % (patternRepeat * 3);
+
+            if (posInPattern < patternRepeat) {
+                color = colors.a;
+            } else if (posInPattern < patternRepeat * 2) {
+                color = colors.bg;
+            } else {
+                color = colors.b;
+            }
+
+            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            rect.setAttribute('x', x);
+            rect.setAttribute('y', 0);
+            rect.setAttribute('width', stripWidth);
+            rect.setAttribute('height', size);
+            rect.setAttribute('fill', color);
+            rect.setAttribute('stroke', 'none');
+
+            svg.appendChild(rect);
+        }
+    }
+
     // ==================== PRESET SNAPSHOTS SYSTEM ====================
 
     getCurrentSettings() {
@@ -6034,6 +6374,15 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
                     break;
                 case 'riley-crest':
                     this.generateMiniRileyCrest(svg, settings.seed, Math.min(settings.complexity / 10, 20), this.getAutoLineWidth());
+                    break;
+                case 'vasarely-vega':
+                    this.generateMiniVasarelyVega(svg, settings.seed, Math.min(settings.complexity / 10, 20), this.getAutoLineWidth());
+                    break;
+                case 'soto-vibration':
+                    this.generateMiniSotoVibration(svg, settings.seed, Math.min(settings.complexity / 10, 20), this.getAutoLineWidth());
+                    break;
+                case 'cruz-diez-strips':
+                    this.generateMiniCruzDiezStrips(svg, settings.seed, Math.min(settings.complexity / 10, 20), this.getAutoLineWidth());
                     break;
                 default:
                     // Fallback to simple spiral
