@@ -157,7 +157,7 @@ class OpticalArtGenerator {
             'moire-interference': 'Multi-layer interference patterns with three modes: traditional lines, grid networks, and radial circles, creating mesmerizing moiré effects',
             'spiral-distortion': 'Golden ratio spirals with double counter-rotating arms, variable thickness, 3D ribbon bands, and organic wave modulation creating mesmerizing depth',
             'perlin-displacement': 'Organic patterns from a Perlin noise field',
-            'fractal-noise': 'Rich, detailed patterns from layered Perlin noise (fBm)',
+            'fractal-noise': 'Turbulent Topology - Organic contour maps using multi-octave fractal Brownian motion, creating topographic-like patterns with self-similar detail at all scales',
             'de-jong-attractor': 'Chaotic patterns based on the De Jong strange attractor.',
             'cellular-automata': 'Emergent patterns from simple rule-based cellular automata.',
             'l-system-growth': 'Fractal branching with 6 types (bush/tree/fern/flower/spiral/fractal), rotational symmetry (2/4/6-fold), colored branches by depth, and leaves',
@@ -804,11 +804,11 @@ class OpticalArtGenerator {
     }
 
     generateMiniLSystem(svg, seed, complexity, lineWidth) {
-        // Simplified L-System for preview
+        // L-System thumbnail - complexity: 166, frequency: 55, amplitude: 31
         const axiom = "F";
-        const rules = { "F": "F[+F]F[-F]F" };
-        const angle = 25; // Fixed angle for preview
-        const iterations = 2; // Low iterations for quick preview
+        const rules = { "F": "F[+F]F[-F]F" }; // Bush-like branching
+        const angle = 27.5; // frequency: 55 mapped to branching angle (55/2)
+        const iterations = 3; // complexity: 166 (higher iterations for more detail)
         let currentString = axiom;
 
         for (let i = 0; i < iterations; i++) {
@@ -820,9 +820,9 @@ class OpticalArtGenerator {
             currentString = nextString;
         }
 
-        let x = 28, y = 50;
+        let x = 28, y = 52;
         let currentAngle = -90; // Start pointing up
-        const step = 5; // Fixed step for preview
+        const step = 3.1; // amplitude: 31 mapped to step size (31/10)
         const stack = [];
 
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -859,22 +859,37 @@ class OpticalArtGenerator {
         path.setAttribute('d', pathData);
         path.setAttribute('fill', 'none');
         path.setAttribute('stroke', '#000');
-        path.setAttribute('stroke-width', lineWidth * 0.5);
+        path.setAttribute('stroke-width', lineWidth * 0.4);
         svg.appendChild(path);
     }
 
     generateMiniCellularAutomata(svg, seed, complexity, lineWidth) {
-        const cellSize = 2;
+        // Cellular automata thumbnail - complexity: 80, frequency: 49, amplitude: -69
         const width = 56;
         const height = 56;
-        const cellsPerRow = width / cellSize;
-        const numRows = height / cellSize;
+        const cellSize = 1.4; // complexity: 80 (smaller cells for finer detail)
+        const cellsPerRow = Math.floor(width / cellSize);
+        const numRows = Math.floor(height / cellSize);
 
-        // Rule 30 for a classic chaotic pattern
-        const ruleset = [0, 0, 0, 1, 1, 1, 1, 0]; // Rule 30
+        // frequency: 49 maps to rule 250
+        const ruleNumber = 250; // frequency: 49 -> rule 250
+        const ruleset = [];
+        for (let i = 0; i < 8; i++) {
+            ruleset.push((ruleNumber >> i) & 1);
+        }
 
         let currentRow = new Array(cellsPerRow).fill(0);
-        currentRow[Math.floor(cellsPerRow / 2)] = 1; // Start with a single live cell in the middle
+
+        // amplitude: -69 -> scattered seed pattern
+        const seedWidth = Math.max(1, Math.floor(Math.abs(-69) / 20)); // 3 cells
+        const center = Math.floor(cellsPerRow / 2);
+
+        // Negative amplitude: scattered seed pattern (every other cell)
+        for (let i = 0; i < seedWidth; i++) {
+            const offset = i * 2; // Every other cell
+            const pos = (center + offset - seedWidth + cellsPerRow) % cellsPerRow;
+            currentRow[pos] = 1;
+        }
 
         for (let r = 0; r < numRows; r++) {
             let nextRow = new Array(cellsPerRow).fill(0);
@@ -883,7 +898,7 @@ class OpticalArtGenerator {
                 const self = currentRow[i];
                 const right = currentRow[(i + 1) % cellsPerRow];
 
-                const ruleIndex = (left << 2) | (self << 1) | right; // Convert 3-bit pattern to index (0-7)
+                const ruleIndex = (left << 2) | (self << 1) | right;
                 nextRow[i] = ruleset[ruleIndex];
 
                 if (nextRow[i] === 1) {
@@ -901,13 +916,21 @@ class OpticalArtGenerator {
     }
 
     generateMiniDeJongAttractor(svg, seed, complexity, lineWidth) {
+        // De Jong attractor thumbnail - complexity: 197, frequency: 28, amplitude: 85
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         let pathData = "M 28 28";
         let x = 0, y = 0;
-        const a = 1.4, b = -2.3, c = 2.4, d = -2.1;
-        const scale = 10;
 
-        for (let i = 0; i < 500; i++) {
+        // frequency: 28 affects attractor parameters (2.8 scaled)
+        const a = 1.4, b = -2.3, c = 2.8, d = -2.1; // c = 2.8 from frequency
+
+        // amplitude: 85 affects scale
+        const scale = 8.5; // amplitude: 85 mapped to 8.5
+
+        // complexity: 197 affects number of iterations
+        const iterations = 1970; // complexity: 197 mapped to 1970 points
+
+        for (let i = 0; i < iterations; i++) {
             const x_new = Math.sin(a * y) - Math.cos(b * x);
             const y_new = Math.sin(c * x) - Math.cos(d * y);
             x = x_new;
@@ -917,43 +940,97 @@ class OpticalArtGenerator {
         path.setAttribute('d', pathData);
         path.setAttribute('fill', 'none');
         path.setAttribute('stroke', '#000');
-        path.setAttribute('stroke-width', lineWidth * 0.5);
+        path.setAttribute('stroke-width', lineWidth * 0.3);
         svg.appendChild(path);
     }
 
     generateMiniFractalNoise(svg, seed, complexity, lineWidth) {
-        const spacing = 56 / complexity;
-        for (let y = 0; y < 56 + spacing; y += spacing) {
-            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            let pathData = `M 0 ${y}`;
-            for (let x = 0; x <= 56; x += 2) {
-                const noiseVal = this._fbm(x * 0.1, y * 0.1, seed * 10, 3, 0.5);
-                const displacement = noiseVal * 10;
-                pathData += ` L ${x} ${y + displacement}`;
+        // Turbulent Topology thumbnail - complexity: 150, frequency: 60, amplitude: 500
+        const width = 56;
+        const height = 56;
+        const numContours = 15; // complexity: 150 → 50 contours, scaled down for thumbnail
+        const octaves = 5; // frequency: 60 → 5 octaves
+        const cellSize = 3; // amplitude: 500 → moderate smoothing
+
+        const gridWidth = Math.ceil(width / cellSize);
+        const gridHeight = Math.ceil(height / cellSize);
+        const noiseScale = 0.3; // frequency: 60 → 0.3 scale
+
+        // Generate 2D fractal noise field
+        const noiseField = [];
+        let minNoise = Infinity, maxNoise = -Infinity;
+
+        for (let gy = 0; gy < gridHeight; gy++) {
+            const row = [];
+            for (let gx = 0; gx < gridWidth; gx++) {
+                const noiseValue = this._fbm(gx * noiseScale, gy * noiseScale, seed * 10, octaves, 0.5);
+                row.push(noiseValue);
+                minNoise = Math.min(minNoise, noiseValue);
+                maxNoise = Math.max(maxNoise, noiseValue);
             }
-            path.setAttribute('d', pathData);
-            path.setAttribute('fill', 'none');
-            path.setAttribute('stroke', '#000');
-            path.setAttribute('stroke-width', lineWidth);
-            svg.appendChild(path);
+            noiseField.push(row);
+        }
+
+        // Draw organic contour lines
+        for (let contourIndex = 0; contourIndex < numContours; contourIndex++) {
+            const t = contourIndex / (numContours - 1);
+            const threshold = minNoise + (maxNoise - minNoise) * t;
+
+            // Simple horizontal scan line contour tracing
+            for (let y = 0; y < gridHeight - 1; y++) {
+                let pathData = '';
+                for (let x = 0; x < gridWidth - 1; x++) {
+                    const current = noiseField[y][x];
+                    const next = noiseField[y][x + 1];
+
+                    if ((current < threshold && next >= threshold) || (current >= threshold && next < threshold)) {
+                        const t = (threshold - current) / (next - current);
+                        const px = (x + t) * cellSize;
+                        const py = y * cellSize;
+
+                        if (pathData === '') {
+                            pathData = `M ${px} ${py}`;
+                        } else {
+                            pathData += ` L ${px} ${py}`;
+                        }
+                    }
+                }
+
+                if (pathData !== '') {
+                    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    path.setAttribute('d', pathData);
+                    path.setAttribute('fill', 'none');
+                    path.setAttribute('stroke', '#000');
+                    path.setAttribute('stroke-width', lineWidth * 0.4);
+                    svg.appendChild(path);
+                }
+            }
         }
     }
 
     generateMiniPerlinDisplacement(svg, seed, complexity, lineWidth) {
         const perlin = new PerlinNoise();
-        const spacing = 56 / complexity;
+        const numLines = 25; // complexity: 201 (high density)
+        const spacing = 56 / numLines;
+
         for (let y = 0; y < 56 + spacing; y += spacing) {
             const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             let pathData = `M 0 ${y}`;
-            for (let x = 0; x <= 56; x += 2) {
-                const noiseVal = perlin.noise(x * 0.1, y * 0.1, seed * 10);
-                const displacement = noiseVal * 10;
+
+            for (let x = 0; x <= 56; x += 1.5) {
+                // frequency: 83 affects noise scale
+                const noiseScale = 0.083; // frequency: 83 mapped to 0.083
+                const noiseVal = perlin.noise(x * noiseScale, y * noiseScale, seed * 10);
+
+                // amplitude: 15 affects displacement strength
+                const displacement = noiseVal * 1.5; // amplitude: 15 mapped to 1.5
                 pathData += ` L ${x} ${y + displacement}`;
             }
+
             path.setAttribute('d', pathData);
             path.setAttribute('fill', 'none');
             path.setAttribute('stroke', '#000');
-            path.setAttribute('stroke-width', lineWidth);
+            path.setAttribute('stroke-width', lineWidth * 0.5);
             svg.appendChild(path);
         }
     }
@@ -1004,26 +1081,26 @@ class OpticalArtGenerator {
     generateMiniDiagonalStripes(svg, seed, complexity, lineWidth) {
         const centerX = 28;
         const centerY = 28;
-        const symmetryCount = 8; // symmetry: 8
-        const numStripes = 5; // complexity: 35 (fewer stripes)
+        const symmetryCount = 4; // symmetry: 4
+        const numStripes = 3; // complexity: 24 (fewer stripes)
 
-        // Create 8-fold radial symmetry
+        // Create 4-fold radial symmetry
         for (let sym = 0; sym < symmetryCount; sym++) {
             const symAngle = (360 / symmetryCount) * sym; // rotation: 0
 
             for (let i = 0; i < numStripes; i++) {
                 const progress = i / numStripes;
-                const distance = 3 + i * 4; // Distance from center
+                const distance = 3 + i * 6; // Distance from center
 
                 const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                 let pathData = '';
 
-                // Create wavy stripe - frequency: 74, amplitude: 269
+                // Create wavy stripe - frequency: 21, amplitude: 20
                 const numPoints = 20;
                 for (let j = 0; j <= numPoints; j++) {
                     const t = (j / numPoints) * 50; // Length of stripe
-                    const waveFreq = 0.7; // frequency: 74 mapped
-                    const waveAmp = 2.5; // amplitude: 269 mapped
+                    const waveFreq = 0.21; // frequency: 21 mapped
+                    const waveAmp = 0.2; // amplitude: 20 mapped
                     const waveOffset = Math.sin(t * waveFreq + progress * Math.PI * 2) * waveAmp;
 
                     const x = centerX + (distance + t) * Math.cos(symAngle * Math.PI / 180) + waveOffset * Math.sin(symAngle * Math.PI / 180);
@@ -1039,7 +1116,7 @@ class OpticalArtGenerator {
                 path.setAttribute('d', pathData);
                 path.setAttribute('fill', 'none');
                 path.setAttribute('stroke', '#000');
-                path.setAttribute('stroke-width', lineWidth * 0.4);
+                path.setAttribute('stroke-width', lineWidth * 0.6);
                 svg.appendChild(path);
             }
         }
@@ -2597,11 +2674,11 @@ class OpticalArtGenerator {
                 symmetry: 'none'
             },
             'diagonal-stripes': {
-                complexity: 35,
-                frequency: 74,
-                amplitude: 269,
+                complexity: 24,
+                frequency: 21,
+                amplitude: 20,
                 rotation: 0,
-                symmetry: '8'
+                symmetry: '4'
             },
             'shaded-grid': {
                 complexity: 101,
@@ -2621,6 +2698,41 @@ class OpticalArtGenerator {
                 complexity: 154,
                 frequency: 73,
                 amplitude: 69,
+                rotation: 0,
+                symmetry: 'none'
+            },
+            'perlin-displacement': {
+                complexity: 201,
+                frequency: 83,
+                amplitude: 15,
+                rotation: 0,
+                symmetry: 'none'
+            },
+            'l-system-growth': {
+                complexity: 166,
+                frequency: 55,
+                amplitude: 31,
+                rotation: 0,
+                symmetry: 'none'
+            },
+            'de-jong-attractor': {
+                complexity: 197,
+                frequency: 28,
+                amplitude: 85,
+                rotation: 0,
+                symmetry: 'none'
+            },
+            'cellular-automata': {
+                complexity: 80,
+                frequency: 49,
+                amplitude: -69,
+                rotation: 0,
+                symmetry: 'none'
+            },
+            'fractal-noise': {
+                complexity: 150,
+                frequency: 60,
+                amplitude: 500,
                 rotation: 0,
                 symmetry: 'none'
             }
@@ -3218,6 +3330,7 @@ class OpticalArtGenerator {
         const complexity = parseInt(document.getElementById('complexity').value);
         const lineWidth = this.getAutoLineWidth();
         const frequency = parseInt(document.getElementById('frequency').value); // Use frequency for rule selection
+        const amplitude = parseInt(document.getElementById('amplitude').value); // Use amplitude for initial seed pattern
         const centerX = this.actualWidth / 2;
         const centerY = this.actualHeight / 2;
 
@@ -3245,7 +3358,27 @@ class OpticalArtGenerator {
         }
 
         let currentRow = new Array(cellsPerRow).fill(0);
-        currentRow[Math.floor(cellsPerRow / 2)] = 1; // Start with a single live cell in the middle
+
+        // AMPLITUDE controls initial seed pattern width
+        // amplitude -1000 to +1000 maps to seed width
+        const seedWidth = Math.max(1, Math.floor(Math.abs(amplitude) / 20)); // 1 to 50 cells
+        const center = Math.floor(cellsPerRow / 2);
+
+        if (amplitude >= 0) {
+            // Positive amplitude: continuous seed cluster
+            for (let i = 0; i < seedWidth; i++) {
+                const offset = Math.floor(i - seedWidth / 2);
+                const pos = (center + offset + cellsPerRow) % cellsPerRow;
+                currentRow[pos] = 1;
+            }
+        } else {
+            // Negative amplitude: scattered seed pattern
+            for (let i = 0; i < seedWidth; i++) {
+                const offset = i * 2; // Every other cell
+                const pos = (center + offset - seedWidth + cellsPerRow) % cellsPerRow;
+                currentRow[pos] = 1;
+            }
+        }
 
         for (let r = 0; r < numRows; r++) {
             let nextRow = new Array(cellsPerRow).fill(0);
@@ -3328,41 +3461,134 @@ class OpticalArtGenerator {
     }
 
     generateFractalNoisePattern(layerGroup, currentRotation, slowAnimationTime) {
+        // TURBULENT TOPOLOGY - Organic contour map using multi-octave fBm
         const complexity = parseInt(document.getElementById('complexity').value);
-        const lineWidth = this.getAutoLineWidth();
         const frequency = parseInt(document.getElementById('frequency').value);
         const amplitude = parseInt(document.getElementById('amplitude').value);
         const centerX = this.actualWidth / 2;
         const centerY = this.actualHeight / 2;
 
-        const lineSpacing = this.actualHeight / complexity;
-        const totalLines = Math.ceil(this.actualHeight / lineSpacing);
-        const noiseScale = frequency / 1000;
-        const octaves = Math.max(1, Math.floor(complexity / 100)); // Link octaves to complexity
+        // Complexity controls number of contour levels (3-100)
+        const numContours = Math.max(3, Math.min(100, Math.floor(complexity / 3)));
 
-        let lineIndex = 0;
-        for (let y = 0; y < this.actualHeight + lineSpacing; y += lineSpacing) {
-            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            let pathData = `M 0 ${y}`;
+        // Frequency controls noise scale AND octaves
+        const octaves = Math.max(1, Math.min(8, Math.floor(1 + frequency / 15)));
+        const noiseScale = frequency / 200;
 
-            for (let x = 0; x <= this.actualWidth; x += 5) {
-                const noiseVal = this._fbm(x * noiseScale, y * noiseScale, this.currentSeed * 5 + slowAnimationTime * 0.1, octaves, 0.5);
-                const displacement = noiseVal * amplitude;
-                pathData += ` L ${x} ${y + displacement}`;
+        // Amplitude controls contour smoothing (sampling density)
+        const cellSize = Math.max(2, Math.min(15, 15 - (amplitude / 100)));
+
+        const gridWidth = Math.ceil(this.actualWidth / cellSize);
+        const gridHeight = Math.ceil(this.actualHeight / cellSize);
+
+        // Generate 2D fractal noise field
+        const noiseField = [];
+        let minNoise = Infinity, maxNoise = -Infinity;
+
+        for (let gy = 0; gy < gridHeight; gy++) {
+            const row = [];
+            for (let gx = 0; gx < gridWidth; gx++) {
+                const x = gx * cellSize;
+                const y = gy * cellSize;
+
+                const noiseValue = this._fbm(
+                    x * noiseScale,
+                    y * noiseScale,
+                    this.currentSeed * 5 + slowAnimationTime * 0.1,
+                    octaves,
+                    0.5
+                );
+
+                row.push(noiseValue);
+                minNoise = Math.min(minNoise, noiseValue);
+                maxNoise = Math.max(maxNoise, noiseValue);
             }
-
-            path.setAttribute('d', pathData);
-            path.setAttribute('fill', 'none');
-            path.setAttribute('stroke', this.getLineColor(lineIndex, totalLines));
-            path.setAttribute('stroke-width', lineWidth);
-
-            if (currentRotation !== 0) {
-                path.setAttribute('transform', `rotate(${currentRotation} ${centerX} ${centerY})`);
-            }
-
-            layerGroup.appendChild(path);
-            lineIndex++;
+            noiseField.push(row);
         }
+
+        // Draw contour lines by sampling threshold levels
+        for (let contourIndex = 0; contourIndex < numContours; contourIndex++) {
+            const t = contourIndex / (numContours - 1);
+            const threshold = minNoise + (maxNoise - minNoise) * t;
+
+            // Trace contour at this threshold level
+            const contourPaths = this._traceContours(noiseField, threshold, cellSize, gridWidth, gridHeight);
+
+            contourPaths.forEach(points => {
+                if (points.length < 3) return;
+
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                let pathData = `M ${points[0].x} ${points[0].y}`;
+
+                for (let i = 1; i < points.length; i++) {
+                    pathData += ` L ${points[i].x} ${points[i].y}`;
+                }
+
+                // Close path if it loops back
+                const dist = Math.sqrt(
+                    Math.pow(points[0].x - points[points.length-1].x, 2) +
+                    Math.pow(points[0].y - points[points.length-1].y, 2)
+                );
+                if (dist < cellSize * 2) {
+                    pathData += ' Z';
+                }
+
+                path.setAttribute('d', pathData);
+                path.setAttribute('fill', 'none');
+                path.setAttribute('stroke', this.getLineColor(contourIndex, numContours));
+                path.setAttribute('stroke-width', this.getAutoLineWidth());
+                path.setAttribute('stroke-linejoin', 'round');
+                path.setAttribute('stroke-linecap', 'round');
+
+                layerGroup.appendChild(path);
+            });
+        }
+
+        if (currentRotation !== 0) {
+            layerGroup.setAttribute('transform', `rotate(${currentRotation} ${centerX} ${centerY})`);
+        }
+    }
+
+    _traceContours(noiseField, threshold, cellSize, gridWidth, gridHeight) {
+        // Simplified contour tracing using horizontal scan lines
+        const contours = [];
+
+        for (let y = 0; y < gridHeight - 1; y++) {
+            let inContour = false;
+            let currentContour = [];
+
+            for (let x = 0; x < gridWidth - 1; x++) {
+                const current = noiseField[y][x];
+                const next = noiseField[y][x + 1];
+
+                // Crossing detection
+                if ((current < threshold && next >= threshold) || (current >= threshold && next < threshold)) {
+                    // Linear interpolation for smooth crossing
+                    const t = (threshold - current) / (next - current);
+                    const px = (x + t) * cellSize;
+                    const py = y * cellSize;
+
+                    currentContour.push({ x: px, y: py });
+
+                    if (!inContour) {
+                        inContour = true;
+                    } else {
+                        // End of contour segment
+                        if (currentContour.length > 2) {
+                            contours.push(currentContour);
+                        }
+                        currentContour = [];
+                        inContour = false;
+                    }
+                }
+            }
+
+            if (currentContour.length > 2) {
+                contours.push(currentContour);
+            }
+        }
+
+        return contours;
     }
 
     clearCanvas() {
