@@ -547,63 +547,145 @@ class OpticalArtGenerator {
         const previewContainer = document.getElementById('pattern-previews');
         if (!previewContainer) return;
 
-        const patterns = [
-            { id: 'riley-waves', name: 'Riley' },
-            { id: 'radial-vortex', name: 'Vortex' },
-            { id: 'circular-displacement', name: 'Circular' },
-            { id: 'square-tunnel', name: 'Tunnel' },
-            { id: 'vasarely-zebra', name: 'Vasarely' },
-            { id: 'anuszkiewicz-squares', name: 'Anuszkiewicz' },
-            { id: 'riley-crest', name: 'Riley Crest' },
-            { id: 'vasarely-vega', name: 'Vega' },
-            { id: 'soto-vibration', name: 'Soto' },
-            { id: 'cruz-diez-strips', name: 'Cruz-Diez' },
-            { id: 'spiral-distortion', name: 'Spiral' },
-            { id: 'concentric-circles', name: 'Circles' },
-            { id: 'moire-interference', name: 'Moiré' },
-            { id: 'wave-displacement', name: 'Wave' },
-            { id: 'diagonal-stripes', name: 'Stripes' },
-            { id: 'eye-pattern', name: 'Eye' },
-            { id: 'cube-illusion', name: 'Cube' },
-            { id: 'shaded-grid', name: 'Shaded' },
-            { id: 'perlin-displacement', name: 'Perlin' },
-            { id: 'fractal-noise', name: 'Fractal' },
-            { id: 'de-jong-attractor', name: 'Attractor' },
-            { id: 'cellular-automata', name: 'Automata' },
-            { id: 'l-system-growth', name: 'L-System' }
+        // Organized patterns with categories for Easy Mode
+        const patternCategories = [
+            {
+                name: 'Classic Op Art',
+                id: 'classic',
+                patterns: [
+                    { id: 'vasarely-zebra', name: 'Vasarely Zebra' },
+                    { id: 'riley-waves', name: 'Riley Waves' },
+                    { id: 'riley-crest', name: 'Riley Crest' },
+                    { id: 'anuszkiewicz-squares', name: 'Anuszkiewicz' },
+                    { id: 'vasarely-vega', name: 'Vasarely Vega' },
+                    { id: 'soto-vibration', name: 'Soto' },
+                    { id: 'cruz-diez-strips', name: 'Cruz-Diez' }
+                ]
+            },
+            {
+                name: 'Psychedelic',
+                id: 'psychedelic',
+                patterns: [
+                    { id: 'radial-vortex', name: 'Radial Vortex' },
+                    { id: 'spiral-distortion', name: 'Spiral' },
+                    { id: 'moire-interference', name: 'Moiré' },
+                    { id: 'eye-pattern', name: 'Eye Pattern' }
+                ]
+            },
+            {
+                name: 'Geometric',
+                id: 'geometric',
+                patterns: [
+                    { id: 'square-tunnel', name: 'Square Tunnel' },
+                    { id: 'cube-illusion', name: 'Cube Illusion' },
+                    { id: 'concentric-circles', name: 'Concentric Circles' },
+                    { id: 'diagonal-stripes', name: 'Diagonal Stripes' },
+                    { id: 'shaded-grid', name: 'Shaded Grid' }
+                ]
+            },
+            {
+                name: 'Organic',
+                id: 'organic',
+                patterns: [
+                    { id: 'wave-displacement', name: 'Wave Field' },
+                    { id: 'circular-displacement', name: 'Circular Field' },
+                    { id: 'perlin-displacement', name: 'Perlin Noise' },
+                    { id: 'fractal-noise', name: 'Fractal Noise' },
+                    { id: 'l-system-growth', name: 'L-System' }
+                ]
+            },
+            {
+                name: 'Mathematical',
+                id: 'mathematical',
+                patterns: [
+                    { id: 'de-jong-attractor', name: 'De Jong' },
+                    { id: 'cellular-automata', name: 'Cellular Automata' }
+                ]
+            }
         ];
 
         previewContainer.innerHTML = '';
 
-        patterns.forEach(pattern => {
-            const previewDiv = document.createElement('div');
-            previewDiv.className = 'pattern-preview';
-            previewDiv.dataset.pattern = pattern.id;
+        // Create category filter buttons
+        const filterContainer = document.createElement('div');
+        filterContainer.className = 'pattern-category-filters';
 
-            if (pattern.id === document.getElementById('pattern-type').value) {
-                previewDiv.classList.add('active');
-            }
+        const allButton = document.createElement('button');
+        allButton.className = 'category-filter-btn active';
+        allButton.textContent = 'All';
+        allButton.dataset.category = 'all';
+        filterContainer.appendChild(allButton);
 
-            const svg = this.generateMiniPattern(pattern.id);
-            previewDiv.appendChild(svg);
+        patternCategories.forEach(category => {
+            const btn = document.createElement('button');
+            btn.className = 'category-filter-btn';
+            btn.textContent = category.name;
+            btn.dataset.category = category.id;
+            filterContainer.appendChild(btn);
+        });
 
-            const label = document.createElement('div');
-            label.className = 'pattern-preview-label';
-            label.textContent = pattern.name;
+        previewContainer.appendChild(filterContainer);
 
-            const container = document.createElement('div');
-            container.appendChild(previewDiv);
-            container.appendChild(label);
+        // Create pattern grid
+        const gridContainer = document.createElement('div');
+        gridContainer.className = 'pattern-preview-grid-inner';
+        previewContainer.appendChild(gridContainer);
 
-            previewContainer.appendChild(container);
+        // Generate all pattern previews
+        patternCategories.forEach(category => {
+            category.patterns.forEach(pattern => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'pattern-preview-wrapper';
+                wrapper.dataset.category = category.id;
 
-            previewDiv.addEventListener('click', () => {
-                document.getElementById('pattern-type').value = pattern.id;
-                this.updatePatternPreviews();
-                this.updatePatternInfo();
-                this.generatePattern();
+                const previewDiv = document.createElement('div');
+                previewDiv.className = 'pattern-preview';
+                previewDiv.dataset.pattern = pattern.id;
+
+                if (pattern.id === document.getElementById('pattern-type').value) {
+                    previewDiv.classList.add('active');
+                }
+
+                const svg = this.generateMiniPattern(pattern.id);
+                previewDiv.appendChild(svg);
+
+                const label = document.createElement('div');
+                label.className = 'pattern-preview-label';
+                label.textContent = pattern.name;
+
+                wrapper.appendChild(previewDiv);
+                wrapper.appendChild(label);
+                gridContainer.appendChild(wrapper);
+
+                previewDiv.addEventListener('click', () => {
+                    document.getElementById('pattern-type').value = pattern.id;
+                    this.updatePatternPreviews();
+                    this.updatePatternInfo();
+                    this.generatePattern();
+                });
             });
         });
+
+        // Setup category filter listeners
+        filterContainer.querySelectorAll('.category-filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Update active filter button
+                filterContainer.querySelectorAll('.category-filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                // Show/hide patterns based on category
+                const category = btn.dataset.category;
+                gridContainer.querySelectorAll('.pattern-preview-wrapper').forEach(wrapper => {
+                    if (category === 'all' || wrapper.dataset.category === category) {
+                        wrapper.style.display = '';
+                    } else {
+                        wrapper.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        console.log(`✨ Pattern gallery initialized with ${patternCategories.reduce((sum, cat) => sum + cat.patterns.length, 0)} patterns across ${patternCategories.length} categories`);
     }
 
     updatePatternPreviews() {
