@@ -3793,8 +3793,9 @@ class OpticalArtGenerator {
         const numLines = Math.max(20, complexity);
         const lineSpacing = this.actualHeight / numLines;
         
-        // Use amplitude for field strength (increased from /5 to /3 for stronger effect)
-        const baseFieldStrength = amplitude / 3;
+        // Use amplitude for field strength - multiply instead of divide for much stronger effect
+        // Minimum base value ensures visibility even at low amplitude settings
+        const baseFieldStrength = Math.max(20, amplitude * 2);
 
         // Use frequency to control circular distortion intensity
         const frequencyMultiplier = 0.5 + (frequency / 100) * 1.5; // 0.5 to 2.0
