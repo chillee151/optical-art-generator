@@ -5226,6 +5226,16 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
             radius: (amplitude / 100) * Math.min(this.actualWidth, this.actualHeight) * 0.3
         }];
 
+        console.log('VASARELY DEBUG:', {
+            numSpheres: spheres.length,
+            sphereX: spheres[0].x,
+            sphereY: spheres[0].y,
+            sphereRadius: spheres[0].radius,
+            centerX,
+            centerY,
+            symmetry: document.getElementById('symmetry').value
+        });
+
         // Create horizontal stripes that warp around the spheres
         for (let i = 0; i < numStripes; i++) {
             const isBlack = i % 2 === 0;
