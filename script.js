@@ -5664,22 +5664,9 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         const centerY = this.actualHeight / 2;
 
         // Soto's moiré effect requires high contrast
-        // ALWAYS add a white background rectangle to ensure visibility in all modes
-        console.log('Soto DEBUG - actualWidth:', this.actualWidth, 'actualHeight:', this.actualHeight);
-
-        const bgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        bgRect.setAttribute('x', '0');
-        bgRect.setAttribute('y', '0');
-        bgRect.setAttribute('width', this.actualWidth.toString());
-        bgRect.setAttribute('height', this.actualHeight.toString());
-        bgRect.setAttribute('fill', '#ffffff');
-        bgRect.setAttribute('stroke', 'none');
-        layerGroup.appendChild(bgRect);
-
-        console.log('Soto DEBUG - bgRect created and appended');
-
-        // Always use black lines on white background
-        const lineColor = '#000000';
+        // Simple approach: white lines in dark mode, black lines in light mode
+        const isDarkMode = document.getElementById('dark-mode-bg') !== null;
+        const lineColor = isDarkMode ? '#ffffff' : '#000000';
 
         // Dense vertical lines for layer 1
         const numLines = Math.max(50, complexity * 5);
@@ -5692,9 +5679,7 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         const phaseShift = (frequency / 100) * 10; // 0 to 10 pixels
 
         // Ensure minimum stroke width for visibility
-        const strokeWidth = Math.max(1, lineWidth * 0.5);
-
-        console.log('Soto DEBUG - numLines:', numLines, 'spacing:', spacing, 'strokeWidth:', strokeWidth, 'lineColor:', lineColor);
+        const strokeWidth = Math.max(2, lineWidth);
 
         // Create Layer 1 - vertical lines
         const layer1 = document.createElementNS('http://www.w3.org/2000/svg', 'g');
