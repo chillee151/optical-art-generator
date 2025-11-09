@@ -5725,16 +5725,6 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
 
         layerGroup.appendChild(layer1);
         layerGroup.appendChild(layer2);
-
-        // DEBUG: Log canvas structure after Soto renders
-        console.log('=== SOTO DEBUG ===');
-        console.log('Canvas children count:', this.canvas.children.length);
-        Array.from(this.canvas.children).forEach((child, index) => {
-            console.log(`Child ${index}:`, child.tagName, 'id:', child.id, 'fill:', child.getAttribute('fill'));
-        });
-        console.log('LayerGroup children:', layer1.children.length, '+', layer2.children.length);
-        console.log('Sample line color:', layer1.children[0]?.getAttribute('stroke'));
-        console.log('==================');
     }
 
     // ═══════════════════════════════════════════════════════════════════════
