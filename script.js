@@ -125,7 +125,10 @@ class OpticalArtGenerator {
             'l-system-growth': 'Fractal branching with 6 types (bush/tree/fern/flower/spiral/fractal), rotational symmetry (2/4/6-fold), colored branches by depth, and leaves',
             'shaded-grid': 'Creates a 3D-like grid pattern using mathematical shading to simulate depth and curvature.',
             'radial-vortex': 'Mesmerizing 3D tunnel effect with alternating bands radiating from center, creating powerful depth illusion.',
-            'riley-waves': 'Sinusoidal wave patterns with precisely controlled rhythm variation creating vibration and shimmer effects, inspired by Bridget Riley\'s Op Art masterpieces'
+            'riley-waves': 'Sinusoidal wave patterns with precisely controlled rhythm variation creating vibration and shimmer effects, inspired by Bridget Riley\'s Op Art masterpieces',
+            'vasarely-zebra': 'Iconic Vasarely stripe deformation where parallel lines warp around invisible spheres, creating the illusion of 3D forms beneath a striped surface',
+            'anuszkiewicz-squares': 'Concentric squares in complementary colors creating intense chromatic vibration and afterimages through simultaneous contrast, inspired by Richard Anuszkiewicz',
+            'riley-crest': 'Vertical lines with phase-shifted horizontal wave displacement creating mesmerizing traveling wave illusion and lateral shimmer effects, from Bridget Riley\'s Crest series'
         };
 
             this.init();
@@ -507,6 +510,9 @@ class OpticalArtGenerator {
             { id: 'radial-vortex', name: 'Vortex' },
             { id: 'circular-displacement', name: 'Circular' },
             { id: 'square-tunnel', name: 'Tunnel' },
+            { id: 'vasarely-zebra', name: 'Vasarely' },
+            { id: 'anuszkiewicz-squares', name: 'Anuszkiewicz' },
+            { id: 'riley-crest', name: 'Riley Crest' },
             { id: 'spiral-distortion', name: 'Spiral' },
             { id: 'concentric-circles', name: 'Circles' },
             { id: 'moire-interference', name: 'Moiré' },
@@ -624,6 +630,15 @@ class OpticalArtGenerator {
                 break;
             case 'riley-waves':
                 this.generateMiniRileyWaves(svg, miniSeed, miniComplexity, miniLineWidth);
+                break;
+            case 'vasarely-zebra':
+                this.generateMiniVasarelyZebra(svg, miniSeed, miniComplexity, miniLineWidth);
+                break;
+            case 'anuszkiewicz-squares':
+                this.generateMiniAnuszkiewiczSquares(svg, miniSeed, miniComplexity, miniLineWidth);
+                break;
+            case 'riley-crest':
+                this.generateMiniRileyCrest(svg, miniSeed, miniComplexity, miniLineWidth);
                 break;
         }
 
@@ -2310,6 +2325,15 @@ class OpticalArtGenerator {
                             break;
                         case 'riley-waves':
                             this.generateRileyWaves(layerGroup, currentRotation, slowAnimationTime);
+                            break;
+                        case 'vasarely-zebra':
+                            this.generateVasarelyZebra(layerGroup, currentRotation, slowAnimationTime);
+                            break;
+                        case 'anuszkiewicz-squares':
+                            this.generateAnuszkiewiczSquares(layerGroup, currentRotation, slowAnimationTime);
+                            break;
+                        case 'riley-crest':
+                            this.generateRileyCrest(layerGroup, currentRotation, slowAnimationTime);
                             break;
                         default:
                             throw new Error(`Unknown pattern type: ${patternType}`);
@@ -5150,6 +5174,359 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
             svg.appendChild(path);
         }
     }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // VASARELY ZEBRA PATTERN (Stripe Deformation)
+    // ═══════════════════════════════════════════════════════════════════════
+
+    generateVasarelyZebra(layerGroup, currentRotation, slowAnimationTime) {
+        const complexity = parseInt(document.getElementById('complexity').value);
+        const lineWidth = this.getAutoLineWidth();
+        const amplitude = parseInt(document.getElementById('amplitude').value);
+        const frequency = parseInt(document.getElementById('frequency').value);
+        const rotation = parseInt(document.getElementById('rotation').value);
+        const centerX = this.actualWidth / 2;
+        const centerY = this.actualHeight / 2;
+
+        // Number of stripes based on complexity
+        const numStripes = Math.max(20, complexity * 3);
+        const stripeSpacing = this.actualHeight / numStripes;
+
+        // Influence spheres that deform the stripes
+        const spheres = [];
+        const numSpheres = Math.max(2, Math.floor(frequency / 20));
+        for (let i = 0; i < numSpheres; i++) {
+            spheres.push({
+                x: centerX + (Math.cos(i * Math.PI * 2 / numSpheres) * this.actualWidth * 0.25),
+                y: centerY + (Math.sin(i * Math.PI * 2 / numSpheres) * this.actualHeight * 0.25),
+                radius: (amplitude / 100) * Math.min(this.actualWidth, this.actualHeight) * 0.3
+            });
+        }
+
+        // Create horizontal stripes that warp around the spheres
+        for (let i = 0; i < numStripes; i++) {
+            const isBlack = i % 2 === 0;
+            const y = i * stripeSpacing;
+
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            let pathData = '';
+
+            const numPoints = 200;
+            const step = this.actualWidth / numPoints;
+
+            // Generate stripe with deformation
+            for (let x = 0; x <= this.actualWidth; x += step) {
+                let totalDisplacement = 0;
+
+                // Calculate displacement from all influence spheres
+                for (const sphere of spheres) {
+                    const dx = x - sphere.x;
+                    const dy = y - sphere.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < sphere.radius) {
+                        // Vasarely displacement formula
+                        const influence = 1 - (distance * distance) / (sphere.radius * sphere.radius);
+                        totalDisplacement += influence * sphere.radius * 0.5;
+                    }
+                }
+
+                const warpedY = y + totalDisplacement;
+
+                if (pathData === '') {
+                    pathData = `M ${x} ${warpedY}`;
+                } else {
+                    pathData += ` L ${x} ${warpedY}`;
+                }
+            }
+
+            // Complete the stripe by going back
+            pathData += ` L ${this.actualWidth} ${y + stripeSpacing}`;
+            for (let x = this.actualWidth; x >= 0; x -= step) {
+                let totalDisplacement = 0;
+
+                for (const sphere of spheres) {
+                    const dx = x - sphere.x;
+                    const dy = (y + stripeSpacing) - sphere.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < sphere.radius) {
+                        const influence = 1 - (distance * distance) / (sphere.radius * sphere.radius);
+                        totalDisplacement += influence * sphere.radius * 0.5;
+                    }
+                }
+
+                const warpedY = (y + stripeSpacing) + totalDisplacement;
+                pathData += ` L ${x} ${warpedY}`;
+            }
+
+            pathData += ' Z';
+
+            path.setAttribute('d', pathData);
+            path.setAttribute('fill', isBlack ? '#000' : '#fff');
+            path.setAttribute('stroke', 'none');
+
+            if (rotation !== 0) {
+                path.setAttribute('transform', `rotate(${rotation} ${centerX} ${centerY})`);
+            }
+
+            layerGroup.appendChild(path);
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // VASARELY ZEBRA MINI PREVIEW
+    // ═══════════════════════════════════════════════════════════════════════
+
+    generateMiniVasarelyZebra(svg, seed, complexity, lineWidth) {
+        const size = 56;
+        const numStripes = Math.min(12, complexity * 2);
+        const stripeSpacing = size / numStripes;
+
+        // Single centered sphere for preview
+        const sphere = {
+            x: size / 2,
+            y: size / 2,
+            radius: size * 0.35
+        };
+
+        for (let i = 0; i < numStripes; i++) {
+            const isBlack = i % 2 === 0;
+            const y = i * stripeSpacing;
+
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            let pathData = '';
+
+            // Top edge of stripe
+            for (let x = 0; x <= size; x += 2) {
+                const dx = x - sphere.x;
+                const dy = y - sphere.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                let displacement = 0;
+                if (distance < sphere.radius) {
+                    const influence = 1 - (distance * distance) / (sphere.radius * sphere.radius);
+                    displacement = influence * sphere.radius * 0.5;
+                }
+
+                const warpedY = y + displacement;
+                if (pathData === '') {
+                    pathData = `M ${x} ${warpedY}`;
+                } else {
+                    pathData += ` L ${x} ${warpedY}`;
+                }
+            }
+
+            // Bottom edge of stripe (reverse)
+            pathData += ` L ${size} ${y + stripeSpacing}`;
+            for (let x = size; x >= 0; x -= 2) {
+                const dx = x - sphere.x;
+                const dy = (y + stripeSpacing) - sphere.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                let displacement = 0;
+                if (distance < sphere.radius) {
+                    const influence = 1 - (distance * distance) / (sphere.radius * sphere.radius);
+                    displacement = influence * sphere.radius * 0.5;
+                }
+
+                const warpedY = (y + stripeSpacing) + displacement;
+                pathData += ` L ${x} ${warpedY}`;
+            }
+
+            pathData += ' Z';
+
+            path.setAttribute('d', pathData);
+            path.setAttribute('fill', isBlack ? '#000' : '#fff');
+            path.setAttribute('stroke', 'none');
+
+            svg.appendChild(path);
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // ANUSZKIEWICZ RADIATING SQUARES (Chromatic Vibration)
+    // ═══════════════════════════════════════════════════════════════════════
+
+    generateAnuszkiewiczSquares(layerGroup, currentRotation, slowAnimationTime) {
+        const complexity = parseInt(document.getElementById('complexity').value);
+        const lineWidth = this.getAutoLineWidth();
+        const amplitude = parseInt(document.getElementById('amplitude').value);
+        const rotation = parseInt(document.getElementById('rotation').value);
+        const centerX = this.actualWidth / 2;
+        const centerY = this.actualHeight / 2;
+
+        // Number of concentric squares
+        const numSquares = Math.max(10, complexity * 2);
+        const maxSize = Math.max(this.actualWidth, this.actualHeight) * 1.4;
+        const sizeStep = maxSize / numSquares;
+
+        // Complementary color pairs for chromatic vibration
+        const colorSchemes = [
+            ['#FF0000', '#00FFFF'], // Red / Cyan
+            ['#0000FF', '#FFB000'], // Blue / Orange
+            ['#FFFF00', '#8800FF'], // Yellow / Purple
+            ['#00FF00', '#FF00FF'], // Green / Magenta
+        ];
+
+        // Use amplitude to select color scheme
+        const schemeIndex = Math.floor((amplitude / 100) * (colorSchemes.length - 1));
+        const colors = colorSchemes[schemeIndex];
+
+        // Create concentric squares with alternating complementary colors
+        for (let i = 0; i < numSquares; i++) {
+            const size = maxSize - (i * sizeStep);
+            const color = colors[i % 2];
+
+            // Optional subtle rotation per square for enhanced effect
+            const squareRotation = rotation + (i * 0.5);
+
+            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            rect.setAttribute('x', centerX - size / 2);
+            rect.setAttribute('y', centerY - size / 2);
+            rect.setAttribute('width', size);
+            rect.setAttribute('height', size);
+            rect.setAttribute('fill', color);
+            rect.setAttribute('stroke', 'none');
+
+            if (squareRotation !== 0) {
+                rect.setAttribute('transform', `rotate(${squareRotation} ${centerX} ${centerY})`);
+            }
+
+            layerGroup.appendChild(rect);
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // ANUSZKIEWICZ RADIATING SQUARES MINI PREVIEW
+    // ═══════════════════════════════════════════════════════════════════════
+
+    generateMiniAnuszkiewiczSquares(svg, seed, complexity, lineWidth) {
+        const size = 56;
+        const centerX = size / 2;
+        const centerY = size / 2;
+        const numSquares = Math.min(10, complexity * 2);
+
+        // Red/Cyan for preview
+        const colors = ['#FF0000', '#00FFFF'];
+
+        for (let i = 0; i < numSquares; i++) {
+            const squareSize = size - (i * (size / numSquares));
+            const color = colors[i % 2];
+
+            const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            rect.setAttribute('x', centerX - squareSize / 2);
+            rect.setAttribute('y', centerY - squareSize / 2);
+            rect.setAttribute('width', squareSize);
+            rect.setAttribute('height', squareSize);
+            rect.setAttribute('fill', color);
+            rect.setAttribute('stroke', 'none');
+
+            svg.appendChild(rect);
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // RILEY CREST PATTERN (Vertical Wave Lines)
+    // ═══════════════════════════════════════════════════════════════════════
+
+    generateRileyCrest(layerGroup, currentRotation, slowAnimationTime) {
+        const complexity = parseInt(document.getElementById('complexity').value);
+        const lineWidth = this.getAutoLineWidth();
+        const amplitude = parseInt(document.getElementById('amplitude').value);
+        const frequency = parseInt(document.getElementById('frequency').value);
+        const rotation = parseInt(document.getElementById('rotation').value);
+        const centerX = this.actualWidth / 2;
+        const centerY = this.actualHeight / 2;
+
+        // Number of vertical lines
+        const numLines = Math.max(30, complexity * 3);
+        const spacing = this.actualWidth / numLines;
+
+        // Horizontal wave amplitude
+        const maxAmplitude = (amplitude / 100) * this.actualWidth * 0.15;
+
+        // Wavelength and phase shift
+        const wavelength = Math.max(50, this.actualHeight / (frequency / 20));
+        const phaseShift = (Math.PI * 2) / numLines;
+
+        // Create vertical lines with horizontal wave displacement
+        for (let i = 0; i < numLines; i++) {
+            const x = i * spacing;
+            const phase = i * phaseShift;
+
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            let pathData = '';
+
+            const numPoints = 100;
+            const step = this.actualHeight / numPoints;
+
+            for (let y = 0; y <= this.actualHeight; y += step) {
+                // Horizontal displacement with phase shift
+                const dx = maxAmplitude * Math.sin((2 * Math.PI * y / wavelength) + phase);
+                const warpedX = x + dx;
+
+                if (pathData === '') {
+                    pathData = `M ${warpedX} ${y}`;
+                } else {
+                    pathData += ` L ${warpedX} ${y}`;
+                }
+            }
+
+            path.setAttribute('d', pathData);
+            path.setAttribute('fill', 'none');
+
+            const color = this.getLineColor(i, numLines);
+            path.setAttribute('stroke', color);
+            path.setAttribute('stroke-width', lineWidth);
+
+            if (rotation !== 0) {
+                path.setAttribute('transform', `rotate(${rotation} ${centerX} ${centerY})`);
+            }
+
+            layerGroup.appendChild(path);
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // RILEY CREST MINI PREVIEW
+    // ═══════════════════════════════════════════════════════════════════════
+
+    generateMiniRileyCrest(svg, seed, complexity, lineWidth) {
+        const size = 56;
+        const numLines = Math.min(20, complexity * 2);
+        const spacing = size / numLines;
+        const maxAmplitude = size * 0.15;
+        const wavelength = size / 2;
+        const phaseShift = (Math.PI * 2) / numLines;
+
+        for (let i = 0; i < numLines; i++) {
+            const x = i * spacing;
+            const phase = i * phaseShift;
+
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            let pathData = '';
+
+            for (let y = 0; y <= size; y += 2) {
+                const dx = maxAmplitude * Math.sin((2 * Math.PI * y / wavelength) + phase);
+                const warpedX = x + dx;
+
+                if (pathData === '') {
+                    pathData = `M ${warpedX} ${y}`;
+                } else {
+                    pathData += ` L ${warpedX} ${y}`;
+                }
+            }
+
+            path.setAttribute('d', pathData);
+            path.setAttribute('fill', 'none');
+            path.setAttribute('stroke', '#000');
+            path.setAttribute('stroke-width', lineWidth * 0.5);
+
+            svg.appendChild(path);
+        }
+    }
+
     // ==================== PRESET SNAPSHOTS SYSTEM ====================
 
     getCurrentSettings() {
@@ -5648,6 +6025,15 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
                     break;
                 case 'riley-waves':
                     this.generateMiniRileyWaves(svg, settings.seed, Math.min(settings.complexity / 10, 20), this.getAutoLineWidth());
+                    break;
+                case 'vasarely-zebra':
+                    this.generateMiniVasarelyZebra(svg, settings.seed, Math.min(settings.complexity / 10, 20), this.getAutoLineWidth());
+                    break;
+                case 'anuszkiewicz-squares':
+                    this.generateMiniAnuszkiewiczSquares(svg, settings.seed, Math.min(settings.complexity / 10, 20), this.getAutoLineWidth());
+                    break;
+                case 'riley-crest':
+                    this.generateMiniRileyCrest(svg, settings.seed, Math.min(settings.complexity / 10, 20), this.getAutoLineWidth());
                     break;
                 default:
                     // Fallback to simple spiral
