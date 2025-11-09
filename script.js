@@ -503,23 +503,23 @@ class OpticalArtGenerator {
         if (!previewContainer) return;
 
         const patterns = [
-            { id: 'wave-displacement', name: 'Wave' },
+            { id: 'riley-waves', name: 'Riley' },
+            { id: 'radial-vortex', name: 'Vortex' },
             { id: 'circular-displacement', name: 'Circular' },
+            { id: 'spiral-distortion', name: 'Spiral' },
+            { id: 'concentric-circles', name: 'Circles' },
+            { id: 'moire-interference', name: 'Moiré' },
+            { id: 'wave-displacement', name: 'Wave' },
+            { id: 'diagonal-stripes', name: 'Stripes' },
+            { id: 'eye-pattern', name: 'Eye' },
+            { id: 'square-tunnel', name: 'Tunnel' },
+            { id: 'cube-illusion', name: 'Cube' },
+            { id: 'shaded-grid', name: 'Shaded' },
             { id: 'perlin-displacement', name: 'Perlin' },
             { id: 'fractal-noise', name: 'Fractal' },
             { id: 'de-jong-attractor', name: 'Attractor' },
             { id: 'cellular-automata', name: 'Automata' },
-            { id: 'l-system-growth', name: 'L-System' },
-            { id: 'eye-pattern', name: 'Eye' },
-            { id: 'moire-interference', name: 'Moiré' },
-            { id: 'spiral-distortion', name: 'Spiral' },
-            { id: 'concentric-circles', name: 'Circles' },
-            { id: 'diagonal-stripes', name: 'Stripes' },
-            { id: 'cube-illusion', name: 'Cube' },
-            { id: 'square-tunnel', name: 'Tunnel' },
-            { id: 'shaded-grid', name: 'Shaded' },
-            { id: 'radial-vortex', name: 'Vortex' },
-            { id: 'riley-waves', name: 'Riley' }
+            { id: 'l-system-growth', name: 'L-System' }
         ];
 
         previewContainer.innerHTML = '';
