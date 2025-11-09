@@ -5664,23 +5664,21 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         const centerY = this.actualHeight / 2;
 
         // Soto's moiré effect requires high contrast
-        // In dark mode: white background with black lines
-        // In light mode: transparent background with black lines
-        const isDarkMode = document.getElementById('dark-mode-bg') !== null;
+        // ALWAYS add a white background rectangle to ensure visibility in all modes
+        console.log('Soto DEBUG - actualWidth:', this.actualWidth, 'actualHeight:', this.actualHeight);
 
-        // Add a white background rectangle in dark mode to ensure visibility
-        if (isDarkMode) {
-            const bgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-            bgRect.setAttribute('x', 0);
-            bgRect.setAttribute('y', 0);
-            bgRect.setAttribute('width', this.actualWidth);
-            bgRect.setAttribute('height', this.actualHeight);
-            bgRect.setAttribute('fill', '#ffffff');
-            layerGroup.appendChild(bgRect);
-        }
+        const bgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        bgRect.setAttribute('x', '0');
+        bgRect.setAttribute('y', '0');
+        bgRect.setAttribute('width', this.actualWidth.toString());
+        bgRect.setAttribute('height', this.actualHeight.toString());
+        bgRect.setAttribute('fill', '#ffffff');
+        bgRect.setAttribute('stroke', 'none');
+        layerGroup.appendChild(bgRect);
 
-        // Always use black lines - they'll show on white background in dark mode,
-        // or on default white canvas in light mode
+        console.log('Soto DEBUG - bgRect created and appended');
+
+        // Always use black lines on white background
         const lineColor = '#000000';
 
         // Dense vertical lines for layer 1
@@ -5695,6 +5693,8 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
 
         // Ensure minimum stroke width for visibility
         const strokeWidth = Math.max(1, lineWidth * 0.5);
+
+        console.log('Soto DEBUG - numLines:', numLines, 'spacing:', spacing, 'strokeWidth:', strokeWidth, 'lineColor:', lineColor);
 
         // Create Layer 1 - vertical lines
         const layer1 = document.createElementNS('http://www.w3.org/2000/svg', 'g');
