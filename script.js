@@ -5663,6 +5663,10 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         const centerX = this.actualWidth / 2;
         const centerY = this.actualHeight / 2;
 
+        // Soto's moiré effect requires high contrast - use black or white based on dark mode
+        const isDarkMode = localStorage.getItem('darkMode') === 'true';
+        const lineColor = isDarkMode ? '#fff' : '#000';
+
         // Dense vertical lines for layer 1
         const numLines = Math.max(50, complexity * 5);
         const spacing = this.actualWidth / numLines;
@@ -5684,9 +5688,7 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
             line.setAttribute('y1', 0);
             line.setAttribute('x2', x);
             line.setAttribute('y2', this.actualHeight);
-
-            const color = this.getLineColor(i, numLines);
-            line.setAttribute('stroke', color);
+            line.setAttribute('stroke', lineColor);
             line.setAttribute('stroke-width', lineWidth * 0.5);
             layer1.appendChild(line);
         }
@@ -5706,9 +5708,7 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
             line.setAttribute('y1', 0);
             line.setAttribute('x2', x);
             line.setAttribute('y2', this.actualHeight);
-
-            const color = this.getLineColor(i, numLines);
-            line.setAttribute('stroke', color);
+            line.setAttribute('stroke', lineColor);
             line.setAttribute('stroke-width', lineWidth * 0.5);
             layer2.appendChild(line);
         }
