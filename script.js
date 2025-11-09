@@ -5664,8 +5664,9 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         const centerY = this.actualHeight / 2;
 
         // Soto's moiré effect requires high contrast - use black or white based on dark mode
-        const isDarkMode = localStorage.getItem('darkMode') === 'true';
-        const lineColor = isDarkMode ? '#fff' : '#000';
+        // Check if dark mode background exists to determine current mode
+        const isDarkMode = document.getElementById('dark-mode-bg') !== null;
+        const lineColor = isDarkMode ? '#ffffff' : '#000000';
 
         // Dense vertical lines for layer 1
         const numLines = Math.max(50, complexity * 5);
