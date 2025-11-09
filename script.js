@@ -962,26 +962,28 @@ class OpticalArtGenerator {
         const centerX = 28;
         const centerY = 28;
         const maxRadius = 26;
-        const numRings = 15;
+        const numRings = 20; // complexity: 103 (more rings)
 
         for (let i = 0; i < numRings; i++) {
             const progress = i / numRings;
             const baseRadius = maxRadius * progress;
-            
+
             const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             let pathData = '';
-            
-            const numPoints = 60;
+
+            const numPoints = 80; // More points for smoother waves
             const angleStep = (Math.PI * 2) / numPoints;
-            
+
             for (let angle = 0; angle <= Math.PI * 2; angle += angleStep) {
-                // Wave modulation
-                const waveModulation = 1 + Math.sin(angle * 3) * 0.15;
+                // Wave modulation - frequency: 70, amplitude: -208
+                const waveFreq = 7; // frequency: 70 mapped to 7 waves
+                const waveAmp = 0.25; // amplitude: -208 mapped to stronger modulation
+                const waveModulation = 1 + Math.sin(angle * waveFreq) * waveAmp;
                 const radius = baseRadius * waveModulation;
-                
+
                 const x = centerX + radius * Math.cos(angle);
                 const y = centerY + radius * Math.sin(angle);
-                
+
                 if (pathData === '') {
                     pathData = `M ${x} ${y}`;
                 } else {
@@ -989,23 +991,12 @@ class OpticalArtGenerator {
                 }
             }
             pathData += ' Z';
-            
+
             path.setAttribute('d', pathData);
-            
-            // Optical art style - mostly outlines
-            if (i % 5 === 0) {
-                // Only every 5th ring with subtle fill
-                path.setAttribute('fill', '#ddd');
-                path.setAttribute('fill-opacity', '0.2');
-                path.setAttribute('stroke', '#000');
-                path.setAttribute('stroke-width', lineWidth * 0.7);
-            } else {
-                // All other rings: outline only (optical art!)
-                path.setAttribute('fill', 'none');
-                path.setAttribute('stroke', '#000');
-                path.setAttribute('stroke-width', lineWidth * (0.5 + progress * 0.5));
-            }
-            
+            path.setAttribute('fill', 'none');
+            path.setAttribute('stroke', '#000');
+            path.setAttribute('stroke-width', lineWidth * 0.4);
+
             svg.appendChild(path);
         }
     }
@@ -1073,33 +1064,33 @@ class OpticalArtGenerator {
     generateMiniSquareTunnel(svg, seed, complexity, lineWidth) {
         const centerX = 28;
         const centerY = 28;
-        const numSquares = 20;
+        const numSquares = 15;  // complexity: 114
+        const symmetryCount = 8; // symmetry: 8
 
-        for (let i = 0; i < numSquares; i++) {
-            const progress = i / numSquares;
-            const scale = Math.pow(1 - progress, 1.5);
-            const squareSize = 44 * scale;
-            const rotation = progress * 180; // Twist effect
-            
-            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            const half = squareSize / 2;
-            
-            const pathData = `M ${-half} ${-half} L ${half} ${-half} L ${half} ${half} L ${-half} ${half} Z`;
-            path.setAttribute('d', pathData);
-            
-            // Alternating fills
-            if (i % 2 === 0) {
-                path.setAttribute('fill', '#000');
-            } else {
-                path.setAttribute('fill', '#fff');
+        // Create 8-fold radial symmetry
+        for (let sym = 0; sym < symmetryCount; sym++) {
+            const symAngle = (360 / symmetryCount) * sym - 73; // rotation: -73
+
+            for (let i = 0; i < numSquares; i++) {
+                const progress = i / numSquares;
+                const scale = Math.pow(1 - progress, 1.5);
+                const squareSize = 44 * scale;
+                const rotation = progress * 40 + symAngle; // frequency: 40 affects twist
+
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                const half = squareSize / 2;
+
+                const pathData = `M ${-half} ${-half} L ${half} ${-half} L ${half} ${half} L ${-half} ${half} Z`;
+                path.setAttribute('d', pathData);
+                path.setAttribute('fill', 'none');
+                path.setAttribute('stroke', '#000');
+                path.setAttribute('stroke-width', lineWidth * 0.2);
+
+                const transform = `translate(${centerX}, ${centerY}) rotate(${rotation})`;
+                path.setAttribute('transform', transform);
+
+                svg.appendChild(path);
             }
-            path.setAttribute('stroke', '#000');
-            path.setAttribute('stroke-width', lineWidth * 0.3);
-            
-            const transform = `translate(${centerX}, ${centerY}) rotate(${rotation})`;
-            path.setAttribute('transform', transform);
-            
-            svg.appendChild(path);
         }
     }
 
@@ -1173,87 +1164,51 @@ class OpticalArtGenerator {
     generateMiniEyePattern(svg, seed, complexity, lineWidth) {
         const centerX = 28;
         const centerY = 28;
-        const maxRadius = 24;
-        const numRings = 10;
-        
-        // Organic eye rings
-        for (let i = 0; i < numRings; i++) {
-            const progress = i / numRings;
+        const width = 56;
+        const height = 56;
+
+        // Advanced Eye Pattern style: horizontal wavy lines forming eye shape
+        const numLines = 20;
+        const eyeWidth = width * 0.4;  // Amplitude controls eye size
+        const eyeHeight = height * 0.2;
+
+        for (let i = 0; i < numLines; i++) {
+            const y = (i / numLines) * height;
             const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            let pathData = '';
-            
-            const baseRx = maxRadius * progress;
-            const baseRy = maxRadius * 0.6 * progress;
-            
-            const numPoints = 40;
-            for (let j = 0; j <= numPoints; j++) {
-                const angle = (Math.PI * 2 * j) / numPoints;
-                const wave = Math.sin(angle * 2) * 0.1 + Math.sin(angle * 4) * 0.05;
-                const modulation = 1 + wave;
-                
-                const x = centerX + baseRx * modulation * Math.cos(angle);
-                const y = centerY + baseRy * modulation * Math.sin(angle);
-                
-                if (j === 0) {
-                    pathData = `M ${x} ${y}`;
-                } else {
-                    pathData += ` L ${x} ${y}`;
-                }
+            let pathData = `M 0 ${y}`;
+
+            for (let x = 0; x <= width; x += 2) {
+                const dx = x - centerX;
+                const dy = y - centerY;
+
+                // Elliptical eye field
+                const normalizedX = dx / eyeWidth;
+                const normalizedY = dy / eyeHeight;
+                const ellipseDistance = Math.sqrt(normalizedX * normalizedX + normalizedY * normalizedY);
+
+                // Eye curve displacement
+                const fieldStrength = Math.exp(-ellipseDistance * 2) * 8;
+                const eyeDisplacement = fieldStrength * Math.sin(normalizedX * Math.PI) * (1 - Math.abs(normalizedY));
+
+                const finalY = y + eyeDisplacement;
+                pathData += ` L ${x} ${finalY}`;
             }
-            pathData += ' Z';
-            
+
             path.setAttribute('d', pathData);
-            
-            if (i % 3 === 0) {
-                path.setAttribute('fill', '#555');
-                path.setAttribute('fill-opacity', '0.3');
-                path.setAttribute('stroke', '#000');
-                path.setAttribute('stroke-width', lineWidth * 0.3);
-            } else if (i % 3 === 1) {
-                path.setAttribute('fill', 'none');
-                path.setAttribute('stroke', '#000');
-                path.setAttribute('stroke-width', lineWidth);
-            } else {
-                path.setAttribute('fill', '#ddd');
-                path.setAttribute('fill-opacity', '0.2');
-                path.setAttribute('stroke', 'none');
-            }
-            
+            path.setAttribute('fill', 'none');
+            path.setAttribute('stroke', '#000');
+            path.setAttribute('stroke-width', lineWidth * 0.5);
             svg.appendChild(path);
         }
-        
-        // Iris lines
-        const irisRadius = 7;
-        const pupilRadius = 3;
-        for (let i = 0; i < 16; i++) {
-            const angle = (Math.PI * 2 * i) / 16;
-            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-            line.setAttribute('x1', centerX + pupilRadius * Math.cos(angle));
-            line.setAttribute('y1', centerY + pupilRadius * Math.sin(angle));
-            line.setAttribute('x2', centerX + irisRadius * Math.cos(angle));
-            line.setAttribute('y2', centerY + irisRadius * Math.sin(angle));
-            line.setAttribute('stroke', '#000');
-            line.setAttribute('stroke-width', lineWidth * 0.2);
-            line.setAttribute('stroke-opacity', '0.4');
-            svg.appendChild(line);
-        }
-        
-        // Pupil
+
+        // Large pupil (frequency=100 means max dilation at 35%)
+        const pupilRadius = 10;  // 35% of 28 (half canvas)
         const pupil = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         pupil.setAttribute('cx', centerX);
         pupil.setAttribute('cy', centerY);
         pupil.setAttribute('r', pupilRadius);
         pupil.setAttribute('fill', '#000');
         svg.appendChild(pupil);
-        
-        // Highlight
-        const highlight = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        highlight.setAttribute('cx', centerX - 1);
-        highlight.setAttribute('cy', centerY - 1);
-        highlight.setAttribute('r', 1);
-        highlight.setAttribute('fill', '#fff');
-        highlight.setAttribute('fill-opacity', '0.7');
-        svg.appendChild(highlight);
     }
 
     generateMiniCircularDisplacement(svg, seed, complexity, lineWidth) {
@@ -1445,26 +1400,29 @@ class OpticalArtGenerator {
     generateMiniCubeIllusion(svg, seed, complexity, lineWidth) {
         const centerX = 28;
         const centerY = 28;
-        const gridSize = 3; // 3x3 grid for preview
-        const baseSize = 12;
-        
-        // Create isometric cube grid
+        const gridSize = 5; // 5x5 grid for high complexity (160)
+        const baseSize = 8;  // Smaller cubes to fit more
+
+        // Create isometric cube grid with more complex patterns
         for (let row = 0; row < gridSize; row++) {
             for (let col = 0; col < gridSize; col++) {
                 const xOffset = col - gridSize / 2;
                 const yOffset = row - gridSize / 2;
-                
+
                 // Isometric positioning
                 const isoX = centerX + (xOffset - yOffset) * baseSize * 0.866;
                 const isoY = centerY + (xOffset + yOffset) * baseSize * 0.5;
-                
-                // Vary size slightly for depth
+
+                // Vary size for depth - amplitude: -892 affects depth variation
                 const distFromCenter = Math.sqrt(xOffset * xOffset + yOffset * yOffset);
-                const sizeScale = 0.8 + 0.2 * (1 - distFromCenter / 2);
-                const cubeSize = baseSize * sizeScale;
-                
+                const depthScale = 0.6 + 0.4 * (1 - distFromCenter / 3.5);
+                const cubeSize = baseSize * depthScale;
+
+                // frequency: 35 affects flip pattern frequency
+                const flipPattern = Math.sin((row * 35 + col * 35) * 0.1) > 0;
+
                 // Draw isometric cube
-                this.drawMiniIsometricCube(svg, isoX, isoY, cubeSize, lineWidth, (row + col) % 2 === 0);
+                this.drawMiniIsometricCube(svg, isoX, isoY, cubeSize, lineWidth * 0.6, flipPattern);
             }
         }
     }
@@ -2602,6 +2560,34 @@ class OpticalArtGenerator {
                 complexity: 70,
                 frequency: 29,
                 amplitude: 69,
+                rotation: 0,
+                symmetry: 'none'
+            },
+            'eye-pattern': {
+                complexity: 121,
+                frequency: 100,
+                amplitude: 123,
+                rotation: 0,
+                symmetry: 'none'
+            },
+            'square-tunnel': {
+                complexity: 114,
+                frequency: 40,
+                amplitude: 446,
+                rotation: -73,
+                symmetry: '8'
+            },
+            'cube-illusion': {
+                complexity: 160,
+                frequency: 35,
+                amplitude: -892,
+                rotation: 0,
+                symmetry: 'none'
+            },
+            'concentric-circles': {
+                complexity: 103,
+                frequency: 70,
+                amplitude: -208,
                 rotation: 0,
                 symmetry: 'none'
             }
@@ -3852,18 +3838,18 @@ class OpticalArtGenerator {
         const centerX = this.actualWidth / 2;
         const centerY = this.actualHeight / 2;
 
-        // Ensure eye fits properly on canvas considering elliptical shape
-        // Eye is horizontally oriented (wider than tall with 0.6 aspect ratio)
-        const maxRadiusX = this.actualWidth * 0.4; // Horizontal extent
-        const maxRadiusY = this.actualHeight * 0.45; // Vertical extent
-        // Use the more restrictive dimension, accounting for 0.6 ellipse ratio
-        const maxRadius = Math.min(maxRadiusX, maxRadiusY / 0.6);
+        console.log(`🔵 EYE PATTERN GENERATING - Amplitude: ${amplitude}, Frequency: ${frequency}`);
+
+        // Amplitude controls the size/scale of the eye (0-100 maps to 20%-90% of canvas)
+        const eyeScale = 0.2 + (amplitude / 100) * 0.7; // 0.2 to 0.9
+
+        // Calculate base eye size - this determines the size of everything including the pupil
+        const baseSize = Math.min(this.actualWidth, this.actualHeight) * eyeScale;
+        const maxRadius = baseSize * 0.45;
         const numRings = Math.max(15, complexity);
 
-        // Amplitude controls organic distortion intensity (0-100 maps to 0-3x distortion for dramatic effect)
-        const distortionIntensity = (amplitude / 100) * 3.0;
-
-        // Frequency controls wave frequencies in the organic distortion (0-100 maps to 1-20x waves)
+        // Frequency controls both wave frequencies AND distortion intensity
+        const distortionIntensity = 0.5 + (frequency / 100) * 2.5; // 0.5 to 3.0 based on frequency
         const waveFreq1 = 1 + (frequency / 100) * 6; // Primary wave: 1-7
         const waveFreq2 = 2 + (frequency / 100) * 10; // Secondary wave: 2-12
         const waveFreq3 = 3 + (frequency / 100) * 17; // Tertiary wave: 3-20
@@ -3937,9 +3923,14 @@ class OpticalArtGenerator {
             layerGroup.appendChild(path);
         }
         
-        // Add radial iris lines for detail
-        const irisRadius = maxRadius * 0.3;
-        const pupilRadius = maxRadius * 0.12;
+        // Iris and pupil sizing
+        const irisRadius = maxRadius * 0.4; // Fixed proportion of eye
+
+        // FREQUENCY controls pupil dilation (0-100 maps to 5%-35% of maxRadius)
+        const pupilScale = 0.05 + (frequency / 100) * 0.3; // 0.05 to 0.35
+        const pupilRadius = maxRadius * pupilScale;
+
+        console.log(`⚫ PUPIL SIZE - Frequency: ${frequency}, Pupil Radius: ${pupilRadius.toFixed(1)}px (${(pupilScale * 100).toFixed(0)}% of eye)`);
 
         for (let i = 0; i < irisDetailLevel * 3; i++) {
             const angle = (Math.PI * 2 * i) / (irisDetailLevel * 3);
@@ -4412,12 +4403,15 @@ class OpticalArtGenerator {
         const centerX = this.actualWidth / 2;
         const centerY = this.actualHeight / 2;
 
+        console.log(`🔵 EYE PATTERN (Advanced) - Amplitude: ${amplitude}, Frequency: ${frequency}`);
+
         // Create horizontal lines that curve around eye shape
         const lineSpacing = this.actualHeight / complexity;
         const totalLines = Math.ceil((this.actualHeight + 2 * lineSpacing) / lineSpacing);
 
-        // Amplitude controls displacement strength (0-100 maps to 0-3x strength)
-        const displacementStrength = Math.abs(amplitude / 100) * 3.0;
+        // Amplitude controls overall eye size (0-100 maps to 0.2-0.8x size)
+        const eyeScale = 0.2 + (Math.abs(amplitude) / 100) * 0.6;
+        const displacementStrength = 3.0; // Fixed strength
 
         // Frequency controls wave detail (0-100 maps to 0.01-0.2 wave frequency)
         const waveFrequency = 0.01 + (Math.abs(frequency) / 100) * 0.19;
@@ -4431,9 +4425,9 @@ class OpticalArtGenerator {
                 const dx = x - centerX;
                 const dy = y - centerY;
 
-                // Create eye-like displacement field
-                const eyeWidth = this.actualWidth * 0.4;
-                const eyeHeight = this.actualHeight * 0.2;
+                // Create eye-like displacement field - scaled by amplitude
+                const eyeWidth = this.actualWidth * 0.4 * eyeScale;
+                const eyeHeight = this.actualHeight * 0.2 * eyeScale;
 
                 // Elliptical field
                 const normalizedX = dx / eyeWidth;
@@ -4462,11 +4456,18 @@ class OpticalArtGenerator {
             lineIndex++;
         }
 
-        // Add pupil
+        // Add pupil - FREQUENCY controls pupil size (dilation)
+        // 0-100 maps to 5%-35% of canvas size
+        const basePupilSize = Math.min(this.actualWidth, this.actualHeight);
+        const pupilScale = 0.05 + (Math.abs(frequency) / 100) * 0.3; // 0.05 to 0.35
+        const pupilRadius = basePupilSize * pupilScale * eyeScale; // Also scales with overall eye size
+
+        console.log(`⚫ PUPIL SIZE - Frequency: ${frequency}, Pupil Radius: ${pupilRadius.toFixed(1)}px`);
+
         const pupil = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         pupil.setAttribute('cx', centerX);
         pupil.setAttribute('cy', centerY);
-        pupil.setAttribute('r', Math.min(this.actualWidth, this.actualHeight) * 0.05);
+        pupil.setAttribute('r', pupilRadius);
         pupil.setAttribute('fill', '#000');
         layerGroup.appendChild(pupil);
     }
@@ -6593,9 +6594,11 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
     }
 
     resetAll() {
-        // Reset all controls to default values
+        // Reset all controls to default values, but keep current pattern
+        const currentPattern = document.getElementById('pattern-select').value;
+
         const defaultSettings = {
-            patternType: 'concentric-circles',
+            patternType: currentPattern, // Keep the currently selected pattern
             complexity: 50,
             symmetry: 'none',
             frequency: 4,
@@ -6608,7 +6611,7 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
             gradientColor2: '#00ffff',
             seed: Math.random()
         };
-        
+
         this.applySettings(defaultSettings);
         this.showSuccess('↺ Reset to defaults! All settings restored');
     }
