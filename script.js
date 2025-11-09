@@ -5678,9 +5678,12 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         // Layer 2 phase shift (alternative to rotation)
         const phaseShift = (frequency / 100) * 10; // 0 to 10 pixels
 
+        // Ensure minimum stroke width for visibility
+        const strokeWidth = Math.max(1, lineWidth * 0.5);
+
         // Create Layer 1 - vertical lines
         const layer1 = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        layer1.setAttribute('opacity', '0.7');
+        layer1.setAttribute('opacity', '1.0');
 
         for (let i = 0; i < numLines; i++) {
             const x = i * spacing;
@@ -5690,7 +5693,7 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
             line.setAttribute('x2', x);
             line.setAttribute('y2', this.actualHeight);
             line.setAttribute('stroke', lineColor);
-            line.setAttribute('stroke-width', lineWidth * 0.5);
+            line.setAttribute('stroke-width', strokeWidth);
             layer1.appendChild(line);
         }
 
@@ -5700,7 +5703,7 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
 
         // Create Layer 2 - slightly rotated or phase-shifted lines
         const layer2 = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        layer2.setAttribute('opacity', '0.7');
+        layer2.setAttribute('opacity', '0.5');
 
         for (let i = 0; i < numLines; i++) {
             const x = i * spacing + phaseShift;
@@ -5710,7 +5713,7 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
             line.setAttribute('x2', x);
             line.setAttribute('y2', this.actualHeight);
             line.setAttribute('stroke', lineColor);
-            line.setAttribute('stroke-width', lineWidth * 0.5);
+            line.setAttribute('stroke-width', strokeWidth);
             layer2.appendChild(line);
         }
 
