@@ -769,8 +769,9 @@ header p {
 .tab-content {
     display: none;
     padding: 16px;
+    padding-top: 8px; /* Reduced from 16px to maximize usable space */
     animation: fadeIn 0.3s ease-in-out;
-    max-height: calc(100vh - 280px);
+    max-height: calc(100vh - 360px); /* Increased from 280px to account for toolbar + tabs */
     overflow-y: auto;
     overflow-x: hidden;
 }
@@ -1786,7 +1787,8 @@ footer {
 
     .controls-panel {
         order: 1;
-        max-height: calc(100vh - 120px);
+        max-height: calc(100vh - 180px); /* Increased from 120px to account for toolbar height */
+        scroll-padding-top: 160px; /* Prevents content from scrolling under toolbar */
     }
 
     .pattern-preview-grid {
