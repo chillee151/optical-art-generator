@@ -1647,6 +1647,54 @@ class OpticalArtGenerator {
             this.generateColorPalette();
         });
 
+        // Mobile FAB (Floating Action Button) listeners
+        const mobileFab = document.getElementById('mobile-export-fab');
+        const fabMenu = document.getElementById('mobile-fab-menu');
+
+        if (mobileFab && fabMenu) {
+            // Toggle FAB menu
+            mobileFab.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isActive = fabMenu.classList.contains('active');
+                fabMenu.classList.toggle('active');
+                mobileFab.classList.toggle('active');
+            });
+
+            // Close FAB menu when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!fabMenu.contains(e.target) && !mobileFab.contains(e.target)) {
+                    fabMenu.classList.remove('active');
+                    mobileFab.classList.remove('active');
+                }
+            });
+
+            // Handle FAB menu item clicks
+            document.querySelectorAll('.fab-menu-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const action = item.getAttribute('data-action');
+
+                    switch (action) {
+                        case 'export-png':
+                            this.exportImage('png');
+                            break;
+                        case 'export-svg':
+                            this.exportSVG();
+                            break;
+                        case 'export-jpg':
+                            this.exportImage('jpeg');
+                            break;
+                        case 'randomize':
+                            this.randomizeAll();
+                            break;
+                    }
+
+                    // Close menu after action
+                    fabMenu.classList.remove('active');
+                    mobileFab.classList.remove('active');
+                });
+            });
+        }
+
         // Visual Explorer listeners
         document.getElementById('new-generation-btn').addEventListener('click', () => {
             this.generateRandomVariants();
