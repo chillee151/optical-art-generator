@@ -4,7 +4,36 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 
 ## 🚀 Recent Updates
 
-### v5.8.0 (Latest - FRAME-PERFECT VIDEO EXPORT!)
+### v5.9.0 (Latest - ICONIC OP ART PATTERNS!)
+
+**🎨 7 NEW ICONIC OP ART PATTERNS:**
+- **Bridget Riley Collection**
+  - **Riley Waves** - Sinusoidal patterns with rhythm variation (horizontal waves with amplitude modulation)
+  - **Riley Crest** - Vertical lines creating traveling wave illusion (phase-shifted lateral shimmer)
+- **Victor Vasarely Collection**
+  - **Vasarely Zebra** - THE quintessential Op Art: stripes deforming around invisible spheres
+  - **Vasarely Vega** - Billowing checkerboard with wave-based size modulation
+- **Richard Anuszkiewicz**
+  - **Anuszkiewicz Squares** - Complementary color squares creating chromatic vibration & afterimages
+- **Jesús Rafael Soto**
+  - **Soto Vibration** - Refined moiré: two transparent layers of lines at subtle angles
+- **Carlos Cruz-Diez**
+  - **Cruz-Diez Chromatic Strips** - Kinetic color mixing through vertical strip interference
+
+**✨ Pattern Coverage Now Complete:**
+- ✅ Form illusions (Vasarely Zebra, Vega - seeing 3D where none exists)
+- ✅ Color effects (Anuszkiewicz, Cruz-Diez - chromatic phenomena)
+- ✅ Motion/shimmer (Riley Waves/Crest, Soto - vibration & flow)
+- ✅ Depth (Radial Vortex, Square Tunnel - tunnel effects)
+- ✅ 23 total patterns (was 16)
+
+**🔧 Technical Improvements:**
+- All patterns fully integrated with Visual Explorer variants
+- Proper dark mode support for all new patterns
+- Mini preview thumbnails for pattern selector
+- Comprehensive pattern info descriptions
+
+### v5.8.0 (FRAME-PERFECT VIDEO EXPORT!)
 
 **🎯 FRAME-PERFECT ANIMATION SYSTEM:**
 - **Zero Jitter at Any FPS** - Butter-smooth animation at 24/30/60fps
@@ -379,7 +408,7 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 - **Radial Vortex Pattern**: New mesmerizing 3D tunnel effect with alternating bands radiating from center
 - **Enhanced Cube Illusion**: Complete redesign with isometric projection, Escher-style impossible geometry
 - **Universal Color Support**: Added colorToRgb() function to handle hex, rgb(), and hsl() formats
-- **16 Total Patterns**: Now includes Shaded Grid and Radial Vortex
+- **23 Total Patterns**: Now includes 7 iconic Op Art master patterns (v5.9.0), plus Shaded Grid and Radial Vortex
 
 ## ✨ Features
 
@@ -402,7 +431,16 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 - **Pattern Layering** - Combine multiple patterns into complex, multi-layer designs
 - **Smart Thumbnails** - Saved patterns display actual artwork previews
 
-### 🎨 16 Sophisticated Patterns
+### 🎨 23 Sophisticated Patterns
+
+#### 🎨 **Iconic Op Art Masters** (NEW!)
+- **Bridget Riley Waves** - Sinusoidal wave patterns with rhythm variation creating vibration and shimmer
+- **Riley Crest** - Vertical lines with phase-shifted horizontal displacement creating lateral motion illusion
+- **Vasarely Zebra** - Parallel stripes warping around invisible spheres creating 3D form illusion
+- **Vasarely Vega** - Checkerboard with wave-based size modulation creating billowing surface
+- **Anuszkiewicz Squares** - Concentric squares in complementary colors creating intense chromatic vibration
+- **Soto Vibration** - Two overlapping layers of fine lines creating shimmering moiré interference
+- **Cruz-Diez Chromatic Strips** - Vertical color triads creating kinetic color mixing and additive interference
 
 #### ⭐ **Advanced/Sophisticated Patterns**
 - **Radial Vortex** - 3D tunnel with flower-petal modulation and hypnotic depth
