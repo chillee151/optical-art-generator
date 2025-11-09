@@ -5226,6 +5226,9 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
             radius: (amplitude / 100) * Math.min(this.actualWidth, this.actualHeight) * 0.3
         }];
 
+        // Use frequency to control deformation strength (how much stripes bend)
+        const deformationStrength = (frequency / 100) * 0.8; // 0 to 0.8
+
         // Create horizontal stripes that warp around the spheres
         for (let i = 0; i < numStripes; i++) {
             const isBlack = i % 2 === 0;
@@ -5248,9 +5251,9 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
                     const distance = Math.sqrt(dx * dx + dy * dy);
 
                     if (distance < sphere.radius) {
-                        // Vasarely displacement formula
+                        // Vasarely displacement formula with frequency-controlled strength
                         const influence = 1 - (distance * distance) / (sphere.radius * sphere.radius);
-                        totalDisplacement += influence * sphere.radius * 0.5;
+                        totalDisplacement += influence * sphere.radius * deformationStrength;
                     }
                 }
 
@@ -5275,7 +5278,7 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
 
                     if (distance < sphere.radius) {
                         const influence = 1 - (distance * distance) / (sphere.radius * sphere.radius);
-                        totalDisplacement += influence * sphere.radius * 0.5;
+                        totalDisplacement += influence * sphere.radius * deformationStrength;
                     }
                 }
 
