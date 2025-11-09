@@ -4407,12 +4407,20 @@ class OpticalArtGenerator {
     generateAdvancedEyePattern(layerGroup) {
         const complexity = parseInt(document.getElementById('complexity').value);
         const lineWidth = this.getAutoLineWidth();
+        const amplitude = parseInt(document.getElementById('amplitude').value);
+        const frequency = parseInt(document.getElementById('frequency').value);
         const centerX = this.actualWidth / 2;
         const centerY = this.actualHeight / 2;
 
         // Create horizontal lines that curve around eye shape
         const lineSpacing = this.actualHeight / complexity;
         const totalLines = Math.ceil((this.actualHeight + 2 * lineSpacing) / lineSpacing);
+
+        // Amplitude controls displacement strength (0-100 maps to 0-3x strength)
+        const displacementStrength = Math.abs(amplitude / 100) * 3.0;
+
+        // Frequency controls wave detail (0-100 maps to 0.01-0.2 wave frequency)
+        const waveFrequency = 0.01 + (Math.abs(frequency) / 100) * 0.19;
 
         let lineIndex = 0;
         for (let y = -lineSpacing; y < this.actualHeight + lineSpacing; y += lineSpacing) {
@@ -4432,14 +4440,15 @@ class OpticalArtGenerator {
                 const normalizedY = dy / eyeHeight;
                 const ellipseDistance = Math.sqrt(normalizedX * normalizedX + normalizedY * normalizedY);
 
-                // Eye field strength
-                const fieldStrength = Math.exp(-ellipseDistance * 2) * 40;
+                // Eye field strength controlled by amplitude
+                const baseFieldStrength = Math.exp(-ellipseDistance * 2) * 40;
+                const fieldStrength = baseFieldStrength * displacementStrength;
 
                 // Vertical displacement creating eye curve
                 const eyeDisplacement = fieldStrength * Math.sin(normalizedX * Math.PI) * (1 - Math.abs(normalizedY));
 
-                // Add wave variation
-                const waveDisplacement = Math.sin(x * 0.02 + this.currentSeed * 3) * fieldStrength * 0.3;
+                // Add wave variation controlled by frequency
+                const waveDisplacement = Math.sin(x * waveFrequency + this.currentSeed * 3) * fieldStrength * 0.5;
 
                 const finalY = y + eyeDisplacement + waveDisplacement;
                 pathData += ` L ${x} ${finalY}`;
