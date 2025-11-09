@@ -2532,6 +2532,13 @@ class OpticalArtGenerator {
                 amplitude: 123,
                 rotation: 0,
                 symmetry: 'none'
+            },
+            'riley-waves': {
+                complexity: 62,
+                frequency: 57,
+                amplitude: 62,
+                rotation: -90,
+                symmetry: 'none'
             }
         };
 
