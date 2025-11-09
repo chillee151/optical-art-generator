@@ -5529,7 +5529,9 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
             pathData += ' Z';
 
             path.setAttribute('d', pathData);
-            path.setAttribute('fill', isBlack ? '#000' : '#fff');
+            // Use color palette system instead of hardcoded black/white
+            const color = isBlack ? this.getLineColor(0, 2) : this.getLineColor(1, 2);
+            path.setAttribute('fill', color);
             path.setAttribute('stroke', 'none');
 
             if (rotation !== 0) {
@@ -5603,7 +5605,9 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
             pathData += ' Z';
 
             path.setAttribute('d', pathData);
-            path.setAttribute('fill', isBlack ? '#000' : '#fff');
+            // Use color palette system instead of hardcoded black/white
+            const color = isBlack ? this.getLineColor(0, 2) : this.getLineColor(1, 2);
+            path.setAttribute('fill', color);
             path.setAttribute('stroke', 'none');
 
             svg.appendChild(path);
@@ -5841,7 +5845,9 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
                 rect.setAttribute('y', cellCenterY - squareSize / 2);
                 rect.setAttribute('width', squareSize);
                 rect.setAttribute('height', squareSize);
-                rect.setAttribute('fill', isBlack ? '#000' : '#fff');
+                // Use color palette system instead of hardcoded black/white
+                const color = isBlack ? this.getLineColor(0, 2) : this.getLineColor(1, 2);
+                rect.setAttribute('fill', color);
                 rect.setAttribute('stroke', 'none');
 
                 if (rotation !== 0) {
@@ -5884,7 +5890,9 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
                 rect.setAttribute('y', cellCenterY - squareSize / 2);
                 rect.setAttribute('width', squareSize);
                 rect.setAttribute('height', squareSize);
-                rect.setAttribute('fill', isBlack ? '#000' : '#fff');
+                // Use color palette system instead of hardcoded black/white
+                const color = isBlack ? this.getLineColor(0, 2) : this.getLineColor(1, 2);
+                rect.setAttribute('fill', color);
                 rect.setAttribute('stroke', 'none');
 
                 svg.appendChild(rect);
