@@ -5684,7 +5684,9 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
             line.setAttribute('y1', 0);
             line.setAttribute('x2', x);
             line.setAttribute('y2', this.actualHeight);
-            line.setAttribute('stroke', '#000');
+
+            const color = this.getLineColor(i, numLines);
+            line.setAttribute('stroke', color);
             line.setAttribute('stroke-width', lineWidth * 0.5);
             layer1.appendChild(line);
         }
@@ -5704,7 +5706,9 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
             line.setAttribute('y1', 0);
             line.setAttribute('x2', x);
             line.setAttribute('y2', this.actualHeight);
-            line.setAttribute('stroke', '#000');
+
+            const color = this.getLineColor(i, numLines);
+            line.setAttribute('stroke', color);
             line.setAttribute('stroke-width', lineWidth * 0.5);
             layer2.appendChild(line);
         }
