@@ -5221,13 +5221,24 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
 
         // Influence spheres that deform the stripes
         const spheres = [];
-        const numSpheres = Math.max(2, Math.floor(frequency / 20));
-        for (let i = 0; i < numSpheres; i++) {
+        const numSpheres = Math.max(1, Math.floor(frequency / 30));
+
+        if (numSpheres === 1) {
+            // Single centered sphere - classic Vasarely Zebra effect
             spheres.push({
-                x: centerX + (Math.cos(i * Math.PI * 2 / numSpheres) * this.actualWidth * 0.25),
-                y: centerY + (Math.sin(i * Math.PI * 2 / numSpheres) * this.actualHeight * 0.25),
+                x: centerX,
+                y: centerY,
                 radius: (amplitude / 100) * Math.min(this.actualWidth, this.actualHeight) * 0.3
             });
+        } else {
+            // Multiple spheres arranged in circle for advanced effects
+            for (let i = 0; i < numSpheres; i++) {
+                spheres.push({
+                    x: centerX + (Math.cos(i * Math.PI * 2 / numSpheres) * this.actualWidth * 0.25),
+                    y: centerY + (Math.sin(i * Math.PI * 2 / numSpheres) * this.actualHeight * 0.25),
+                    radius: (amplitude / 100) * Math.min(this.actualWidth, this.actualHeight) * 0.3
+                });
+            }
         }
 
         // Create horizontal stripes that warp around the spheres
