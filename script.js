@@ -96,6 +96,44 @@ class OpticalArtGenerator {
                 'albers_homage': ['#D9D9D9', '#F2B705', '#F29F05', '#F28705', '#F25C05'],
                 'vasarely_zebra': ['#000000', '#FFFFFF']
             };
+
+            // Curated color palettes for Easy Mode
+            this.curatedPalettes = [
+                // Classic Op Art - High contrast, essential palettes
+                { id: 'bw', name: 'Classic B&W', category: 'classic', mode: 'custom-gradient', colors: ['#000000', '#FFFFFF'] },
+                { id: 'wb', name: 'Inverted', category: 'classic', mode: 'custom-gradient', colors: ['#FFFFFF', '#000000'] },
+                { id: 'red-blue', name: 'Op Art Red/Blue', category: 'classic', mode: 'custom-gradient', colors: ['#E50000', '#0043FF'] },
+
+                // Neon/Psychedelic - Vibrant, energetic
+                { id: 'neon-pink-blue', name: 'Electric Dreams', category: 'neon', mode: 'custom-gradient', colors: ['#FF006E', '#00F5FF'] },
+                { id: 'acid', name: 'Acid Trip', category: 'neon', mode: 'custom-gradient', colors: ['#CCFF00', '#FF00FF'] },
+                { id: 'cyber', name: 'Cyberpunk', category: 'neon', mode: 'custom-gradient', colors: ['#9D00FF', '#00FFE5'] },
+                { id: 'laser', name: 'Laser Show', category: 'neon', mode: 'custom-gradient', colors: ['#FF0080', '#00FF88'] },
+
+                // Pastel - Soft, dreamy
+                { id: 'mint-pink', name: 'Mint Cream', category: 'pastel', mode: 'custom-gradient', colors: ['#B4FFC9', '#FFB4D6'] },
+                { id: 'lavender-peach', name: 'Lavender Dream', category: 'pastel', mode: 'custom-gradient', colors: ['#C9B4FF', '#FFDBB4'] },
+                { id: 'powder-blue', name: 'Powder Blue', category: 'pastel', mode: 'custom-gradient', colors: ['#B4D6FF', '#FFB4E6'] },
+
+                // Bold/Vibrant - Strong, saturated
+                { id: 'fire', name: 'Fire', category: 'bold', mode: 'custom-gradient', colors: ['#FF0000', '#FFAA00'] },
+                { id: 'sunset', name: 'Sunset', category: 'bold', mode: 'custom-gradient', colors: ['#8B00FF', '#FF6B35'] },
+                { id: 'ocean', name: 'Ocean Deep', category: 'bold', mode: 'custom-gradient', colors: ['#001F54', '#00D9FF'] },
+                { id: 'pop', name: 'Pop Art', category: 'bold', mode: 'custom-gradient', colors: ['#FF0000', '#FFD600'] },
+
+                // Earth Tones - Natural, organic
+                { id: 'desert', name: 'Desert', category: 'earth', mode: 'custom-gradient', colors: ['#D4745E', '#A8DABC'] },
+                { id: 'forest', name: 'Forest', category: 'earth', mode: 'custom-gradient', colors: ['#2D5016', '#F4A460'] },
+
+                // Monochrome Gradients - Single hue variations
+                { id: 'purple-mono', name: 'Purple Haze', category: 'mono', mode: 'custom-gradient', colors: ['#4A0080', '#E0B0FF'] },
+                { id: 'blue-mono', name: 'Blue Steel', category: 'mono', mode: 'custom-gradient', colors: ['#001F3F', '#7FDBFF'] },
+                { id: 'green-mono', name: 'Matrix', category: 'mono', mode: 'custom-gradient', colors: ['#003300', '#00FF00'] },
+
+                // Special effects - Use existing color modes
+                { id: 'rainbow', name: 'Rainbow', category: 'special', mode: 'rainbow', colors: [] },
+                { id: 'gradient', name: 'Full Spectrum', category: 'special', mode: 'gradient', colors: [] }
+            ];
             this.isGenerating = false;
             this.isAnimating = false;
             this.animationFrameId = null;
@@ -151,8 +189,9 @@ class OpticalArtGenerator {
         this.updateCanvasSize();
         this.updatePatternInfo();
         this.generatePatternPreviews();
+        this.initPalettePicker(); // Initialize curated color palette picker
         this.generatePattern();
-        
+
         // Setup GPU optimizations for zoom/pan
         this.setupZoomPanOptimization();
         
@@ -2169,6 +2208,84 @@ class OpticalArtGenerator {
             default:
                 return '#000';
         }
+    }
+
+    // Apply a curated color palette
+    applyPalette(palette) {
+        console.log(`🎨 Applying palette: ${palette.name}`);
+
+        // Set the color mode
+        document.getElementById('color-mode').value = palette.mode;
+
+        // If custom-gradient, set the color pickers
+        if (palette.mode === 'custom-gradient' && palette.colors.length >= 2) {
+            document.getElementById('gradient-color-1').value = palette.colors[0];
+            document.getElementById('gradient-color-2').value = palette.colors[1];
+        }
+
+        // Update UI to show/hide gradient controls
+        this.updateColorControls();
+
+        // Regenerate pattern with new colors
+        this.regeneratePattern();
+
+        // Store currently active palette
+        this.activePaletteId = palette.id;
+
+        // Update UI to show active state
+        this.updatePalettePickerUI();
+    }
+
+    // Initialize the palette picker UI
+    initPalettePicker() {
+        const container = document.getElementById('palette-picker-container');
+        if (!container) {
+            console.warn('Palette picker container not found');
+            return;
+        }
+
+        container.innerHTML = '';
+
+        this.curatedPalettes.forEach(palette => {
+            const chip = document.createElement('div');
+            chip.className = 'palette-chip';
+            chip.setAttribute('data-palette-id', palette.id);
+            chip.setAttribute('title', palette.name);
+
+            // Create visual representation
+            if (palette.mode === 'custom-gradient' && palette.colors.length >= 2) {
+                // Show gradient
+                chip.style.background = `linear-gradient(135deg, ${palette.colors[0]} 0%, ${palette.colors[1]} 100%)`;
+            } else if (palette.mode === 'rainbow') {
+                chip.style.background = 'linear-gradient(90deg, #FF0000, #FFAA00, #AAFF00, #00FF00, #00FFAA, #00AAFF, #0000FF, #AA00FF, #FF00AA)';
+            } else if (palette.mode === 'gradient') {
+                chip.style.background = 'linear-gradient(90deg, hsl(240, 70%, 50%), hsl(180, 70%, 50%), hsl(0, 70%, 50%))';
+            } else {
+                // Solid color fallback
+                chip.style.background = palette.colors[0] || '#000';
+            }
+
+            // Click handler
+            chip.addEventListener('click', () => {
+                this.applyPalette(palette);
+            });
+
+            container.appendChild(chip);
+        });
+
+        console.log(`✨ Palette picker initialized with ${this.curatedPalettes.length} palettes`);
+    }
+
+    // Update palette picker UI to show active state
+    updatePalettePickerUI() {
+        const chips = document.querySelectorAll('.palette-chip');
+        chips.forEach(chip => {
+            if (chip.getAttribute('data-palette-id') === this.activePaletteId) {
+                chip.classList.add('active');
+            } else {
+                chip.classList.remove('active');
+            }
+        });
     }
 
     updatePatternInfo() {

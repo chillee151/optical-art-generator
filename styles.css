@@ -1862,3 +1862,132 @@ footer {
     text-align: center;
     font-weight: 500;
 }
+/* ========================================
+   PALETTE PICKER - Easy Mode
+   ======================================== */
+
+.palette-picker-wrapper {
+    margin: 15px auto;
+    max-width: 90%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+}
+
+.palette-picker-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
+    white-space: nowrap;
+}
+
+.palette-picker-container {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.palette-chip {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 3px solid transparent;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    position: relative;
+}
+
+.palette-chip:hover {
+    transform: scale(1.15) translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.palette-chip.active {
+    border-color: #4A90E2;
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.3),
+                0 6px 20px rgba(74, 144, 226, 0.4);
+    transform: scale(1.1);
+}
+
+.palette-chip.active::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.8),
+                 0 0 8px rgba(0, 0, 0, 0.6);
+}
+
+/* Dark mode support */
+.dark-mode .palette-picker-wrapper {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode .palette-picker-label {
+    color: #ccc;
+}
+
+.dark-mode .palette-chip {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.dark-mode .palette-chip:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .palette-picker-wrapper {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .palette-chip {
+        width: 45px;
+        height: 45px;
+    }
+
+    .palette-picker-label {
+        font-size: 13px;
+    }
+}
+
+/* Animation on load */
+@keyframes paletteChipFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.palette-chip {
+    animation: paletteChipFadeIn 0.4s ease-out forwards;
+}
+
+.palette-chip:nth-child(1) { animation-delay: 0s; }
+.palette-chip:nth-child(2) { animation-delay: 0.05s; }
+.palette-chip:nth-child(3) { animation-delay: 0.1s; }
+.palette-chip:nth-child(4) { animation-delay: 0.15s; }
+.palette-chip:nth-child(5) { animation-delay: 0.2s; }
+.palette-chip:nth-child(6) { animation-delay: 0.25s; }
+.palette-chip:nth-child(7) { animation-delay: 0.3s; }
+.palette-chip:nth-child(8) { animation-delay: 0.35s; }
+.palette-chip:nth-child(9) { animation-delay: 0.4s; }
+.palette-chip:nth-child(10) { animation-delay: 0.45s; }
