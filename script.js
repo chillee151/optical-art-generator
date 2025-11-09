@@ -3793,9 +3793,9 @@ class OpticalArtGenerator {
         const numLines = Math.max(20, complexity);
         const lineSpacing = this.actualHeight / numLines;
         
-        // Use amplitude for field strength - multiply instead of divide for much stronger effect
-        // Minimum base value ensures visibility even at low amplitude settings
-        const baseFieldStrength = Math.max(20, amplitude * 2);
+        // Use amplitude for field strength - much stronger multiplier for prominent effect
+        // Default (amplitude=20) should create effect covering ~50% of canvas
+        const baseFieldStrength = Math.max(50, amplitude * 5);
 
         // Use frequency to control circular distortion intensity
         const frequencyMultiplier = 0.5 + (frequency / 100) * 1.5; // 0.5 to 2.0
@@ -3832,8 +3832,8 @@ class OpticalArtGenerator {
                     if (distance < 5) continue; // Avoid singularity at center
 
                     // Vortex field (circular motion around center)
-                    // Increased decay distance from 200 to 400 for larger visible effect
-                    const decay = Math.exp(-distance / 400) * vortex.strength;
+                    // Large decay distance so effect covers ~50% of canvas by default
+                    const decay = Math.exp(-distance / 1000) * vortex.strength;
                     const vortexStrength = (fieldStrength * decay) / Math.sqrt(distance);
                     
                     // Tangential component (circular flow)
