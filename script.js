@@ -5663,10 +5663,25 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         const centerX = this.actualWidth / 2;
         const centerY = this.actualHeight / 2;
 
-        // Soto's moiré effect requires high contrast - use black or white based on dark mode
-        // Check if dark mode background exists to determine current mode
+        // Soto's moiré effect requires high contrast
+        // In dark mode: white background with black lines
+        // In light mode: transparent background with black lines
         const isDarkMode = document.getElementById('dark-mode-bg') !== null;
-        const lineColor = isDarkMode ? '#ffffff' : '#000000';
+
+        // Add a white background rectangle in dark mode to ensure visibility
+        if (isDarkMode) {
+            const bgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            bgRect.setAttribute('x', 0);
+            bgRect.setAttribute('y', 0);
+            bgRect.setAttribute('width', this.actualWidth);
+            bgRect.setAttribute('height', this.actualHeight);
+            bgRect.setAttribute('fill', '#ffffff');
+            layerGroup.appendChild(bgRect);
+        }
+
+        // Always use black lines - they'll show on white background in dark mode,
+        // or on default white canvas in light mode
+        const lineColor = '#000000';
 
         // Dense vertical lines for layer 1
         const numLines = Math.max(50, complexity * 5);
