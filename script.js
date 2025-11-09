@@ -3813,23 +3813,19 @@ class OpticalArtGenerator {
         const lineSpacing = this.actualHeight / numLines;
         
         // Use amplitude for field strength
-        const fieldStrength = amplitude / 5;
-        
-        // Use frequency for number of vortex centers
-        const numVortices = Math.max(2, Math.floor(frequency / 25));
+        const baseFieldStrength = amplitude / 5;
 
-        // Create multiple vortex centers (magnetic field sources)
-        const vortices = [];
-        for (let i = 0; i < numVortices; i++) {
-            const angle = (Math.PI * 2 * i) / numVortices + this.currentSeed * 10;
-            const radius = Math.min(this.actualWidth, this.actualHeight) * 0.25;
-            vortices.push({
-                x: centerX + radius * Math.cos(angle),
-                y: centerY + radius * Math.sin(angle),
-                charge: (i % 2 === 0) ? 1 : -1, // Alternating positive/negative vortices
-                strength: 1 + (i / numVortices) * 0.5
-            });
-        }
+        // Use frequency to control circular distortion intensity
+        const frequencyMultiplier = 0.5 + (frequency / 100) * 1.5; // 0.5 to 2.0
+        const fieldStrength = baseFieldStrength * frequencyMultiplier;
+
+        // Single centered vortex for clean circular displacement
+        const vortices = [{
+            x: centerX,
+            y: centerY,
+            charge: 1,
+            strength: 1.0
+        }];
 
         let lineIndex = 0;
         for (let y = 0; y < this.actualHeight + lineSpacing; y += lineSpacing) {
