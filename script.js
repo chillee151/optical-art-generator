@@ -190,6 +190,7 @@ class OpticalArtGenerator {
         this.updatePatternInfo();
         this.generatePatternPreviews();
         this.initPalettePicker(); // Initialize curated color palette picker
+        this.setupAdvancedTabsToggle(); // Setup progressive disclosure for advanced features
         this.generatePattern();
 
         // Setup GPU optimizations for zoom/pan
@@ -2368,6 +2369,39 @@ class OpticalArtGenerator {
                 chip.classList.remove('active');
             }
         });
+    }
+
+    // Setup progressive disclosure for advanced features
+    setupAdvancedTabsToggle() {
+        const showAdvancedBtn = document.getElementById('show-advanced-tabs');
+        if (!showAdvancedBtn) return;
+
+        // Check if user has already enabled advanced mode
+        const advancedMode = localStorage.getItem('advancedMode') === 'true';
+        if (advancedMode) {
+            this.showAdvancedTabs();
+        }
+
+        showAdvancedBtn.addEventListener('click', () => {
+            this.showAdvancedTabs();
+            // Remember preference
+            localStorage.setItem('advancedMode', 'true');
+        });
+    }
+
+    showAdvancedTabs() {
+        // Show advanced tab buttons
+        document.querySelectorAll('.advanced-tab').forEach(tab => {
+            tab.style.display = '';
+        });
+
+        // Hide the "+ More" button
+        const showAdvancedBtn = document.getElementById('show-advanced-tabs');
+        if (showAdvancedBtn) {
+            showAdvancedBtn.style.display = 'none';
+        }
+
+        console.log('✨ Advanced features unlocked');
     }
 
     updatePatternInfo() {

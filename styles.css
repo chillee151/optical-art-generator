@@ -2169,3 +2169,35 @@ footer {
 .pattern-preview-wrapper:nth-child(8) { animation-delay: 0.35s; }
 .pattern-preview-wrapper:nth-child(9) { animation-delay: 0.4s; }
 .pattern-preview-wrapper:nth-child(10) { animation-delay: 0.45s; }
+
+/* ========================================
+   PROGRESSIVE DISCLOSURE - Easy Mode
+   ======================================== */
+
+.show-advanced-btn {
+    padding: 8px 16px;
+    background: rgba(74, 144, 226, 0.1);
+    border: 2px dashed rgba(74, 144, 226, 0.3);
+    border-radius: 20px;
+    color: #4A90E2;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+}
+
+.show-advanced-btn:hover {
+    background: rgba(74, 144, 226, 0.2);
+    border-color: rgba(74, 144, 226, 0.5);
+    transform: translateY(-1px);
+}
+
+.dark-mode .show-advanced-btn {
+    background: rgba(74, 144, 226, 0.15);
+    border-color: rgba(74, 144, 226, 0.4);
+}
+
+.dark-mode .show-advanced-btn:hover {
+    background: rgba(74, 144, 226, 0.25);
+}
