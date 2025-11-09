@@ -1116,83 +1116,64 @@ class OpticalArtGenerator {
     generateMiniCircularDisplacement(svg, seed, complexity, lineWidth) {
         const numLines = 14;
         const spacing = 56 / numLines;
-        
-        // Vortex centers
-        const vortices = [
-            { x: 18, y: 28, charge: 1 },
-            { x: 38, y: 28, charge: -1 }
-        ];
-        
+
+        // Single centered vortex
+        const vortex = { x: 28, y: 28, charge: 1, strength: 1.0 };
+
         for (let i = 0; i < numLines; i++) {
             const y = i * spacing;
             const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             let pathData = '';
-            
+
             const numPoints = 50;
             for (let j = 0; j <= numPoints; j++) {
                 const x = (56 * j) / numPoints;
-                
-                // Calculate vector field
+
+                // Calculate vector field from single centered vortex
                 let dispX = 0, dispY = 0;
-                
-                for (const vortex of vortices) {
-                    const dx = x - vortex.x;
-                    const dy = y - vortex.y;
-                    const dist = Math.sqrt(dx * dx + dy * dy);
-                    const angle = Math.atan2(dy, dx);
-                    
-                    if (dist > 2) {
-                        const decay = Math.exp(-dist / 15);
-                        const strength = (decay / Math.sqrt(dist)) * 3;
-                        
-                        // Tangential
-                        const tangAngle = angle + (Math.PI / 2) * vortex.charge;
-                        dispX += Math.cos(tangAngle) * strength;
-                        dispY += Math.sin(tangAngle) * strength;
-                    }
+
+                const dx = x - vortex.x;
+                const dy = y - vortex.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const angle = Math.atan2(dy, dx);
+
+                if (dist > 2) {
+                    const decay = Math.exp(-dist / 15) * vortex.strength;
+                    const strength = (decay / Math.sqrt(dist)) * 3;
+
+                    // Tangential component (circular flow)
+                    const tangAngle = angle + (Math.PI / 2) * vortex.charge;
+                    dispX += Math.cos(tangAngle) * strength;
+                    dispY += Math.sin(tangAngle) * strength;
+
+                    // Radial component (attraction)
+                    const radialStrength = strength * 0.3 * vortex.charge;
+                    dispX += Math.cos(angle) * radialStrength;
+                    dispY += Math.sin(angle) * radialStrength;
                 }
-                
+
+                // Add central lens effect
+                if (dist > 3) {
+                    const lensStrength = 1.5 / dist;
+                    dispX -= Math.cos(angle) * lensStrength;
+                    dispY -= Math.sin(angle) * lensStrength;
+                }
+
                 const finalX = x + dispX;
                 const finalY = y + dispY;
-                
+
                 if (j === 0) {
                     pathData = `M ${finalX} ${finalY}`;
                 } else {
                     pathData += ` L ${finalX} ${finalY}`;
                 }
             }
-            
+
             path.setAttribute('d', pathData);
             path.setAttribute('fill', 'none');
             path.setAttribute('stroke', '#000');
             path.setAttribute('stroke-width', lineWidth);
             svg.appendChild(path);
-        }
-        
-        // Vortex markers with field lines
-        for (const vortex of vortices) {
-            // Field lines
-            for (let ring = 1; ring <= 2; ring++) {
-                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                circle.setAttribute('cx', vortex.x);
-                circle.setAttribute('cy', vortex.y);
-                circle.setAttribute('r', ring * 6);
-                circle.setAttribute('fill', 'none');
-                circle.setAttribute('stroke', '#666');
-                circle.setAttribute('stroke-width', lineWidth * 0.2);
-                circle.setAttribute('stroke-opacity', 0.3);
-                circle.setAttribute('stroke-dasharray', '2,2');
-                svg.appendChild(circle);
-            }
-            
-            // Center marker
-            const marker = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-            marker.setAttribute('cx', vortex.x);
-            marker.setAttribute('cy', vortex.y);
-            marker.setAttribute('r', 2);
-            marker.setAttribute('fill', vortex.charge > 0 ? '#333' : '#666');
-            marker.setAttribute('fill-opacity', '0.7');
-            svg.appendChild(marker);
         }
     }
 
