@@ -2862,9 +2862,12 @@ class OpticalArtGenerator {
     }
 
     clearCanvas() {
-        while (this.canvas.firstChild) {
-            this.canvas.removeChild(this.canvas.firstChild);
-        }
+        // Remove all children except dark-mode-bg (preserve it to stay behind patterns)
+        Array.from(this.canvas.children).forEach(child => {
+            if (child.id !== 'dark-mode-bg') {
+                child.remove();
+            }
+        });
     }
 
     seededRandom(seed) {
@@ -5667,8 +5670,6 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
         // Simple approach: white lines in dark mode, black lines in light mode
         const isDarkMode = localStorage.getItem('darkMode') === 'true';
         const lineColor = isDarkMode ? '#ffffff' : '#000000';
-
-        console.log('Soto - isDarkMode:', isDarkMode, 'lineColor:', lineColor, 'numLines will be:', Math.max(50, complexity * 5));
 
         // Dense vertical lines for layer 1
         const numLines = Math.max(50, complexity * 5);
