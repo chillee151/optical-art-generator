@@ -4,7 +4,42 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 
 ## 🚀 Recent Updates
 
-### v5.9.0 (Latest - ICONIC OP ART PATTERNS!)
+### v5.10.0 (Latest - PATTERN REFINEMENT & VASARELY GRID!)
+
+**🎨 SHADED-GRID PATTERN REDESIGNED:**
+- **Complete Transformation**: From 3D bump-mapping to **Vasarely Warped Grid**
+  - **Before**: Grayscale 3D shading with lighting calculations (NOT true optical art)
+  - **After**: Checkerboard perspective distortion creating genuine 3D illusions
+  - **Technique**: Grid cells warp around Gaussian distortion centers
+  - **Perfect for Laser**: High contrast black/white checkerboard pattern
+  - **Artist Inspiration**: Victor Vasarely's "Vega" series
+  - **Parameters**:
+    - Complexity: Grid density (8-100+ cells)
+    - Frequency: Number of distortion centers (1-4)
+    - Amplitude: Distortion strength (positive=convex, negative=concave)
+
+**✨ PATTERN DEFAULTS ADDED:**
+- 8 patterns now have optimized default settings for instant beauty:
+  - **Eye Pattern** (121/100/123): Large dramatic pupil
+  - **Square Tunnel** (114/40/446/-73/8): 8-fold mandala symmetry
+  - **Cube Illusion** (160/35/-892): Dense 5x5 isometric grid
+  - **Concentric Circles** (103/70/-208): 20 wavy rings
+  - **Diagonal Stripes** (35/74/269/0/8): 8-fold radial burst
+  - **Shaded Grid** (101/69/-85): Dual-center Vasarely warp
+  - **Wave Displacement** (185/62/-77): Dense interference
+  - **Circular Displacement** (154/73/69): Strong vortex swirl
+
+**🔧 USABILITY IMPROVEMENTS:**
+- **Eye Pattern Enhancement**: Pupil size range 5-35% (was 2-12%) - much more dramatic
+- **Reset All Fix**: Preserves current pattern (was hardcoded to concentric-circles)
+- **Updated Thumbnails**: All pattern thumbnails reflect new default settings
+
+**🎯 OPTICAL ART EXPERT CONSULTATION:**
+- Consulted AI optical art expert for shaded-grid redesign
+- Recommended Vasarely warped grid as quintessential Op Art technique
+- Alternative suggestions documented: Riley Wave Grid, Moiré Rings
+
+### v5.9.0 (ICONIC OP ART PATTERNS!)
 
 **🎨 7 NEW ICONIC OP ART PATTERNS:**
 - **Bridget Riley Collection**
@@ -460,7 +495,7 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 - **Golden Ratio Spirals** (Spiral Distortion) - Double arms with 3D ribbons
 - **Multi-Layer Patterns** (Moiré) - Three modes with dynamic rotation
 - **Cellular Automata** - Emergent rule-based patterns
-- **Shaded Grid** - 3D embossed cells with mathematical lighting
+- **Vasarely Warped Grid** (Shaded Grid) - Checkerboard perspective distortion creating 3D illusions
 
 ### 🎯 Format Options
 - **Square (1:1)** - Traditional format
@@ -799,7 +834,7 @@ Result: Spiraling zoom tunnel with glow
 - **L-Systems** - Algorithmic fractal branching with rotation matrices
 - **Polar Coordinates** - Radial and spiral effects (r, θ)
 - **Isometric Projection** - True 3D with 30° angles and depth scaling
-- **Mathematical Shading** - Normal vectors, diffuse lighting, height maps
+- **Gaussian Distortion Fields** - Vasarely-style perspective warping with exponential falloff
 - **Radial Vortex Math** - Sinusoidal petal modulation with spiral twist
 - **Golden Ratio** - Natural spacing (φ = 1.618...) in spirals and circles
 - **Interference Patterns** - Multi-wave superposition and standing waves
@@ -851,6 +886,18 @@ else return 1-0.5px                     // Thin for high detail
 - Three-face rendering with gradients
 - Impossible geometry connections
 - Radial depth scaling
+
+#### **Vasarely Warped Grid** (Shaded Grid - v5.10.0)
+- **Perspective distortion on regular checkerboard grid**
+- Gaussian influence fields: `influence = exp(-(d² / (2r²)))`
+- Radial displacement: `displacement = influence × strength × cellSize × 2`
+- Each grid cell corner warps based on distance from distortion centers
+- Frequency controls number of distortion centers (1-4)
+- Amplitude controls distortion strength (positive=bulge, negative=indent)
+- Complexity controls grid density (8-100+ cells)
+- **Pure geometry** - no shading, only form distortion
+- Creates genuine 3D depth illusion without any lighting calculations
+- Classic Op Art technique from Vasarely's "Vega" series
 
 #### **L-System Growth** (Enhanced)
 - 6 system types: bush, tree, fern, flower, spiral, fractal

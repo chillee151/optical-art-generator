@@ -1002,62 +1002,46 @@ class OpticalArtGenerator {
     }
 
     generateMiniDiagonalStripes(svg, seed, complexity, lineWidth) {
-        const numStripes = 12;
-        const spacing = 80 / numStripes;
-        
-        for (let i = 0; i < numStripes; i++) {
-            const progress = i / numStripes;
-            const basePosition = -40 + i * spacing;
-            
-            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            let pathData = '';
-            
-            // Create wavy stripe
-            const numPoints = 30;
-            for (let t = 0; t <= 80; t += 80 / numPoints) {
-                const x = basePosition + t * 0.707;
-                const y = t * 0.707;
-                const waveOffset = Math.sin(t * 0.1 + progress * Math.PI * 2) * 2;
-                
-                const finalX = x + waveOffset * 0.707;
-                const finalY = y - waveOffset * 0.707;
-                
-                if (pathData === '') {
-                    pathData = `M ${finalX} ${finalY}`;
-                } else {
-                    pathData += ` L ${finalX} ${finalY}`;
+        const centerX = 28;
+        const centerY = 28;
+        const symmetryCount = 8; // symmetry: 8
+        const numStripes = 5; // complexity: 35 (fewer stripes)
+
+        // Create 8-fold radial symmetry
+        for (let sym = 0; sym < symmetryCount; sym++) {
+            const symAngle = (360 / symmetryCount) * sym; // rotation: 0
+
+            for (let i = 0; i < numStripes; i++) {
+                const progress = i / numStripes;
+                const distance = 3 + i * 4; // Distance from center
+
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                let pathData = '';
+
+                // Create wavy stripe - frequency: 74, amplitude: 269
+                const numPoints = 20;
+                for (let j = 0; j <= numPoints; j++) {
+                    const t = (j / numPoints) * 50; // Length of stripe
+                    const waveFreq = 0.7; // frequency: 74 mapped
+                    const waveAmp = 2.5; // amplitude: 269 mapped
+                    const waveOffset = Math.sin(t * waveFreq + progress * Math.PI * 2) * waveAmp;
+
+                    const x = centerX + (distance + t) * Math.cos(symAngle * Math.PI / 180) + waveOffset * Math.sin(symAngle * Math.PI / 180);
+                    const y = centerY + (distance + t) * Math.sin(symAngle * Math.PI / 180) - waveOffset * Math.cos(symAngle * Math.PI / 180);
+
+                    if (pathData === '') {
+                        pathData = `M ${x} ${y}`;
+                    } else {
+                        pathData += ` L ${x} ${y}`;
+                    }
                 }
-            }
-            
-            // Close stripe with width
-            const thickness = lineWidth * (0.5 + progress);
-            for (let t = 80; t >= 0; t -= 80 / numPoints) {
-                const x = basePosition + t * 0.707;
-                const y = t * 0.707;
-                const waveOffset = Math.sin(t * 0.1 + progress * Math.PI * 2) * 2;
-                
-                pathData += ` L ${x + waveOffset * 0.707 + thickness * 0.707} ${y - waveOffset * 0.707 + thickness * 0.707}`;
-            }
-            pathData += ' Z';
-            
-            path.setAttribute('d', pathData);
-            
-            // Alternating pattern
-            if (i % 4 === 0) {
-                path.setAttribute('fill', '#000');
-            } else if (i % 4 === 1) {
+
+                path.setAttribute('d', pathData);
                 path.setAttribute('fill', 'none');
                 path.setAttribute('stroke', '#000');
-                path.setAttribute('stroke-width', lineWidth * 0.5);
-            } else if (i % 4 === 2) {
-                path.setAttribute('fill', '#fff');
-            } else {
-                path.setAttribute('fill', '#666');
-                path.setAttribute('fill-opacity', '0.6');
+                path.setAttribute('stroke-width', lineWidth * 0.4);
+                svg.appendChild(path);
             }
-            
-            path.setAttribute('transform', 'rotate(45 28 28)');
-            svg.appendChild(path);
         }
     }
 
@@ -1095,68 +1079,61 @@ class OpticalArtGenerator {
     }
 
     generateMiniWaveDisplacement(svg, seed, complexity, lineWidth) {
-        const numLines = 12;
+        const numLines = 20; // complexity: 185 (high density)
         const spacing = 56 / numLines;
-        
+
         // Wave sources for interference
         const sources = [
             { x: 18, y: 28 },
             { x: 38, y: 28 },
             { x: 28, y: 18 }
         ];
-        
+
         for (let i = 0; i < numLines; i++) {
             const y = i * spacing;
             const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             let pathData = '';
-            
-            const numPoints = 40;
+
+            const numPoints = 50;
             for (let j = 0; j <= numPoints; j++) {
                 const x = (56 * j) / numPoints;
-                
-                // Interference pattern
+
+                // Interference pattern - frequency: 62, amplitude: -77
                 let displacement = 0;
                 for (const source of sources) {
                     const dist = Math.sqrt(Math.pow(x - source.x, 2) + Math.pow(y - source.y, 2));
-                    displacement += Math.sin(dist * 0.3) * Math.exp(-dist / 30) * 2;
+                    const waveFreq = 0.6; // frequency: 62 mapped
+                    const waveAmp = 0.8; // amplitude: -77 (inverted) mapped
+                    displacement += Math.sin(dist * waveFreq) * Math.exp(-dist / 30) * waveAmp;
                 }
-                
-                // Add horizontal wave
-                displacement += Math.sin((x / 56) * Math.PI * 3) * 0.5;
-                
+
+                // Add horizontal wave component
+                displacement += Math.sin((x / 56) * Math.PI * 6) * 0.3;
+
                 const finalY = y + displacement;
-                
+
                 if (j === 0) {
                     pathData = `M ${x} ${finalY}`;
                 } else {
                     pathData += ` L ${x} ${finalY}`;
                 }
             }
-            
+
             path.setAttribute('d', pathData);
-            
-            if (i % 4 === 0) {
-                path.setAttribute('fill', '#ddd');
-                path.setAttribute('fill-opacity', '0.3');
-                path.setAttribute('stroke', '#000');
-                path.setAttribute('stroke-width', lineWidth * 0.5);
-            } else {
             path.setAttribute('fill', 'none');
             path.setAttribute('stroke', '#000');
-            path.setAttribute('stroke-width', lineWidth);
-            }
-            
+            path.setAttribute('stroke-width', lineWidth * 0.4);
+
             svg.appendChild(path);
         }
-        
+
         // Wave source markers
         for (const source of sources) {
             const marker = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
             marker.setAttribute('cx', source.x);
             marker.setAttribute('cy', source.y);
-            marker.setAttribute('r', 1.5);
-            marker.setAttribute('fill', '#666');
-            marker.setAttribute('fill-opacity', '0.5');
+            marker.setAttribute('r', 1.2);
+            marker.setAttribute('fill', '#000');
             svg.appendChild(marker);
         }
     }
@@ -1212,18 +1189,20 @@ class OpticalArtGenerator {
     }
 
     generateMiniCircularDisplacement(svg, seed, complexity, lineWidth) {
-        const numLines = 14;
+        const numLines = 18; // complexity: 154 (higher density)
         const spacing = 56 / numLines;
 
-        // Single centered vortex
-        const vortex = { x: 28, y: 28, charge: 1, strength: 1.0 };
+        // Single centered vortex - frequency: 73, amplitude: 69
+        const vortexStrength = 0.69; // amplitude: 69 mapped to 0.69
+        const vortexCharge = 0.73; // frequency: 73 mapped to rotation direction
+        const vortex = { x: 28, y: 28, charge: vortexCharge, strength: vortexStrength };
 
         for (let i = 0; i < numLines; i++) {
             const y = i * spacing;
             const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             let pathData = '';
 
-            const numPoints = 50;
+            const numPoints = 60;
             for (let j = 0; j <= numPoints; j++) {
                 const x = (56 * j) / numPoints;
 
@@ -1237,7 +1216,7 @@ class OpticalArtGenerator {
 
                 if (dist > 2) {
                     const decay = Math.exp(-dist / 15) * vortex.strength;
-                    const strength = (decay / Math.sqrt(dist)) * 3;
+                    const strength = (decay / Math.sqrt(dist)) * 4; // Increased strength
 
                     // Tangential component (circular flow)
                     const tangAngle = angle + (Math.PI / 2) * vortex.charge;
@@ -1245,14 +1224,14 @@ class OpticalArtGenerator {
                     dispY += Math.sin(tangAngle) * strength;
 
                     // Radial component (attraction)
-                    const radialStrength = strength * 0.3 * vortex.charge;
+                    const radialStrength = strength * 0.4 * vortex.charge;
                     dispX += Math.cos(angle) * radialStrength;
                     dispY += Math.sin(angle) * radialStrength;
                 }
 
                 // Add central lens effect
                 if (dist > 3) {
-                    const lensStrength = 1.5 / dist;
+                    const lensStrength = 2.0 / dist;
                     dispX -= Math.cos(angle) * lensStrength;
                     dispY -= Math.sin(angle) * lensStrength;
                 }
@@ -1270,7 +1249,7 @@ class OpticalArtGenerator {
             path.setAttribute('d', pathData);
             path.setAttribute('fill', 'none');
             path.setAttribute('stroke', '#000');
-            path.setAttribute('stroke-width', lineWidth);
+            path.setAttribute('stroke-width', lineWidth * 0.6);
             svg.appendChild(path);
         }
     }
@@ -1473,52 +1452,78 @@ class OpticalArtGenerator {
     }
 
     generateMiniShadedGrid(svg, seed, complexity, lineWidth) {
+        // Vasarely Warped Grid thumbnail
         const width = 56;
         const height = 56;
-        const cellSize = Math.max(4, Math.floor(width / (complexity * 0.7))); // Larger cells for better visibility
-        const lightAngle = Math.PI / 4; // 45 degrees, top-left light
-        const lightDirX = Math.cos(lightAngle);
-        const lightDirY = Math.sin(lightAngle);
+        const cellsAcross = 10; // complexity: 101 (higher density)
+        const cellSize = width / cellsAcross;
 
-        // Draw cell by cell instead of pixel by pixel for better performance
-        for (let cellY = 0; cellY < height; cellY += cellSize) {
-            for (let cellX = 0; cellX < width; cellX += cellSize) {
-                // Calculate cell center
-                const centerX = cellX + cellSize / 2;
-                const centerY = cellY + cellSize / 2;
-                
-                // Distance from canvas center creates depth variation
-                const distFromCenter = Math.sqrt(
-                    Math.pow(centerX - width/2, 2) + 
-                    Math.pow(centerY - height/2, 2)
-                );
-                const maxDist = Math.sqrt(Math.pow(width/2, 2) + Math.pow(height/2, 2));
-                const depthFactor = 0.3 + 0.7 * (1 - distFromCenter / maxDist); // Edges darker
-                
-                // Calculate lighting based on cell position
-                const normX = (centerX - width/2) / (width/2);
-                const normY = (centerY - height/2) / (height/2);
-                
-                // Simulate 3D bump with lighting
-                const dotProduct = normX * lightDirX + normY * lightDirY;
-                const baseBrightness = 0.4 + 0.4 * dotProduct * depthFactor;
-                
-                // Add some variation
-                const variation = Math.sin(centerX * 0.3 + seed) * 0.15;
-                const finalBrightness = Math.max(0.1, Math.min(0.9, baseBrightness + variation));
-                
-                const colorComponent = Math.floor(finalBrightness * 255);
-                
-                // Draw the cell
-                const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                rect.setAttribute('x', cellX);
-                rect.setAttribute('y', cellY);
-                rect.setAttribute('width', Math.min(cellSize, width - cellX));
-                rect.setAttribute('height', Math.min(cellSize, height - cellY));
-                rect.setAttribute('fill', `rgb(${colorComponent}, ${colorComponent}, ${colorComponent})`);
-                rect.setAttribute('stroke', '#666');
-                rect.setAttribute('stroke-width', '0.5');
-                svg.appendChild(rect);
+        // Two distortion centers - frequency: 69 (69/25 = 2 centers)
+        const numCenters = 2;
+        const centers = [];
+        for (let i = 0; i < numCenters; i++) {
+            const angle = (i / numCenters) * Math.PI * 2;
+            const offsetRadius = width * 0.25;
+            centers.push({
+                x: width/2 + Math.cos(angle) * offsetRadius,
+                y: height/2 + Math.sin(angle) * offsetRadius,
+                strength: -0.85, // amplitude: -85 (moderate concave)
+                radius: width * 0.3
+            });
+        }
+
+        // Draw distorted grid
+        for (let row = 0; row < cellsAcross; row++) {
+            for (let col = 0; col < cellsAcross; col++) {
+                const gridX = col * cellSize;
+                const gridY = row * cellSize;
+
+                // Calculate 4 corner positions with distortion
+                const corners = [
+                    {ox: gridX, oy: gridY},
+                    {ox: gridX + cellSize, oy: gridY},
+                    {ox: gridX + cellSize, oy: gridY + cellSize},
+                    {ox: gridX, oy: gridY + cellSize}
+                ];
+
+                // Apply distortion to each corner
+                corners.forEach(corner => {
+                    let totalDX = 0, totalDY = 0;
+
+                    centers.forEach(center => {
+                        const dx = corner.ox - center.x;
+                        const dy = corner.oy - center.y;
+                        const distance = Math.sqrt(dx*dx + dy*dy);
+
+                        const influence = Math.exp(-(distance*distance) / (2 * center.radius * center.radius));
+                        const displacementMag = influence * center.strength * cellSize * 0.3;
+
+                        if (distance > 0) {
+                            totalDX += (dx / distance) * displacementMag;
+                            totalDY += (dy / distance) * displacementMag;
+                        }
+                    });
+
+                    corner.x = corner.ox + totalDX;
+                    corner.y = corner.oy + totalDY;
+                });
+
+                // Create distorted quad
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                const pathData = `M ${corners[0].x} ${corners[0].y} ` +
+                               `L ${corners[1].x} ${corners[1].y} ` +
+                               `L ${corners[2].x} ${corners[2].y} ` +
+                               `L ${corners[3].x} ${corners[3].y} Z`;
+
+                path.setAttribute('d', pathData);
+
+                // Checkerboard pattern
+                const isBlack = (row + col) % 2 === 0;
+                path.setAttribute('fill', isBlack ? '#000' : '#fff');
+                path.setAttribute('stroke', '#000');
+                path.setAttribute('stroke-width', lineWidth * 0.3);
+
+                svg.appendChild(path);
             }
         }
     }
@@ -2588,6 +2593,34 @@ class OpticalArtGenerator {
                 complexity: 103,
                 frequency: 70,
                 amplitude: -208,
+                rotation: 0,
+                symmetry: 'none'
+            },
+            'diagonal-stripes': {
+                complexity: 35,
+                frequency: 74,
+                amplitude: 269,
+                rotation: 0,
+                symmetry: '8'
+            },
+            'shaded-grid': {
+                complexity: 101,
+                frequency: 69,
+                amplitude: -85,
+                rotation: 0,
+                symmetry: 'none'
+            },
+            'wave-displacement': {
+                complexity: 185,
+                frequency: 62,
+                amplitude: -77,
+                rotation: 0,
+                symmetry: 'none'
+            },
+            'circular-displacement': {
+                complexity: 154,
+                frequency: 73,
+                amplitude: 69,
                 rotation: 0,
                 symmetry: 'none'
             }
@@ -4772,101 +4805,106 @@ class OpticalArtGenerator {
     }
 
     generateShadedGrid(layerGroup, currentRotation, slowAnimationTime) {
+        // VASARELY WARPED GRID - True optical art using perspective distortion
         const complexity = parseInt(document.getElementById('complexity').value);
-        const amplitude = parseInt(document.getElementById('amplitude').value); // Use amplitude for maxDepth
-        const frequency = parseInt(document.getElementById('frequency').value); // Use frequency for power/light angle
-        const centerX = this.actualWidth / 2;
-        const centerY = this.actualHeight / 2;
+        const amplitude = parseInt(document.getElementById('amplitude').value);
+        const frequency = parseInt(document.getElementById('frequency').value);
 
-        const cellSize = Math.max(5, Math.floor(Math.min(this.actualWidth, this.actualHeight) / complexity));
-        const maxDepth = amplitude / 100; // Scale amplitude to a reasonable maxDepth (e.g., 0.05 to 10)
-        const power = 1 + (frequency / 100) * 3; // Power from 1 to 4, for curvature control
+        // Grid setup
+        const cellsAcross = Math.max(8, Math.floor(complexity / 3));
+        const cellSize = this.actualWidth / cellsAcross;
+        const numCells = Math.ceil(this.actualHeight / cellSize);
 
-        // Animate light angle slightly
-        const lightAngle = Math.PI / 4 + slowAnimationTime * 0.1;
-        const lightDirX = Math.cos(lightAngle);
-        const lightDirY = Math.sin(lightAngle);
-        const lightDirZ = 0.7; // Simulate light coming slightly from front
+        // Distortion centers (frequency controls count)
+        const numCenters = Math.max(1, Math.floor(frequency / 25));
+        const centers = [];
 
-        let pixelIndex = 0;
-        for (let y = 0; y < this.actualHeight; y += cellSize) {
-            for (let x = 0; x < this.actualWidth; x += cellSize) {
-                const localX = (x + cellSize / 2) - centerX;
-                const localY = (y + cellSize / 2) - centerY;
-                const r = Math.sqrt(localX * localX + localY * localY);
+        if (numCenters === 1) {
+            centers.push({
+                x: this.actualWidth / 2,
+                y: this.actualHeight / 2,
+                strength: amplitude / 100,
+                radius: Math.min(this.actualWidth, this.actualHeight) * 0.4
+            });
+        } else {
+            // Multiple centers arranged in circle
+            for (let i = 0; i < numCenters; i++) {
+                const angle = (i / numCenters) * Math.PI * 2;
+                const offsetRadius = Math.min(this.actualWidth, this.actualHeight) * 0.25;
+                centers.push({
+                    x: this.actualWidth/2 + Math.cos(angle) * offsetRadius,
+                    y: this.actualHeight/2 + Math.sin(angle) * offsetRadius,
+                    strength: amplitude / 100,
+                    radius: Math.min(this.actualWidth, this.actualHeight) * 0.3
+                });
+            }
+        }
 
-                let Z = 0;
-                const R_max_cell = cellSize / 2; // Radius within a single cell
+        // Draw distorted grid
+        for (let row = 0; row < numCells; row++) {
+            for (let col = 0; col < cellsAcross; col++) {
+                // Original grid position
+                const gridX = col * cellSize;
+                const gridY = row * cellSize;
 
-                // Create a bump/indentation effect within each cell
-                // Use a slightly randomized center for more organic look
-                const cellCenterX = x + cellSize / 2 + (this.seededRandom(this.currentSeed + x * 0.01 + y * 0.02) - 0.5) * cellSize * 0.1;
-                const cellCenterY = y + cellSize / 2 + (this.seededRandom(this.currentSeed + x * 0.03 + y * 0.01) - 0.5) * cellSize * 0.1;
+                // Calculate 4 corner positions with distortion
+                const corners = [
+                    {ox: gridX, oy: gridY},                      // Top-left
+                    {ox: gridX + cellSize, oy: gridY},           // Top-right
+                    {ox: gridX + cellSize, oy: gridY + cellSize}, // Bottom-right
+                    {ox: gridX, oy: gridY + cellSize}            // Bottom-left
+                ];
 
-                const currentLocalX = (x + cellSize / 2) - cellCenterX;
-                const currentLocalY = (y + cellSize / 2) - cellCenterY;
-                const currentR = Math.sqrt(currentLocalX * currentLocalX + currentLocalY * currentLocalY);
+                // Apply distortion to each corner
+                corners.forEach(corner => {
+                    let totalDX = 0, totalDY = 0;
 
-                if (currentR <= R_max_cell) {
-                    Z = maxDepth * (1 - Math.pow(currentR / R_max_cell, power));
-                }
+                    centers.forEach(center => {
+                        const dx = corner.ox - center.x;
+                        const dy = corner.oy - center.y;
+                        const distance = Math.sqrt(dx*dx + dy*dy);
 
-                // Calculate normal for shading
-                // Approximate normal based on Z gradient
-                const dZ_dr = -maxDepth * power * Math.pow(currentR / R_max_cell, power - 1) / R_max_cell;
-                let Nx = 0, Ny = 0;
-                if (currentR > 0) {
-                    Nx = (currentLocalX / currentR) * dZ_dr;
-                    Ny = (currentLocalY / currentR) * dZ_dr;
-                }
-                const Nz = 1; // Z component of normal (pointing upwards)
+                        // Gaussian influence
+                        const influence = Math.exp(-(distance*distance) /
+                                                  (2 * center.radius * center.radius));
 
-                const normalLength = Math.sqrt(Nx*Nx + Ny*Ny + Nz*Nz);
-                const N_normalizedX = Nx / normalLength;
-                const N_normalizedY = Ny / normalLength;
-                const N_normalizedZ = Nz / normalLength;
+                        // Radial displacement (creates bulge/indent)
+                        const displacementMag = influence * center.strength * cellSize * 2;
 
-                // Calculate diffuse shading
-                const dot_NL = N_normalizedX * lightDirX + N_normalizedY * lightDirY + N_normalizedZ * lightDirZ;
-                const shadeIntensity = Math.max(0, Math.min(1, dot_NL)); // Clamp between 0 and 1
+                        if (distance > 0) {
+                            totalDX += (dx / distance) * displacementMag;
+                            totalDY += (dy / distance) * displacementMag;
+                        }
+                    });
 
-                // Use shadeIntensity to determine color
-                const baseColor = this.getLineColor(pixelIndex, (this.actualWidth / cellSize) * (this.actualHeight / cellSize));
-                const rgb = this.colorToRgb(baseColor); // Handles hex, rgb, and hsl formats
+                    corner.x = corner.ox + totalDX;
+                    corner.y = corner.oy + totalDY;
+                });
 
-                // Apply shading differently for dark mode
-                const isDarkMode = localStorage.getItem('darkMode') === 'true';
-                const colorMode = document.getElementById('color-mode').value;
-                let finalR, finalG, finalB;
-                
-                if (isDarkMode && colorMode === 'black') {
-                    // In dark mode: invert the shading so bright areas are white, dim areas are gray (not black)
-                    // This keeps the pattern visible on black background
-                    const invertedIntensity = 0.3 + (shadeIntensity * 0.7); // Range from 30% to 100%
-                    finalR = Math.floor(rgb[0] * invertedIntensity);
-                    finalG = Math.floor(rgb[1] * invertedIntensity);
-                    finalB = Math.floor(rgb[2] * invertedIntensity);
-                } else {
-                    // Normal shading: dark to bright based on lighting
-                    finalR = Math.floor(rgb[0] * shadeIntensity);
-                    finalG = Math.floor(rgb[1] * shadeIntensity);
-                    finalB = Math.floor(rgb[2] * shadeIntensity);
-                }
+                // Create distorted quad as SVG path
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                const pathData = `M ${corners[0].x} ${corners[0].y} ` +
+                               `L ${corners[1].x} ${corners[1].y} ` +
+                               `L ${corners[2].x} ${corners[2].y} ` +
+                               `L ${corners[3].x} ${corners[3].y} Z`;
 
-                const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                rect.setAttribute('x', x);
-                rect.setAttribute('y', y);
-                rect.setAttribute('width', cellSize);
-                rect.setAttribute('height', cellSize);
-                rect.setAttribute('fill', `rgb(${finalR}, ${finalG}, ${finalB})`);
-                rect.setAttribute('stroke', 'none'); // No stroke for filled cells
-                layerGroup.appendChild(rect);
-                pixelIndex++;
+                path.setAttribute('d', pathData);
+
+                // Checkerboard coloring with palette support
+                const isBlack = (row + col) % 2 === 0;
+                const color = this.getLineColor(row * cellsAcross + col, cellsAcross * numCells);
+
+                path.setAttribute('fill', isBlack ? color : 'none');
+                path.setAttribute('stroke', color);
+                path.setAttribute('stroke-width', this.getAutoLineWidth() * 0.5);
+
+                layerGroup.appendChild(path);
             }
         }
 
         if (currentRotation !== 0) {
-            layerGroup.setAttribute('transform', `rotate(${currentRotation} ${centerX} ${centerY})`);
+            layerGroup.setAttribute('transform',
+                `rotate(${currentRotation} ${this.actualWidth/2} ${this.actualHeight/2})`);
         }
     }
 
@@ -6595,7 +6633,7 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
 
     resetAll() {
         // Reset all controls to default values, but keep current pattern
-        const currentPattern = document.getElementById('pattern-select').value;
+        const currentPattern = document.getElementById('pattern-type').value;
 
         const defaultSettings = {
             patternType: currentPattern, // Keep the currently selected pattern
