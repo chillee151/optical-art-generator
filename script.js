@@ -3550,41 +3550,52 @@ class OpticalArtGenerator {
     }
 
     _traceContours(noiseField, threshold, cellSize, gridWidth, gridHeight) {
-        // Simplified contour tracing using horizontal scan lines
+        // Marching squares-inspired contour tracing
         const contours = [];
 
+        // Collect all edge crossings
         for (let y = 0; y < gridHeight - 1; y++) {
-            let inContour = false;
-            let currentContour = [];
+            const points = [];
 
+            // Horizontal crossings along this scan line
             for (let x = 0; x < gridWidth - 1; x++) {
                 const current = noiseField[y][x];
                 const next = noiseField[y][x + 1];
 
-                // Crossing detection
+                // Check for threshold crossing
                 if ((current < threshold && next >= threshold) || (current >= threshold && next < threshold)) {
                     // Linear interpolation for smooth crossing
                     const t = (threshold - current) / (next - current);
                     const px = (x + t) * cellSize;
                     const py = y * cellSize;
-
-                    currentContour.push({ x: px, y: py });
-
-                    if (!inContour) {
-                        inContour = true;
-                    } else {
-                        // End of contour segment
-                        if (currentContour.length > 2) {
-                            contours.push(currentContour);
-                        }
-                        currentContour = [];
-                        inContour = false;
-                    }
+                    points.push({ x: px, y: py });
                 }
             }
 
-            if (currentContour.length > 2) {
-                contours.push(currentContour);
+            // If we found crossing points on this scan line, create a contour segment
+            if (points.length >= 2) {
+                contours.push(points);
+            }
+        }
+
+        // Also check vertical crossings to create more complete contours
+        for (let x = 0; x < gridWidth - 1; x++) {
+            const points = [];
+
+            for (let y = 0; y < gridHeight - 1; y++) {
+                const current = noiseField[y][x];
+                const next = noiseField[y + 1][x];
+
+                if ((current < threshold && next >= threshold) || (current >= threshold && next < threshold)) {
+                    const t = (threshold - current) / (next - current);
+                    const px = x * cellSize;
+                    const py = (y + t) * cellSize;
+                    points.push({ x: px, y: py });
+                }
+            }
+
+            if (points.length >= 2) {
+                contours.push(points);
             }
         }
 
