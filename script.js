@@ -518,7 +518,8 @@ class OpticalArtGenerator {
             { id: 'cube-illusion', name: 'Cube' },
             { id: 'square-tunnel', name: 'Tunnel' },
             { id: 'shaded-grid', name: 'Shaded' },
-            { id: 'radial-vortex', name: 'Vortex' }
+            { id: 'radial-vortex', name: 'Vortex' },
+            { id: 'riley-waves', name: 'Riley' }
         ];
 
         previewContainer.innerHTML = '';
@@ -5644,6 +5645,9 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
                     break;
                 case 'radial-vortex':
                     this.generateMiniRadialVortex(svg, settings.seed, Math.min(settings.complexity / 10, 20), this.getAutoLineWidth());
+                    break;
+                case 'riley-waves':
+                    this.generateMiniRileyWaves(svg, settings.seed, Math.min(settings.complexity / 10, 20), this.getAutoLineWidth());
                     break;
                 default:
                     // Fallback to simple spiral
