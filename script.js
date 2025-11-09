@@ -2399,10 +2399,10 @@ class OpticalArtGenerator {
         }
 
         // Update UI to show/hide gradient controls
-        this.updateColorControls();
+        this.toggleColorControls();
 
         // Regenerate pattern with new colors
-        this.regeneratePattern();
+        this.generatePattern(true);
 
         // Store currently active palette
         this.activePaletteId = palette.id;
@@ -5518,9 +5518,15 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
 
     generateMiniRileyWaves(svg, seed, complexity, lineWidth) {
         const size = 56;
-        const numLines = Math.min(15, complexity * 2);
+        // Updated to match default settings (complexity: 62, frequency: 57, amplitude: 62)
+        const numLines = 12; // Scaled down from 62 for thumbnail
         const spacing = size / numLines;
-        const maxAmplitude = size * 0.15;
+        const maxAmplitude = size * 0.22; // Scaled from amplitude: 62 (about 62% of range)
+        const frequency = 2.8; // Scaled from frequency: 57 (about 57% of range)
+
+        // Rotate -90° for vertical waves (default rotation)
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('transform', `rotate(-90 ${size/2} ${size/2})`);
 
         for (let i = 0; i < numLines; i++) {
             const progress = i / numLines;
@@ -5535,7 +5541,7 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
 
             for (let x = 0; x <= size; x += 2) {
                 const xProgress = x / size;
-                const waveY = y + lineAmplitude * Math.sin(xProgress * Math.PI * 2 * 3);
+                const waveY = y + lineAmplitude * Math.sin(xProgress * Math.PI * 2 * frequency);
 
                 if (pathData === '') {
                     pathData = `M ${x} ${waveY}`;
@@ -5549,8 +5555,10 @@ ${new XMLSerializer().serializeToString(exportCanvas)}`;
             path.setAttribute('stroke', '#000');
             path.setAttribute('stroke-width', lineWidth * 0.5);
 
-            svg.appendChild(path);
+            g.appendChild(path);
         }
+
+        svg.appendChild(g);
     }
 
     // ═══════════════════════════════════════════════════════════════════════
