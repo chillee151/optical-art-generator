@@ -3461,87 +3461,65 @@ class OpticalArtGenerator {
     }
 
     generateFractalNoisePattern(layerGroup, currentRotation, slowAnimationTime) {
-        // TURBULENT TOPOLOGY - Organic contour map using multi-octave fBm
+        // TURBULENT FLUX FIELD - Dynamic flow visualization with curl noise streamlines
         const complexity = parseInt(document.getElementById('complexity').value);
         const frequency = parseInt(document.getElementById('frequency').value);
         const amplitude = parseInt(document.getElementById('amplitude').value);
         const centerX = this.actualWidth / 2;
         const centerY = this.actualHeight / 2;
 
-        // Complexity controls number of contour levels (3-100)
-        const numContours = Math.max(3, Math.min(100, Math.floor(complexity / 3)));
+        // === PARAMETERS ===
+        const numStreamlines = this._mapComplexity(complexity); // 20-1000
+        const integrationSteps = 50 + Math.floor(complexity * 0.8); // 50-290
+        const noiseScale = this._mapFrequency(frequency); // 0.001-0.03
+        const octaves = Math.floor(3 + (frequency / 20)); // 3-8
+        const stepSize = Math.abs(amplitude) / 200 + 1.0; // 0.5-6.0
+        const curlIntensity = 1.0 + (amplitude / 1000); // 0-2.0
 
-        // Frequency controls noise scale AND octaves
-        const octaves = Math.max(1, Math.min(8, Math.floor(1 + frequency / 15)));
-        const noiseScale = frequency / 200;
+        // === FLOW FIELD GENERATION ===
+        const flowField = this._computeCurlNoiseField(
+            noiseScale,
+            octaves,
+            curlIntensity,
+            this.currentSeed * 5 + slowAnimationTime * 0.1
+        );
 
-        // Amplitude controls contour smoothing (sampling density)
-        const cellSize = Math.max(2, Math.min(15, 15 - (amplitude / 100)));
+        // === SEED POINT DISTRIBUTION ===
+        const seedPoints = this._distributeSeedPoints(
+            numStreamlines,
+            flowField,
+            amplitude
+        );
 
-        const gridWidth = Math.ceil(this.actualWidth / cellSize);
-        const gridHeight = Math.ceil(this.actualHeight / cellSize);
+        // === STREAMLINE INTEGRATION ===
+        seedPoints.forEach((seed, index) => {
+            const streamline = this._traceStreamline(
+                seed,
+                flowField,
+                integrationSteps,
+                stepSize
+            );
 
-        // Generate 2D fractal noise field
-        const noiseField = [];
-        let minNoise = Infinity, maxNoise = -Infinity;
+            if (streamline.length < 3) return;
 
-        for (let gy = 0; gy < gridHeight; gy++) {
-            const row = [];
-            for (let gx = 0; gx < gridWidth; gx++) {
-                const x = gx * cellSize;
-                const y = gy * cellSize;
+            // Smooth the streamline with Catmull-Rom splines
+            const smoothed = this._smoothStreamline(streamline);
 
-                const noiseValue = this._fbm(
-                    x * noiseScale,
-                    y * noiseScale,
-                    this.currentSeed * 5 + slowAnimationTime * 0.1,
-                    octaves,
-                    0.5
-                );
+            if (smoothed.length < 2) return;
 
-                row.push(noiseValue);
-                minNoise = Math.min(minNoise, noiseValue);
-                maxNoise = Math.max(maxNoise, noiseValue);
-            }
-            noiseField.push(row);
-        }
+            // Render as SVG path
+            const path = this._createStreamlinePath(
+                smoothed,
+                index,
+                numStreamlines
+            );
 
-        // Draw contour lines by sampling threshold levels
-        for (let contourIndex = 0; contourIndex < numContours; contourIndex++) {
-            const t = contourIndex / (numContours - 1);
-            const threshold = minNoise + (maxNoise - minNoise) * t;
+            layerGroup.appendChild(path);
+        });
 
-            // Trace contour at this threshold level
-            const contourPaths = this._traceContours(noiseField, threshold, cellSize, gridWidth, gridHeight);
-
-            contourPaths.forEach(points => {
-                if (points.length < 3) return;
-
-                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                let pathData = `M ${points[0].x} ${points[0].y}`;
-
-                for (let i = 1; i < points.length; i++) {
-                    pathData += ` L ${points[i].x} ${points[i].y}`;
-                }
-
-                // Close path if it loops back
-                const dist = Math.sqrt(
-                    Math.pow(points[0].x - points[points.length-1].x, 2) +
-                    Math.pow(points[0].y - points[points.length-1].y, 2)
-                );
-                if (dist < cellSize * 2) {
-                    pathData += ' Z';
-                }
-
-                path.setAttribute('d', pathData);
-                path.setAttribute('fill', 'none');
-                path.setAttribute('stroke', this.getLineColor(contourIndex, numContours));
-                path.setAttribute('stroke-width', this.getAutoLineWidth());
-                path.setAttribute('stroke-linejoin', 'round');
-                path.setAttribute('stroke-linecap', 'round');
-
-                layerGroup.appendChild(path);
-            });
+        // === OPTIONAL: ADD VORTEX CORES ===
+        if (complexity > 100) {
+            this._highlightVortexCores(layerGroup, flowField);
         }
 
         if (currentRotation !== 0) {
@@ -3549,57 +3527,299 @@ class OpticalArtGenerator {
         }
     }
 
-    _traceContours(noiseField, threshold, cellSize, gridWidth, gridHeight) {
-        // Marching squares-inspired contour tracing
-        const contours = [];
+    _computeCurlNoiseField(scale, octaves, intensity, time) {
+        const cellSize = 8; // Grid resolution
+        const cols = Math.ceil(this.actualWidth / cellSize);
+        const rows = Math.ceil(this.actualHeight / cellSize);
+        const field = [];
 
-        // Collect all edge crossings
-        for (let y = 0; y < gridHeight - 1; y++) {
-            const points = [];
+        for (let y = 0; y < rows; y++) {
+            const row = [];
+            for (let x = 0; x < cols; x++) {
+                const wx = x * cellSize;
+                const wy = y * cellSize;
 
-            // Horizontal crossings along this scan line
-            for (let x = 0; x < gridWidth - 1; x++) {
-                const current = noiseField[y][x];
-                const next = noiseField[y][x + 1];
+                // Compute curl using finite differences
+                const offset = cellSize * 0.5;
+                const n1 = this._fbm(wx * scale, (wy + offset) * scale, time, octaves, 0.5);
+                const n2 = this._fbm(wx * scale, (wy - offset) * scale, time, octaves, 0.5);
+                const n3 = this._fbm((wx + offset) * scale, wy * scale, time, octaves, 0.5);
+                const n4 = this._fbm((wx - offset) * scale, wy * scale, time, octaves, 0.5);
 
-                // Check for threshold crossing
-                if ((current < threshold && next >= threshold) || (current >= threshold && next < threshold)) {
-                    // Linear interpolation for smooth crossing
-                    const t = (threshold - current) / (next - current);
-                    const px = (x + t) * cellSize;
-                    const py = y * cellSize;
-                    points.push({ x: px, y: py });
-                }
+                let vx = (n1 - n2) / (2 * offset);
+                let vy = -(n3 - n4) / (2 * offset);
+
+                // Apply intensity scaling
+                vx *= intensity;
+                vy *= intensity;
+
+                // Normalize and store
+                const mag = Math.sqrt(vx * vx + vy * vy);
+                row.push({
+                    vx: vx,
+                    vy: vy,
+                    magnitude: mag
+                });
             }
+            field.push(row);
+        }
 
-            // If we found crossing points on this scan line, create a contour segment
-            if (points.length >= 2) {
-                contours.push(points);
+        return { field, cellSize, cols, rows };
+    }
+
+    _distributeSeedPoints(numPoints, flowField, amplitude) {
+        const points = [];
+        const strategy = Math.abs(amplitude);
+
+        if (strategy < 300) {
+            // Uniform grid distribution
+            const gridSize = Math.ceil(Math.sqrt(numPoints));
+            const spacingX = this.actualWidth / gridSize;
+            const spacingY = this.actualHeight / gridSize;
+
+            for (let i = 0; i < gridSize; i++) {
+                for (let j = 0; j < gridSize; j++) {
+                    // Add jitter
+                    const jitterX = (this.seededRandom(this.currentSeed + i * 1000 + j) - 0.5) * spacingX * 0.5;
+                    const jitterY = (this.seededRandom(this.currentSeed + i * 2000 + j) - 0.5) * spacingY * 0.5;
+
+                    points.push({
+                        x: i * spacingX + spacingX / 2 + jitterX,
+                        y: j * spacingY + spacingY / 2 + jitterY
+                    });
+
+                    if (points.length >= numPoints) break;
+                }
+                if (points.length >= numPoints) break;
+            }
+        } else {
+            // Concentrate in high-curl regions
+            const highCurlRegions = this._findHighCurlRegions(flowField, 20);
+
+            for (let i = 0; i < numPoints; i++) {
+                const rand = this.seededRandom(this.currentSeed + i * 100);
+                if (highCurlRegions.length > 0 && rand < 0.7) {
+                    // 70% in high-curl regions
+                    const regionIdx = Math.floor(this.seededRandom(this.currentSeed + i * 200) * highCurlRegions.length);
+                    const region = highCurlRegions[regionIdx];
+                    points.push({
+                        x: region.x + (this.seededRandom(this.currentSeed + i * 300) - 0.5) * 50,
+                        y: region.y + (this.seededRandom(this.currentSeed + i * 400) - 0.5) * 50
+                    });
+                } else {
+                    // 30% random
+                    points.push({
+                        x: this.seededRandom(this.currentSeed + i * 500) * this.actualWidth,
+                        y: this.seededRandom(this.currentSeed + i * 600) * this.actualHeight
+                    });
+                }
             }
         }
 
-        // Also check vertical crossings to create more complete contours
-        for (let x = 0; x < gridWidth - 1; x++) {
-            const points = [];
+        return points;
+    }
 
-            for (let y = 0; y < gridHeight - 1; y++) {
-                const current = noiseField[y][x];
-                const next = noiseField[y + 1][x];
+    _traceStreamline(startPoint, flowFieldData, maxSteps, stepSize) {
+        const { field, cellSize, cols, rows } = flowFieldData;
+        const points = [{ ...startPoint }];
+        let current = { ...startPoint };
 
-                if ((current < threshold && next >= threshold) || (current >= threshold && next < threshold)) {
-                    const t = (threshold - current) / (next - current);
-                    const px = x * cellSize;
-                    const py = (y + t) * cellSize;
-                    points.push({ x: px, y: py });
-                }
+        // Integrate forward
+        for (let step = 0; step < maxSteps; step++) {
+            const velocity = this._sampleFlowField(current, field, cellSize, cols, rows);
+
+            if (!velocity || velocity.magnitude < 0.001) break;
+
+            // RK4 integration for smooth curves
+            const k1 = this._sampleFlowField(current, field, cellSize, cols, rows);
+            if (!k1) break;
+
+            const mid1 = {
+                x: current.x + k1.vx * stepSize * 0.5,
+                y: current.y + k1.vy * stepSize * 0.5
+            };
+
+            const k2 = this._sampleFlowField(mid1, field, cellSize, cols, rows);
+            if (!k2) break;
+
+            const mid2 = {
+                x: current.x + k2.vx * stepSize * 0.5,
+                y: current.y + k2.vy * stepSize * 0.5
+            };
+
+            const k3 = this._sampleFlowField(mid2, field, cellSize, cols, rows);
+            if (!k3) break;
+
+            const end = {
+                x: current.x + k3.vx * stepSize,
+                y: current.y + k3.vy * stepSize
+            };
+
+            const k4 = this._sampleFlowField(end, field, cellSize, cols, rows);
+            if (!k4) break;
+
+            // Combined velocity
+            current = {
+                x: current.x + (k1.vx + 2 * k2.vx + 2 * k3.vx + k4.vx) * stepSize / 6,
+                y: current.y + (k1.vy + 2 * k2.vy + 2 * k3.vy + k4.vy) * stepSize / 6
+            };
+
+            // Check bounds
+            if (current.x < 0 || current.x > this.actualWidth ||
+                current.y < 0 || current.y > this.actualHeight) {
+                break;
             }
 
-            if (points.length >= 2) {
-                contours.push(points);
+            points.push({ ...current });
+        }
+
+        return points;
+    }
+
+    _sampleFlowField(point, field, cellSize, cols, rows) {
+        const gx = point.x / cellSize;
+        const gy = point.y / cellSize;
+
+        const x0 = Math.floor(gx);
+        const y0 = Math.floor(gy);
+
+        if (x0 < 0 || x0 >= cols - 1 || y0 < 0 || y0 >= rows - 1) {
+            return null;
+        }
+
+        // Bilinear interpolation
+        const fx = gx - x0;
+        const fy = gy - y0;
+
+        const v00 = field[y0][x0];
+        const v10 = field[y0][x0 + 1];
+        const v01 = field[y0 + 1][x0];
+        const v11 = field[y0 + 1][x0 + 1];
+
+        const vx = (1 - fx) * (1 - fy) * v00.vx + fx * (1 - fy) * v10.vx +
+            (1 - fx) * fy * v01.vx + fx * fy * v11.vx;
+        const vy = (1 - fx) * (1 - fy) * v00.vy + fx * (1 - fy) * v10.vy +
+            (1 - fx) * fy * v01.vy + fx * fy * v11.vy;
+
+        const magnitude = Math.sqrt(vx * vx + vy * vy);
+
+        return { vx, vy, magnitude };
+    }
+
+    _smoothStreamline(points) {
+        if (points.length < 4) return points;
+
+        // Catmull-Rom spline smoothing
+        const smooth = [];
+        const tension = 0.5;
+
+        for (let i = 0; i < points.length - 1; i++) {
+            const p0 = points[Math.max(0, i - 1)];
+            const p1 = points[i];
+            const p2 = points[i + 1];
+            const p3 = points[Math.min(points.length - 1, i + 2)];
+
+            // Sample curve with 5 points between each pair
+            for (let t = 0; t < 1; t += 0.2) {
+                const t2 = t * t;
+                const t3 = t2 * t;
+
+                const x = 0.5 * (
+                    (2 * p1.x) +
+                    (-p0.x + p2.x) * t +
+                    (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * t2 +
+                    (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * t3
+                );
+
+                const y = 0.5 * (
+                    (2 * p1.y) +
+                    (-p0.y + p2.y) * t +
+                    (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * t2 +
+                    (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * t3
+                );
+
+                smooth.push({ x, y });
             }
         }
 
-        return contours;
+        return smooth;
+    }
+
+    _createStreamlinePath(points, index, total) {
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+
+        let pathData = `M ${points[0].x} ${points[0].y}`;
+        for (let i = 1; i < points.length; i++) {
+            pathData += ` L ${points[i].x} ${points[i].y}`;
+        }
+
+        path.setAttribute('d', pathData);
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke', this.getLineColor(index, total));
+        path.setAttribute('stroke-width', this.getAutoLineWidth());
+        path.setAttribute('stroke-linecap', 'round');
+        path.setAttribute('stroke-linejoin', 'round');
+        path.setAttribute('stroke-opacity', '0.7'); // Layering effect
+
+        return path;
+    }
+
+    _findHighCurlRegions(flowFieldData, numRegions) {
+        const { field, cellSize, cols, rows } = flowFieldData;
+        const regions = [];
+
+        // Compute curl magnitude (Laplacian approximation)
+        for (let y = 1; y < rows - 1; y++) {
+            for (let x = 1; x < cols - 1; x++) {
+                const center = field[y][x];
+                const left = field[y][x - 1];
+                const right = field[y][x + 1];
+                const top = field[y - 1][x];
+                const bottom = field[y + 1][x];
+
+                // Discrete curl magnitude
+                const curl = Math.abs(
+                    (right.vy - left.vy) / 2 - (bottom.vx - top.vx) / 2
+                );
+
+                regions.push({
+                    x: x * cellSize,
+                    y: y * cellSize,
+                    curl: curl
+                });
+            }
+        }
+
+        // Sort by curl magnitude and return top regions
+        regions.sort((a, b) => b.curl - a.curl);
+        return regions.slice(0, numRegions);
+    }
+
+    _highlightVortexCores(layerGroup, flowFieldData) {
+        const cores = this._findHighCurlRegions(flowFieldData, 10);
+
+        cores.forEach((core, i) => {
+            if (i > 5) return; // Limit to top 5
+
+            const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            circle.setAttribute('cx', core.x);
+            circle.setAttribute('cy', core.y);
+            circle.setAttribute('r', 3);
+            circle.setAttribute('fill', this.getLineColor(i, 5));
+            circle.setAttribute('fill-opacity', '0.5');
+
+            layerGroup.appendChild(circle);
+        });
+    }
+
+    _mapComplexity(c) {
+        // Map 0-300 to 20-1000 with exponential curve
+        return Math.floor(20 + Math.pow(c / 300, 1.5) * 980);
+    }
+
+    _mapFrequency(f) {
+        // Map 0-100 to 0.001-0.03 with smooth curve
+        return 0.001 + (f / 100) * 0.029;
     }
 
     clearCanvas() {
