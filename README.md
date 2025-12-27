@@ -4,7 +4,37 @@ A sophisticated web application for generating mesmerizing geometric patterns op
 
 ## 🚀 Recent Updates
 
-### v5.10.0 (Latest - PATTERN REFINEMENT & VASARELY GRID!)
+### v5.11.0 (Latest - MODULAR ARCHITECTURE & PATTERN FIXES!)
+
+**🏗️ COMPLETE MODULAR REFACTORING:**
+- **ES6 Module Architecture** - All 23 patterns now in separate files under `src/patterns/`
+- **Core Module System**:
+  - `src/core/PatternRegistry.js` - Dynamic pattern registration and lookup
+  - `src/core/PatternContext.js` - Immutable context for pattern generators (replaces DOM reads)
+  - `src/core/PerlinNoise.js` - Extracted Perlin noise implementation
+  - `src/core/utils.js` - Shared utilities (seededRandom, fbm, color conversion, etc.)
+- **Self-Registering Patterns** - Each pattern module auto-registers on import
+- **Dependency Injection** - Patterns receive all values via `PatternContext` object
+- **Easier Maintenance** - Add new patterns by creating a single file
+
+**🎨 PATTERN-SPECIFIC FIXES:**
+- **Spiral Distortion** - Complete redesign as true logarithmic spiral
+  - Proper black/white contrast handling (fixes all-black screen bug)
+  - All three sliders now have dramatic visible effects:
+    - **Complexity**: Number of spiral arms (6-60)
+    - **Frequency**: Spiral tightness/rotations (2-12 turns)
+    - **Amplitude**: Curve shape and direction (-1000 to 1000)
+  - Full canvas coverage (no black edges)
+- **Diagonal Stripes** - Added sinusoidal amplitude modulation for pulsing thickness
+- **Concentric Circles** - Increased wave modulation (0.2 → 0.4) for stronger breathing effect
+- **Moiré Interference** - Fixed to use identical spacing + precise 3.5° angles for proper interference
+
+**🔧 TECHNICAL IMPROVEMENTS:**
+- Fixed `getLineColor` binding issue across all patterns (use `ctx.getLineColor()` not destructured)
+- Patterns correctly handle dark mode and color modes
+- Script loads as ES6 module (`type="module"` in index.html)
+
+### v5.10.0 (PATTERN REFINEMENT & VASARELY GRID!)
 
 **🎨 SHADED-GRID PATTERN REDESIGNED:**
 - **Complete Transformation**: From 3D bump-mapping to **Vasarely Warped Grid**
@@ -907,7 +937,12 @@ else return 1-0.5px                     // Thin for high detail
 - Leaves/flowers at branch endpoints
 
 ### Architecture
-- **Frontend**: Vanilla JavaScript ES6+ with SVG rendering
+- **Frontend**: Vanilla JavaScript ES6 Modules with SVG rendering
+- **Modular Pattern System** (v5.11.0):
+  - `src/core/` - Core infrastructure (PatternRegistry, PatternContext, PerlinNoise, utils)
+  - `src/patterns/` - 23 self-registering pattern modules
+  - Each pattern exports: `name`, `description`, `category`, `defaults`, `generate()`, `generateMini()`
+  - `PatternContext` provides immutable context with slider values, colors, dimensions
 - **GPU Optimization**: Hardware-accelerated rendering with CSS transforms and compositing (v5.4.0)
   - `translate3d(0,0,0)` for GPU layer promotion
   - Adaptive `shape-rendering` based on complexity
@@ -1029,5 +1064,5 @@ Mathematical foundations from:
 
 **Built with ❤️ for laser engravers, digital artists, and optical art enthusiasts**
 
-**Version**: 5.5.0 (2025 Edition - Animation Revolution)  
-**Last Updated**: October 2025
+**Version**: 5.11.0 (2025 Edition - Modular Architecture)
+**Last Updated**: December 2025

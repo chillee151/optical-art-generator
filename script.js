@@ -1,3 +1,8 @@
+// Pattern Registry imports - ES6 modules for modular pattern system
+import { patternRegistry } from './src/core/PatternRegistry.js';
+import { PatternContext, MiniPatternContext } from './src/core/PatternContext.js';
+import './src/patterns/index.js'; // Triggers pattern self-registration
+
 // Perlin Noise implementation in JavaScript
 // Based on Ken Perlin's Improved Noise reference implementation (2002)
 // Ported from Java to JavaScript.
@@ -728,76 +733,85 @@ class OpticalArtGenerator {
         const miniComplexity = 8;
         const miniLineWidth = 1;
 
-        switch(patternType) {
-            case 'concentric-circles':
-                this.generateMiniConcentricCircles(svg, miniSeed, miniComplexity, miniLineWidth);
-                break;
-            case 'diagonal-stripes':
-                this.generateMiniDiagonalStripes(svg, miniSeed, miniComplexity, miniLineWidth);
-                break;
-            case 'cube-illusion':
-                this.generateMiniCubeIllusion(svg, miniSeed, miniComplexity, miniLineWidth);
-                break;
-            case 'eye-pattern':
-                this.generateMiniEyePattern(svg, miniSeed, miniComplexity, miniLineWidth);
-                break;
-            case 'square-tunnel':
-                this.generateMiniSquareTunnel(svg, miniSeed, miniComplexity, miniLineWidth);
-                break;
-            case 'wave-displacement':
-                this.generateMiniWaveDisplacement(svg, miniSeed, miniComplexity, miniLineWidth);
-                break;
-            case 'circular-displacement':
-                this.generateMiniCircularDisplacement(svg, miniSeed, miniComplexity, miniLineWidth);
-                break;
-            case 'moire-interference':
-                this.generateMiniMoireInterference(svg, miniSeed, miniComplexity, miniLineWidth);
-                break;
-            case 'spiral-distortion':
-                this.generateMiniSpiralDistortion(svg, miniSeed, miniComplexity, miniLineWidth);
-                break;
-            case 'perlin-displacement':
-                this.generateMiniPerlinDisplacement(svg, miniSeed, miniComplexity, miniLineWidth);
-                break;
-            case 'fractal-noise':
-                this.generateMiniFractalNoise(svg, miniSeed, miniComplexity, miniLineWidth);
-                break;
-            case 'de-jong-attractor':
-                this.generateMiniDeJongAttractor(svg, miniSeed, miniComplexity, miniLineWidth);
-                break;
-            case 'cellular-automata':
-                this.generateMiniCellularAutomata(svg, miniSeed, miniComplexity, miniLineWidth);
-                break;
-            case 'l-system-growth':
-                this.generateMiniLSystem(svg, miniSeed, miniComplexity, miniLineWidth);
-                break;
-            case 'shaded-grid':
-                this.generateMiniShadedGrid(svg, miniSeed, miniComplexity, miniLineWidth);
-                break;
-            case 'radial-vortex':
-                this.generateMiniRadialVortex(svg, miniSeed, miniComplexity, miniLineWidth);
-                break;
-            case 'riley-waves':
-                this.generateMiniRileyWaves(svg, miniSeed, miniComplexity, miniLineWidth);
-                break;
-            case 'vasarely-zebra':
-                this.generateMiniVasarelyZebra(svg, miniSeed, miniComplexity, miniLineWidth);
-                break;
-            case 'anuszkiewicz-squares':
-                this.generateMiniAnuszkiewiczSquares(svg, miniSeed, miniComplexity, miniLineWidth);
-                break;
-            case 'riley-crest':
-                this.generateMiniRileyCrest(svg, miniSeed, miniComplexity, miniLineWidth);
-                break;
-            case 'vasarely-vega':
-                this.generateMiniVasarelyVega(svg, miniSeed, miniComplexity, miniLineWidth);
-                break;
-            case 'soto-vibration':
-                this.generateMiniSotoVibration(svg, miniSeed, miniComplexity, miniLineWidth);
-                break;
-            case 'cruz-diez-strips':
-                this.generateMiniCruzDiezStrips(svg, miniSeed, miniComplexity, miniLineWidth);
-                break;
+        // Try Pattern Registry first (modular patterns)
+        if (patternRegistry.has(patternType)) {
+            const ctx = new MiniPatternContext({
+                seed: miniSeed,
+                complexity: miniComplexity,
+                lineWidth: miniLineWidth,
+                perlin: this.perlin
+            });
+            patternRegistry.generateMiniPattern(patternType, svg, ctx);
+        } else {
+            // Fallback to legacy switch statement for non-migrated patterns
+            switch(patternType) {
+                case 'concentric-circles':
+                    this.generateMiniConcentricCircles(svg, miniSeed, miniComplexity, miniLineWidth);
+                    break;
+                case 'diagonal-stripes':
+                    this.generateMiniDiagonalStripes(svg, miniSeed, miniComplexity, miniLineWidth);
+                    break;
+                case 'cube-illusion':
+                    this.generateMiniCubeIllusion(svg, miniSeed, miniComplexity, miniLineWidth);
+                    break;
+                case 'eye-pattern':
+                    this.generateMiniEyePattern(svg, miniSeed, miniComplexity, miniLineWidth);
+                    break;
+                case 'square-tunnel':
+                    this.generateMiniSquareTunnel(svg, miniSeed, miniComplexity, miniLineWidth);
+                    break;
+                case 'wave-displacement':
+                    this.generateMiniWaveDisplacement(svg, miniSeed, miniComplexity, miniLineWidth);
+                    break;
+                case 'circular-displacement':
+                    this.generateMiniCircularDisplacement(svg, miniSeed, miniComplexity, miniLineWidth);
+                    break;
+                case 'moire-interference':
+                    this.generateMiniMoireInterference(svg, miniSeed, miniComplexity, miniLineWidth);
+                    break;
+                case 'spiral-distortion':
+                    this.generateMiniSpiralDistortion(svg, miniSeed, miniComplexity, miniLineWidth);
+                    break;
+                case 'fractal-noise':
+                    this.generateMiniFractalNoise(svg, miniSeed, miniComplexity, miniLineWidth);
+                    break;
+                case 'de-jong-attractor':
+                    this.generateMiniDeJongAttractor(svg, miniSeed, miniComplexity, miniLineWidth);
+                    break;
+                case 'cellular-automata':
+                    this.generateMiniCellularAutomata(svg, miniSeed, miniComplexity, miniLineWidth);
+                    break;
+                case 'l-system-growth':
+                    this.generateMiniLSystem(svg, miniSeed, miniComplexity, miniLineWidth);
+                    break;
+                case 'shaded-grid':
+                    this.generateMiniShadedGrid(svg, miniSeed, miniComplexity, miniLineWidth);
+                    break;
+                case 'radial-vortex':
+                    this.generateMiniRadialVortex(svg, miniSeed, miniComplexity, miniLineWidth);
+                    break;
+                case 'riley-waves':
+                    this.generateMiniRileyWaves(svg, miniSeed, miniComplexity, miniLineWidth);
+                    break;
+                case 'vasarely-zebra':
+                    this.generateMiniVasarelyZebra(svg, miniSeed, miniComplexity, miniLineWidth);
+                    break;
+                case 'anuszkiewicz-squares':
+                    this.generateMiniAnuszkiewiczSquares(svg, miniSeed, miniComplexity, miniLineWidth);
+                    break;
+                case 'riley-crest':
+                    this.generateMiniRileyCrest(svg, miniSeed, miniComplexity, miniLineWidth);
+                    break;
+                case 'vasarely-vega':
+                    this.generateMiniVasarelyVega(svg, miniSeed, miniComplexity, miniLineWidth);
+                    break;
+                case 'soto-vibration':
+                    this.generateMiniSotoVibration(svg, miniSeed, miniComplexity, miniLineWidth);
+                    break;
+                case 'cruz-diez-strips':
+                    this.generateMiniCruzDiezStrips(svg, miniSeed, miniComplexity, miniLineWidth);
+                    break;
+            }
         }
 
         return svg;
@@ -2905,78 +2919,82 @@ class OpticalArtGenerator {
                         currentRotation = (currentRotation + slowAnimationTime * 0.5) % 360; // Rotate 0.5 degrees per second
                     }
 
-                    switch(patternType) {
-                        case 'wave-displacement':
-                            this.generateWaveDisplacement(layerGroup, currentRotation, slowAnimationTime);
-                            break;
-                        case 'circular-displacement':
-                            this.generateCircularDisplacement(layerGroup, currentRotation, slowAnimationTime);
-                            break;
-                        case 'eye-pattern':
-                            this.generateAdvancedEyePattern(layerGroup, currentRotation, slowAnimationTime);
-                            break;
-                        case 'moire-interference':
-                            this.generateMoireInterference(layerGroup, currentRotation, slowAnimationTime);
-                            break;
-                        case 'spiral-distortion':
-                            this.generateSpiralDistortion(layerGroup, currentRotation, slowAnimationTime);
-                            break;
-                        case 'concentric-circles':
-                            this.generateConcentricCircles(layerGroup, currentRotation, slowAnimationTime);
-                            break;
-                        case 'diagonal-stripes':
-                            this.generateDiagonalStripes(layerGroup, currentRotation, slowAnimationTime);
-                            break;
-                        case 'cube-illusion':
-                            this.generateCubeIllusion(layerGroup, currentRotation, slowAnimationTime);
-                            break;
-                        case 'square-tunnel':
-                            this.generateSquareTunnel(layerGroup, currentRotation, slowAnimationTime);
-                            break;
-                        case 'perlin-displacement':
-                            this.generatePerlinDisplacement(layerGroup, currentRotation, slowAnimationTime);
-                            break;
-                        case 'fractal-noise':
-                            this.generateFractalNoisePattern(layerGroup, currentRotation, slowAnimationTime);
-                            break;
-                        case 'de-jong-attractor':
-                            this.generateDeJongAttractor(layerGroup, currentRotation, slowAnimationTime);
-                            break;
-                        case 'cellular-automata':
-                            this.generateCellularAutomata(layerGroup, currentRotation, slowAnimationTime);
-                            break;
-                        case 'l-system-growth':
-                            this.generateLSystem(layerGroup, currentRotation, slowAnimationTime);
-                            break;
-                        case 'shaded-grid':
-                            this.generateShadedGrid(layerGroup, currentRotation, slowAnimationTime);
-                            break;
-                        case 'radial-vortex':
-                            this.generateRadialVortex(layerGroup, currentRotation, slowAnimationTime);
-                            break;
-                        case 'riley-waves':
-                            this.generateRileyWaves(layerGroup, currentRotation, slowAnimationTime);
-                            break;
-                        case 'vasarely-zebra':
-                            this.generateVasarelyZebra(layerGroup, currentRotation, slowAnimationTime);
-                            break;
-                        case 'anuszkiewicz-squares':
-                            this.generateAnuszkiewiczSquares(layerGroup, currentRotation, slowAnimationTime);
-                            break;
-                        case 'riley-crest':
-                            this.generateRileyCrest(layerGroup, currentRotation, slowAnimationTime);
-                            break;
-                        case 'vasarely-vega':
-                            this.generateVasarelyVega(layerGroup, currentRotation, slowAnimationTime);
-                            break;
-                        case 'soto-vibration':
-                            this.generateSotoVibration(layerGroup, currentRotation, slowAnimationTime);
-                            break;
-                        case 'cruz-diez-strips':
-                            this.generateCruzDiezStrips(layerGroup, currentRotation, slowAnimationTime);
-                            break;
-                        default:
-                            throw new Error(`Unknown pattern type: ${patternType}`);
+                    // Try Pattern Registry first (modular patterns)
+                    if (patternRegistry.has(patternType)) {
+                        const ctx = PatternContext.fromDOM(this, slowAnimationTime);
+                        patternRegistry.generatePattern(patternType, layerGroup, ctx);
+                    } else {
+                        // Fallback to legacy switch statement for non-migrated patterns
+                        switch(patternType) {
+                            case 'wave-displacement':
+                                this.generateWaveDisplacement(layerGroup, currentRotation, slowAnimationTime);
+                                break;
+                            case 'circular-displacement':
+                                this.generateCircularDisplacement(layerGroup, currentRotation, slowAnimationTime);
+                                break;
+                            case 'eye-pattern':
+                                this.generateAdvancedEyePattern(layerGroup, currentRotation, slowAnimationTime);
+                                break;
+                            case 'moire-interference':
+                                this.generateMoireInterference(layerGroup, currentRotation, slowAnimationTime);
+                                break;
+                            case 'spiral-distortion':
+                                this.generateSpiralDistortion(layerGroup, currentRotation, slowAnimationTime);
+                                break;
+                            case 'concentric-circles':
+                                this.generateConcentricCircles(layerGroup, currentRotation, slowAnimationTime);
+                                break;
+                            case 'diagonal-stripes':
+                                this.generateDiagonalStripes(layerGroup, currentRotation, slowAnimationTime);
+                                break;
+                            case 'cube-illusion':
+                                this.generateCubeIllusion(layerGroup, currentRotation, slowAnimationTime);
+                                break;
+                            case 'square-tunnel':
+                                this.generateSquareTunnel(layerGroup, currentRotation, slowAnimationTime);
+                                break;
+                            case 'fractal-noise':
+                                this.generateFractalNoisePattern(layerGroup, currentRotation, slowAnimationTime);
+                                break;
+                            case 'de-jong-attractor':
+                                this.generateDeJongAttractor(layerGroup, currentRotation, slowAnimationTime);
+                                break;
+                            case 'cellular-automata':
+                                this.generateCellularAutomata(layerGroup, currentRotation, slowAnimationTime);
+                                break;
+                            case 'l-system-growth':
+                                this.generateLSystem(layerGroup, currentRotation, slowAnimationTime);
+                                break;
+                            case 'shaded-grid':
+                                this.generateShadedGrid(layerGroup, currentRotation, slowAnimationTime);
+                                break;
+                            case 'radial-vortex':
+                                this.generateRadialVortex(layerGroup, currentRotation, slowAnimationTime);
+                                break;
+                            case 'riley-waves':
+                                this.generateRileyWaves(layerGroup, currentRotation, slowAnimationTime);
+                                break;
+                            case 'vasarely-zebra':
+                                this.generateVasarelyZebra(layerGroup, currentRotation, slowAnimationTime);
+                                break;
+                            case 'anuszkiewicz-squares':
+                                this.generateAnuszkiewiczSquares(layerGroup, currentRotation, slowAnimationTime);
+                                break;
+                            case 'riley-crest':
+                                this.generateRileyCrest(layerGroup, currentRotation, slowAnimationTime);
+                                break;
+                            case 'vasarely-vega':
+                                this.generateVasarelyVega(layerGroup, currentRotation, slowAnimationTime);
+                                break;
+                            case 'soto-vibration':
+                                this.generateSotoVibration(layerGroup, currentRotation, slowAnimationTime);
+                                break;
+                            case 'cruz-diez-strips':
+                                this.generateCruzDiezStrips(layerGroup, currentRotation, slowAnimationTime);
+                                break;
+                            default:
+                                throw new Error(`Unknown pattern type: ${patternType}`);
+                        }
                     }
 
                     // Apply symmetry transformation
