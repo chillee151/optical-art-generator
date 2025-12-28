@@ -159,7 +159,7 @@ const concentricCircles = {
 
             path.setAttribute('d', pathData);
             path.setAttribute('fill', 'none');
-            path.setAttribute('stroke', '#000');
+            path.setAttribute('stroke', ctx.getLineColor());
             path.setAttribute('stroke-width', lineWidth * 0.4);
 
             svg.appendChild(path);

@@ -229,12 +229,14 @@ const cubeIllusion = {
                 { x: cx - halfSize * cos30 * flipMult, y: cy + halfSize * sin30 - cubeSize }
             ];
 
+            const strokeColor = ctx.getLineColor();
+
             // Draw three visible faces
             // Top face
             const topFace = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             topFace.setAttribute('d', `M ${vertices[3].x} ${vertices[3].y} L ${vertices[2].x} ${vertices[2].y} L ${vertices[6].x} ${vertices[6].y} L ${vertices[7].x} ${vertices[7].y} Z`);
             topFace.setAttribute('fill', '#888');
-            topFace.setAttribute('stroke', '#000');
+            topFace.setAttribute('stroke', strokeColor);
             topFace.setAttribute('stroke-width', lw * 0.5);
             svg.appendChild(topFace);
 
@@ -242,7 +244,7 @@ const cubeIllusion = {
             const leftFace = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             leftFace.setAttribute('d', `M ${vertices[0].x} ${vertices[0].y} L ${vertices[3].x} ${vertices[3].y} L ${vertices[7].x} ${vertices[7].y} L ${vertices[4].x} ${vertices[4].y} Z`);
             leftFace.setAttribute('fill', '#666');
-            leftFace.setAttribute('stroke', '#000');
+            leftFace.setAttribute('stroke', strokeColor);
             leftFace.setAttribute('stroke-width', lw * 0.5);
             svg.appendChild(leftFace);
 
@@ -250,7 +252,7 @@ const cubeIllusion = {
             const rightFace = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             rightFace.setAttribute('d', `M ${vertices[1].x} ${vertices[1].y} L ${vertices[2].x} ${vertices[2].y} L ${vertices[6].x} ${vertices[6].y} L ${vertices[5].x} ${vertices[5].y} Z`);
             rightFace.setAttribute('fill', '#aaa');
-            rightFace.setAttribute('stroke', '#000');
+            rightFace.setAttribute('stroke', strokeColor);
             rightFace.setAttribute('stroke-width', lw * 0.5);
             svg.appendChild(rightFace);
         };

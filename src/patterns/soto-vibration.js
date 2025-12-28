@@ -97,6 +97,8 @@ const sotoVibration = {
         const layer1 = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         layer1.setAttribute('opacity', '1.0');
 
+        const lineColor = ctx.getLineColor();
+
         for (let i = 0; i < numLines; i++) {
             const x = i * spacing;
             const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -104,7 +106,7 @@ const sotoVibration = {
             line.setAttribute('y1', 0);
             line.setAttribute('x2', x);
             line.setAttribute('y2', size);
-            line.setAttribute('stroke', '#000');
+            line.setAttribute('stroke', lineColor);
             line.setAttribute('stroke-width', lineWidth * 0.4);
             layer1.appendChild(line);
         }
@@ -122,7 +124,7 @@ const sotoVibration = {
             line.setAttribute('y1', 0);
             line.setAttribute('x2', x);
             line.setAttribute('y2', size);
-            line.setAttribute('stroke', '#000');
+            line.setAttribute('stroke', lineColor);
             line.setAttribute('stroke-width', lineWidth * 0.4);
             layer2.appendChild(line);
         }

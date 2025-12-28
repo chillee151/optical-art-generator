@@ -137,7 +137,7 @@ const eyePattern = {
 
             path.setAttribute('d', pathData);
             path.setAttribute('fill', 'none');
-            path.setAttribute('stroke', '#000');
+            path.setAttribute('stroke', ctx.getLineColor());
             path.setAttribute('stroke-width', lineWidth * 0.5);
             svg.appendChild(path);
         }
@@ -148,7 +148,7 @@ const eyePattern = {
         pupil.setAttribute('cx', centerX);
         pupil.setAttribute('cy', centerY);
         pupil.setAttribute('r', pupilRadius);
-        pupil.setAttribute('fill', '#000');
+        pupil.setAttribute('fill', ctx.getLineColor());
         svg.appendChild(pupil);
     }
 };

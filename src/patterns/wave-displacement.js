@@ -225,7 +225,7 @@ const waveDisplacement = {
 
             path.setAttribute('d', pathData);
             path.setAttribute('fill', 'none');
-            path.setAttribute('stroke', '#000');
+            path.setAttribute('stroke', ctx.getLineColor());
             path.setAttribute('stroke-width', lineWidth * 0.4);
 
             svg.appendChild(path);
@@ -237,7 +237,7 @@ const waveDisplacement = {
             marker.setAttribute('cx', source.x);
             marker.setAttribute('cy', source.y);
             marker.setAttribute('r', 1.2);
-            marker.setAttribute('fill', '#000');
+            marker.setAttribute('fill', ctx.getLineColor());
             svg.appendChild(marker);
         }
     }

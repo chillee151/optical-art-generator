@@ -201,8 +201,8 @@ const shadedGrid = {
 
                 // Checkerboard pattern
                 const isBlack = (row + col) % 2 === 0;
-                path.setAttribute('fill', isBlack ? '#000' : '#fff');
-                path.setAttribute('stroke', '#000');
+                path.setAttribute('fill', isBlack ? ctx.getLineColor() : '#000');
+                path.setAttribute('stroke', ctx.getLineColor());
                 path.setAttribute('stroke-width', lineWidth * 0.3);
 
                 svg.appendChild(path);

@@ -153,7 +153,7 @@ const cellularAutomata = {
                     rect.setAttribute('y', r * cellSize);
                     rect.setAttribute('width', cellSize);
                     rect.setAttribute('height', cellSize);
-                    rect.setAttribute('fill', '#000');
+                    rect.setAttribute('fill', ctx.getLineColor());
                     svg.appendChild(rect);
                 }
             }

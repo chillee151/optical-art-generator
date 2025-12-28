@@ -28,4 +28,10 @@ import './vasarely-vega.js';
 import './soto-vibration.js';
 import './cruz-diez-strips.js';
 
+// 4 additional patterns (Electron-originated)
+import './truchet-tiles.js';
+import './scintillating-grid.js';
+import './cafe-wall.js';
+import './riley-warp.js';
+
 export { patternRegistry } from '../core/PatternRegistry.js';

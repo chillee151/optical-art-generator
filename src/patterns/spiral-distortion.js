@@ -184,7 +184,7 @@ const spiralDistortion = {
             pathData += ' Z';
 
             path.setAttribute('d', pathData);
-            path.setAttribute('fill', '#000');
+            path.setAttribute('fill', ctx.getLineColor());
             path.setAttribute('stroke', 'none');
 
             svg.appendChild(path);
@@ -195,7 +195,7 @@ const spiralDistortion = {
         center.setAttribute('cx', centerX);
         center.setAttribute('cy', centerY);
         center.setAttribute('r', 2);
-        center.setAttribute('fill', '#000');
+        center.setAttribute('fill', ctx.getLineColor());
         svg.appendChild(center);
     }
 };

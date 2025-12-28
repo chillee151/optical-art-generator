@@ -190,6 +190,8 @@ const moireInterference = {
             const opacity = 0.7;
             const strokeWidth = lineWidth * (1 - layer * 0.15);
 
+            const lineColor = ctx.getLineColor();
+
             // Horizontal lines
             for (let y = 0; y < 56 + spacing; y += spacing) {
                 const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
@@ -197,7 +199,7 @@ const moireInterference = {
                 line.setAttribute('y1', y);
                 line.setAttribute('x2', 56);
                 line.setAttribute('y2', y);
-                line.setAttribute('stroke', '#000');
+                line.setAttribute('stroke', lineColor);
                 line.setAttribute('stroke-width', strokeWidth);
                 line.setAttribute('stroke-opacity', opacity);
                 line.setAttribute('transform', `rotate(${layerAngle} ${centerX} ${centerY})`);
@@ -211,7 +213,7 @@ const moireInterference = {
                 line.setAttribute('y1', 0);
                 line.setAttribute('x2', x);
                 line.setAttribute('y2', 56);
-                line.setAttribute('stroke', '#000');
+                line.setAttribute('stroke', lineColor);
                 line.setAttribute('stroke-width', strokeWidth);
                 line.setAttribute('stroke-opacity', opacity);
                 line.setAttribute('transform', `rotate(${layerAngle} ${centerX} ${centerY})`);
@@ -224,7 +226,7 @@ const moireInterference = {
         marker.setAttribute('cx', centerX);
         marker.setAttribute('cy', centerY);
         marker.setAttribute('r', 1.5);
-        marker.setAttribute('fill', '#000');
+        marker.setAttribute('fill', ctx.getLineColor());
         marker.setAttribute('fill-opacity', '0.5');
         svg.appendChild(marker);
     }

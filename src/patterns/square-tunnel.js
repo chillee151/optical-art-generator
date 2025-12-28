@@ -128,7 +128,7 @@ const squareTunnel = {
                 const pathData = `M ${-half} ${-half} L ${half} ${-half} L ${half} ${half} L ${-half} ${half} Z`;
                 path.setAttribute('d', pathData);
                 path.setAttribute('fill', 'none');
-                path.setAttribute('stroke', '#000');
+                path.setAttribute('stroke', ctx.getLineColor());
                 path.setAttribute('stroke-width', lineWidth * 0.2);
 
                 const transform = `translate(${centerX}, ${centerY}) rotate(${rotation})`;

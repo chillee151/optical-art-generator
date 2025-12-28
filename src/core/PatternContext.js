@@ -212,11 +212,11 @@ export class MiniPatternContext {
     }
 
     /**
-     * Get line color for mini patterns (always black)
+     * Get line color for mini patterns (white for dark theme visibility)
      * @returns {string}
      */
     getLineColor() {
-        return '#000';
+        return '#fff';
     }
 
     /**

@@ -508,7 +508,7 @@ const fractalNoise = {
                     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                     path.setAttribute('d', pathData);
                     path.setAttribute('fill', 'none');
-                    path.setAttribute('stroke', '#000');
+                    path.setAttribute('stroke', ctx.getLineColor());
                     path.setAttribute('stroke-width', ctx.lineWidth * 0.4);
                     svg.appendChild(path);
                 }
